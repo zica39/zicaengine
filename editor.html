@@ -178,6 +178,14 @@
            <i class="fa fa-android" aria-hidden="true"></i>
         </button>
 		
+		<button id="up-button" >
+           <i class="fa fa-arrow-up" aria-hidden="true"></i>
+        </button>
+		
+		<button id="down-button" >
+           <i class="fa fa-arrow-down" aria-hidden="true"></i>
+        </button>
+		
 		<button id="add-sprite-button" data-bind="click: spawnEntity">
            <i class="fa fa-plus-circle" aria-hidden="true"></i>
         </button>
@@ -478,7 +486,55 @@
 		
 		litetree.root.parentElement.style.overflow = 'auto';
 		root.add( tabs_widget );
-
+	
+		var div2 = document.createElement('div');
+		div2.className = 'sidebar-controls';
+		
+		var button = document.getElementById('up-button');
+		button.onclick  = function(){
+		if(!Editor.selected) return;
+		
+		var array = Editor.scene.children;
+		var array1 = mytree.children;
+		
+		var oldIndex = array.indexOf(Editor.selected);
+		if(oldIndex == 0) return;
+		var newIndex = oldIndex--;
+		
+		array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+		array1.splice(newIndex, 0, array1.splice(oldIndex, 1)[0]);
+		Editor.updateTree();
+		Editor.update();
+		}
+		div2.appendChild(button);
+		var button = document.getElementById('down-button');
+		button.onclick  = function(){
+		if(!Editor.selected) return;
+		
+		var array = Editor.scene.children;
+		var array1 = mytree.children;
+		
+		var oldIndex = array.indexOf(Editor.selected);
+		if(oldIndex == array.length-1) return;
+		var newIndex = oldIndex++;
+		
+		array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+		array1.splice(newIndex, 0, array1.splice(oldIndex, 1)[0]);
+		
+		Editor.updateTree();
+		Editor.update();
+		}
+		div2.appendChild(button);
+		
+		var button = document.getElementById('add-sprite-button');
+		div2.appendChild(button);
+		var button = document.getElementById('duplicate-sprite-button');
+		div2.appendChild(button);
+		var button = document.getElementById('remove-sprite-button');
+		div2.appendChild(button);
+		
+		tree_tab_content.parentElement.appendChild(div2);
+		
 		//side panel widget
 		widgets = new LiteGUI.Inspector();
 		widgets.onchange = function(name,value,widget) {
@@ -673,7 +729,7 @@
 		div.style.backgroundSize = 'contain';
 		
 		var div1 = document.createElement('div');
-		div1.innerHTML = '<center><h2>ZICA ENGINE V1.0.0</h2>'+
+		div1.innerHTML = '<center><h2>ZICA ENGINE V0.1.0</h2>'+
 		'<p>Create 2D games & apps without programming.</p>' +
 		'<br><center>Copyright © 2020 Željko Ivanović</center>';
 		
