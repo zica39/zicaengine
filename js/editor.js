@@ -1652,6 +1652,32 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			
 		};
 		
+		EditorViewModel.prototype.drawGrid = function(context,bw,bh,size){
+			
+			var context = Editor.drawContext;
+			var bw = Math.max(Editor.scene.width,Editor.canvas.width);
+			var bh = Math.max(Editor.scene.height,Editor.canvas.height);
+			var size = settings.Editor.gridSize;
+			var p = 0;
+			
+			context.beginPath();
+			
+			for (var x = 0; x <= bw; x += size) {
+				context.moveTo(0.5 + x + p, p);
+				context.lineTo(0.5 + x + p, bh + p);
+			}
+
+			for (var x = 0; x <= bh; x += size) {
+				context.moveTo(p, 0.5 + x + p);
+				context.lineTo(bw + p, 0.5 + x + p);
+			}
+
+			context.strokeStyle = "black";
+			context.stroke();
+			
+			context.closePath();
+		}
+		
 		EditorViewModel.prototype.pupdate = function (e) {
 			
 			/* var p = e.parentElement.parentElement.firstElementChild.innerHTML;
@@ -1665,23 +1691,28 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			
             //clear screen
 			this.scene.__draw(this.drawContext);
-			
+		
 			//draw all entities as well as a translucent box around them
 			for (var _i = 0, _a = this.entityList; _i < _a.length; _i++) {
                 var ent = _a[_i];
                 ent.__draw(this.drawContext);
             }
+			//draw grid
+			if(settings.Editor.showGrid)
+				this.drawGrid();
+			
 			App.instance.displayList[0] = new Enity(this.selected);
 			App.instance.select();
 			App.instance.tool.draw();
 		}
-		
+
         EditorViewModel.prototype.update = function () {
             var _this = this;
 			
 			this.camera.set(this.scene.x,this.scene.y);
 			
 			this.scene.__draw(this.drawContext);
+			
 			/* //clear screen
 			this.drawContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
             
@@ -1702,6 +1733,11 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
                 ent.__draw(this.drawContext);
             }
 			
+			//draw grid
+			if(settings.Editor.showGrid)
+				this.drawGrid();
+			
+			
 			if(this.selected) {
 				
 				this.drawContext.fillStyle = "#FFF";
@@ -1714,6 +1750,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 					App.instance.select();
 					App.instance.tool.draw();
 				}else
+					
 				App.instance.tool.draw();
 				
 			}
