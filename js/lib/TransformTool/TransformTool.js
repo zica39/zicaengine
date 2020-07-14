@@ -387,6 +387,16 @@ TransformTool.prototype.updateTransform = function(){
 	
 	// reassign saved tx and ty values with the 
 	// included registration offset
+	
+	if(Editor.snapToGrid ){
+
+		var size = Editor.settings.Editor.gridSize;
+		
+		x = Math.floor(x/size)*size;
+		y = Math.floor(y/size)*size;
+		
+	}
+		
 	this.endMatrix.x = x;
 	this.endMatrix.y = y;
 	

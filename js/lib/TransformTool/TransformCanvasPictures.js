@@ -335,7 +335,6 @@ Enity.prototype.draw = function(ctx){
 		var x = m.x;
 		var y = m.y;
 	
-	//Provjeriti moze li bez ovoga !!! :)p
 	if(this.obj.position == 'fixed');
 		if(Editor.isMoving)
 			return false;

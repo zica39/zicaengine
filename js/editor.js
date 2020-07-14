@@ -14,6 +14,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			this.scene.color = 'rgba(255,255,255,1)';
 						
 			this.settings = window.settings;
+			this.snapToGrid = false;
 			
 			this.asset = {};
 			this.asset.web = 'img/web.png';
@@ -1657,7 +1658,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var context = Editor.drawContext;
 			var bw = Math.max(Editor.scene.width,Editor.canvas.width);
 			var bh = Math.max(Editor.scene.height,Editor.canvas.height);
-			var size = settings.Editor.gridSize;
+			var size = Editor.settings.Editor.gridSize;
 			var p = 0;
 			
 			context.beginPath();
@@ -2967,6 +2968,21 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
          **/
         EditorViewModel.prototype.onCanvasMouseMove = function (event) {
            
+		/* if(Editor.snapToGrid && Editor.selected && App.instance.tool.isMoved){
+
+			var size = Editor.settings.Editor.gridSize;
+			var x = Editor.selected.x;
+			var y = Editor.selected.y;
+			
+			x = Math.floor(x/size)*size;
+			y = Math.floor(y/size)*size;
+			
+			Editor.selected.x = x;
+			Editor.selected.y = y;
+			
+			Editor.pupdate();
+		
+		} */
 		   //if(event.witch == 0)this.dragging = false;
 		   //else this.dragging = true;
 		   

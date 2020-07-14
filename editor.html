@@ -183,7 +183,7 @@
         </button>
 		
 		<button id="down-button" >
-           <i class="fa fa-arrow-down" aria-hidden="true"></i>
+           <i class="fa fa-arrow-down"  aria-hidden="true"></i>
         </button>
 		
 		<button id="add-sprite-button" data-bind="click: spawnEntity">
@@ -237,6 +237,51 @@
         </button> -->
       </div>
       
+	   <div id = 'snapbar' class="sidebar-controls" hidden>
+	   <button id="grid-show-button" >
+           <i class="fa fa-th"  aria-hidden="true"></i>
+        </button>
+		
+		<button id="snap-button" >
+           <i class="fa fa-pencil"  aria-hidden="true"></i>
+        </button>
+		<button id="focus-button" >
+           <i class="fa fa-dot-circle-o"  aria-hidden="true"></i>
+        </button>
+	  </div>
+	  
+	  <div id = 'snap-controls' class="sidebar-controls" hidden>
+		<button id="b-up-r" >
+           <i class="fa fa-arrow-up fa-rotate-r"  aria-hidden="true"></i>
+        </button>
+		<button id="b-up" >
+           <i class="fa fa-arrow-up"  aria-hidden="true"></i>
+        </button>
+		<button id="b-up-l" >
+           <i class="fa fa-arrow-up fa-rotate-l"  aria-hidden="true"></i>
+        </button>
+		<br>
+		<button id="b-left" >
+           <i class="fa fa-arrow-left"  aria-hidden="true"></i>
+        </button>
+		<button id="b-clone" >
+           <i class="fa fa-square-o"  aria-hidden="true"></i>
+        </button>
+		<button id="b-right" >
+           <i class="fa fa-arrow-right"  aria-hidden="true"></i>
+        </button>
+		<br>
+		<button id="b-down-l" >
+           <i class="fa fa-arrow-down fa-rotate-l"  aria-hidden="true"></i>
+        </button>
+		<button id="b-down" >
+           <i class="fa fa-arrow-down"  aria-hidden="true"></i>
+        </button>
+		<button id="b-down-r" >
+           <i class="fa fa-arrow-down fa-rotate-r"  aria-hidden="true"></i>
+        </button>
+		
+	  </div>
 
      <!--  <div class="sidebar-controls">
         <button id="play-pause-button" data-bind="click: togglePlayPauseGame">
@@ -478,7 +523,7 @@
 			//console.log("Node selected: ", e.detail); 
 		});
 		var tree_tab_content = tabs_widget.getTabContent("SceneGraph");
-		tree_tab_content.appendChild( litetree.root )
+		tree_tab_content.appendChild( litetree.root );
 
 		tree = litetree;
 		//litetree.insertItem( {id:"FOO"}, "Child2",2 );
@@ -491,8 +536,12 @@
 	
 		var div2 = document.createElement('div');
 		div2.className = 'sidebar-controls';
+		var color = '#1a1a1a';
 		
 		var button = document.getElementById('up-button');
+		button.style.height = '20px';
+		button.style.fontSize = '10px';
+		button.style.backgroundColor = color;
 		button.onclick  = function(){
 		if(!Editor.selected) return;
 		
@@ -510,6 +559,9 @@
 		}
 		div2.appendChild(button);
 		var button = document.getElementById('down-button');
+		button.style.height = '20px';
+		button.style.fontSize = '10px';
+		button.style.backgroundColor = color;
 		button.onclick  = function(){
 		if(!Editor.selected) return;
 		
@@ -529,10 +581,21 @@
 		div2.appendChild(button);
 		
 		var button = document.getElementById('add-sprite-button');
+		button.style.height = '20px';
+		button.style.fontSize = '10px';
+		button.style.backgroundColor = color;
 		div2.appendChild(button);
+		
 		var button = document.getElementById('duplicate-sprite-button');
+		button.style.height = '20px';
+		button.style.fontSize = '10px';
+		button.style.backgroundColor = color;
 		div2.appendChild(button);
+		
 		var button = document.getElementById('remove-sprite-button');
+		button.style.height = '20px';
+		button.style.fontSize = '10px';
+		button.style.backgroundColor = color;
 		div2.appendChild(button);
 		
 		tree_tab_content.parentElement.appendChild(div2);
@@ -577,26 +640,153 @@
 		addIconToTab(scene_tab,'edit',null);
 		scene_tab.content.style.overflow = 'auto';
 		
-		/*var div2 = document.createElement('div');
+		var snap_controls = document.getElementById('snap-controls');
+		snap_controls.removeAttribute('hidden');
+		snap_controls.style.display = 'table';
+		snap_controls.style.position = 'fixed';
+		snap_controls.style.opacity = 0.7;
+		snap_controls.style.background = '#666681';
+		
+		snap_controls.children[0].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.x -= Editor.selected.width;
+		Editor.selected.y -= Editor.selected.height;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.children[1].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.y -= Editor.selected.height;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.children[2].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.x += Editor.selected.width;
+		Editor.selected.y -= Editor.selected.height;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.children[4].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.x -= Editor.selected.width;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.children[5].onclick = function(){
+		this.copyMode = !this.copyMode;
+		var checked = '<i class="fa fa-check-square-o"  aria-hidden="true"></i>'
+		var empty = '<i class="fa fa-square-o"  aria-hidden="true"></i>';
+		this.innerHTML = (this.copyMode?checked:empty);
+		}
+		
+		snap_controls.children[6].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.x += Editor.selected.width;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.children[8].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.x -= Editor.selected.width;
+		Editor.selected.y += Editor.selected.height;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.children[9].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.y += Editor.selected.height;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.children[10].onclick = function(){
+		if(!Editor.selected) return;
+		if(this.parentElement.children[5].copyMode)document.getElementById('duplicate-sprite-button').click();
+		Editor.selected.x += Editor.selected.width;
+		Editor.selected.y += Editor.selected.height;
+		Editor.pupdate();
+		Editor.propertiesGui.updateDisplay();
+		}
+		
+		snap_controls.style.right = '13px';
+		snap_controls.style.top = '82px';
+		scene_tab.content.appendChild(snap_controls);
+		
+		var snapbar = document.getElementById('snapbar');
+		snapbar.removeAttribute('hidden');
+		snapbar.style.position = 'fixed';
+		snapbar.style.opacity = 0.7;
+		//snapbar.style.background = '#666681';
+		
+		snapbar.style.right = '13px';
+		snapbar.style.top = '160px';
+		
+		snapbar.children[0].showGrid = settings.Editor.showGrid;
+		snapbar.children[0].style.backgroundColor = settings.Editor.showGrid?'black':'';
+		
+		snapbar.children[0].onclick = function(){
+		this.showGrid = !this.showGrid;
+		
+		Editor.settings.Editor.showGrid = this.showGrid;
+		this.style.backgroundColor = settings.Editor.showGrid?'black':'';
+		
+		if(settingsTab)
+		settingsTab.settingsGui.updateDisplay();
+
+		Editor.update();
+		
+		}
+		
+		snapbar.children[1].snapToGrid = false;
+		snapbar.children[1].onclick = function(){
+		this.snapToGrid = !this.snapToGrid;
+		Editor.snapToGrid = this.snapToGrid;
+		this.style.backgroundColor = Editor.snapToGrid?'black':'';
+		}
+		
+		snapbar.children[2].onclick = function(){
+		if(!Editor.selected)return;
+		Editor.focus(Editor.selected);
+		}
+		scene_tab.content.appendChild(snapbar);
+		
+		var div2 = document.createElement('div');
 		div2.className = 'sidebar-controls';
 		div2.style.height = '10px';
+		div2.style.opacity = 0.7;
+		
+		if(settings.Editor.split == 'vertical'){
+		div2.style.right = '13px';
+		div2.style.marginTop = '1px';
+		}else{
+		div2.style.bottom = '42px';
+		div2.style.margin = '1px';
+		}
 		
 		div2.style.position = 'fixed';
 		
-		var button = document.getElementById('play-pause-button');
+		var button = document.getElementById('copy-sprite-button');
 		div2.appendChild(button);
-		var button = document.getElementById('stop-button');
+		var button = document.getElementById('cut-sprite-button');
 		div2.appendChild(button);
-		var button = document.getElementById('build-button');
-		div2.appendChild(button);
-		var button = document.getElementById('add-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('duplicate-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('remove-sprite-button');
+		var button = document.getElementById('paste-sprite-button');
 		div2.appendChild(button);
 		
-		scene_tab.content.appendChild(div2);*/
+		scene_tab.content.appendChild(div2);
 		
 		var canvas = document.getElementById('field');
 		
