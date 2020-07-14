@@ -344,3 +344,15 @@ audio::-webkit-media-controls-volume-slider {
 ::-webkit-scrollbar-corner {
     background: #666 !important;
 }
+
+.fa-rotate-l {
+    -ms-transform:rotate(45deg);
+    -webkit-transform:rotate(45deg);
+    transform:rotate(45deg);
+}
+
+.fa-rotate-r {
+    -ms-transform:rotate(-45deg);
+    -webkit-transform:rotate(-45deg);
+    transform:rotate(-45deg);
+}
