@@ -91,6 +91,8 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 			this.drawBorder = false;
 			this.borderWidth = 2.5;
 			this.borderColor = "rgba(255,0,0,1)";
+			this.borderStyle = 'solid';
+
 			//higher means it will be drawn on top of other objects
             this.priority = 1;
             //whether or not the entity is being blocked by another (should be set manually through collision)
@@ -192,6 +194,11 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 			if(this.drawBorder){
 			drawContext.lineWidth = this.borderWidth;
 			drawContext.strokeStyle = this.borderColor;
+			if(this.borderStyle == 'dashed'){
+				var max = Math.max(this.width,this.height);
+				var min = Math.min(this.width,this.height);
+				drawContext.setLineDash([max/10,min/10]);
+			}
 			drawContext.strokeRect(this.x, this.y, this.width, this.height);
 			}
 			
