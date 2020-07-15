@@ -2920,3 +2920,62 @@ ZICA.Action.ActionCloneSceneNode.prototype.execute = function(currentNode)
 		}
 	}
 }
+
+// ---------------------------------------------------------------------
+// Action SetSceneNodeAnimation
+// ---------------------------------------------------------------------
+
+/**
+ * @private
+ * @constructor
+ * @class
+ */
+ZICA.Action.SetSceneNodeAnimation = function(obj)
+{
+	this.SceneNodeToChangeAnim = obj.SceneNodeToChangeAnim;
+	if(this.SceneNodeToChangeAnim == null)this.ChangeCurrentSceneNode = true;
+	this.Loop = obj.Loop;
+	this.AnimName = obj.AnimName;
+	
+	this.Type = 'SetSceneNodeAnimation';
+}
+
+/**
+ * @private
+ */
+ZICA.Action.SetSceneNodeAnimation.prototype.createClone = function()
+{
+	var a = new ZICA.Action.SetSceneNodeAnimation({});
+	a.SceneNodeToChangeAnim = this.SceneNodeToChangeAnim;
+	a.ChangeCurrentSceneNode = this.ChangeCurrentSceneNode;
+	a.Loop = this.Loop;
+	a.AnimName = this.AnimName;
+		
+	return a;
+}
+
+/**
+ * @private
+ */
+ZICA.Action.SetSceneNodeAnimation.prototype.execute = function(currentNode)
+{
+	if (!currentNode)
+		return;
+
+	var nodeToHandle = null;
+	if (this.ChangeCurrentSceneNode)
+		nodeToHandle = currentNode;
+	else
+	if (this.SceneNodeToChangeAnim != -1)
+		nodeToHandle = Game.getEntityById(this.SceneNodeToChangeAnim);
+
+	if (nodeToHandle)
+	{
+		// set animation
+		
+		var animatedMesh = nodeToHandle;
+		animatedMesh.animation = this.AnimName;
+		animatedMesh.animLoop = this.Loop;
+
+	}
+}
