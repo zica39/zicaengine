@@ -40,4 +40,5 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 
 - ZICA Enigne uses a MIT license that allow for commercial usage of the platform without any cost.
 
-- The project  build on top of open source libraries [nwjs.io](https://nwjs.io), [monaco-editor](https://microsoft.github.io/monaco-editor/), [dat.gui](https://github.com/dataarts/dat.gui), [litegui.js](https://github.com/jagenjo/litegui.js), [javascript-sandbox-console](http://openexchangerates.github.io/javascript-sandbox-console/)
+- The project  build on top of open source libraries [monaco-editor](https://microsoft.github.io/monaco-editor/), [dat.gui](https://github.com/dataarts/dat.gui), [litegui.js](https://github.com/jagenjo/litegui.js), [javascript-sandbox-console](http://openexchangerates.github.io/javascript-sandbox-console/),
+[nwjs.io](https://nwjs.io),[copperlicht](https://github.com/Sebmaster/copperlicht)

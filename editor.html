@@ -722,8 +722,14 @@
 		Editor.propertiesGui.updateDisplay();
 		}
 		
+		if(settings.Editor.split == 'vertical'){
 		snap_controls.style.right = '13px';
 		snap_controls.style.top = '82px';
+		}else{
+		snap_controls.style.bottom = '62px';
+		snap_controls.style.margin = '1px';
+		}
+
 		scene_tab.content.appendChild(snap_controls);
 		
 		var snapbar = document.getElementById('snapbar');
@@ -732,9 +738,14 @@
 		snapbar.style.opacity = 0.7;
 		//snapbar.style.background = '#666681';
 		
+		if(settings.Editor.split == 'vertical'){
 		snapbar.style.right = '13px';
 		snapbar.style.top = '160px';
-		
+		}else{
+		snapbar.style.bottom = '142px';
+		snapbar.style.margin = '1px';
+		}
+			
 		snapbar.children[0].showGrid = settings.Editor.showGrid;
 		snapbar.children[0].style.backgroundColor = settings.Editor.showGrid?'black':'';
 		
@@ -773,7 +784,7 @@
 		div2.style.right = '13px';
 		div2.style.marginTop = '1px';
 		}else{
-		div2.style.bottom = '42px';
+		div2.style.bottom = '45px';
 		div2.style.margin = '1px';
 		}
 		

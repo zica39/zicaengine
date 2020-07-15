@@ -29,18 +29,22 @@
 	}
 			
 	
-			
-	var properties = ["name","x","y","width","height","angle","visible","drawImage","aspectRatio","image","loop","muted","autoplay","volume","audio","text","font","fontSize","fontBold","fontItalic","fontColor","velX","velY","opacity","drawColor","color","priority","collides"];
-	var types = {}
+	var comboProps = {
+		'borderStyle':['solid','dashed']
+	};	
 	
+	var properties = ["name","x","y","width","height","angle","visible","drawImage","aspectRatio","image","loop","muted","autoplay","volume","audio","text","font","fontSize","fontBold","fontItalic","fontColor","velX","velY","opacity","drawColor","color","priority","collides","drawBorder","borderColor","borderWidth","borderStyle","animLoop","fps"];
+	var types = {};
+	
+	types.combo = ['borderStyle'];
 	types.audio = ['audio'];
 	types.image = ['image'];
 	types.slider = ['opacity','volume'];
 	types.string = ['name','text','font'];
-	types.float = ['x','y','width','height','velX','velY'];
-	types.int = ['angle','fontSize','priority'];
-	types.bool = ['visible','drawImage','aspectRatio','loop','muted','autoplay','fontBold','fontItalic','drawColor','collides'];
-	types.color = ['color','fontColor'];
+	types.float = ['x','y','width','height','velX','velY','borderWidth'];
+	types.int = ['angle','fontSize','priority','fps'];
+	types.bool = ['visible','drawImage','aspectRatio','loop','muted','autoplay','fontBold','fontItalic','drawColor','collides','drawBorder','animLoop'];
+	types.color = ['color','fontColor','borderColor'];
 	
 	function getType(p){
 		
@@ -168,6 +172,15 @@
 			'ScaleChangeType': ['combo', 'Set absoulte scale' , ['Set absoulte scale' ,'Set relative scale', 'Scale by the vector'] ],
 			'SceneNodeToChangeScale': [ 'node' , ''],
 			'Size': [ 'vect2d' , '[0.0, 0.0]'],
+		},
+		
+		{
+			jsname : 'SetSceneNodeAnimation', 
+			name: 'Set Animation of a Scene node	',
+			description : 'Makes it possible to change the current animation of an scene node to a new one.',
+			'SceneNodeToChangeAnim': [ 'node' , ''],
+			'AnimName': [ 'animation' , ''],
+			'Loop': [ 'bool' , false]
 		},
 		
 		[
@@ -443,6 +456,10 @@
 									var sel = top.parent.Editor.selected || top.parent.Editor.scene;
 									selected.data['Value'][0] = getType(v);
 									selected.data['Value'][1] = sel[v];
+									
+									if(getType(v) == 'combo')
+									selected.data['Value'][2] = comboProps[v].slice();
+							
 									selected.removeAttribute('disabled');
 									selected.click();
 								}});
@@ -508,7 +525,31 @@
 									}});
 									//if(err)e.querySelector('select').style.border = '1px solid red';
 								break;
+								case 'animation':									
+									
+									var anim = selected.data[i][1];
+									
+									var animations = [];
+									
+									animations.push('');
+									
+									for(var _i in top.Editor.selected.animations){
+	
+											animations.push(_i);
+									}
 								
+									/* if(audios.indexOf(aud)){
+										err = true;
+										audios.push(aud);
+									} */
+										
+									
+									var e = widgets.addCombo(i,anim,{values:animations,callback: function(v){
+										selected.data[this.name][1] = v;
+										//this.querySelector('select').style.border = 'none';
+									}});
+									//if(err)e.querySelector('select').style.border = '1px solid red';
+									break;
 								case 'audio':									
 									
 									var aud = selected.data[i][1];

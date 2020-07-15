@@ -1,13 +1,10 @@
-define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./camera", "./ZICA"], function (require, exports, collision_1, keys_1, scene_1, enums_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var State;
-    (function (State) {
+
+    var State = {};
+
         State[State["stopped"] = 1] = "stopped";
         State[State["running"] = 2] = "running";
         State[State["paused"] = 3] = "paused";
-    })(State || (State = {}));
-    var GameRunner = (function () {
+
         /**
          * Creates a new runnable game
          **/
@@ -56,8 +53,8 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
             canvas.height = canvas.parentElement.clientHeight;
             this.drawContext.textBaseline = "top";
 			
-			this.Keys = keys_1.Keys;
-			this.Direction = enums_1.Direction;
+			this.Keys = Keys;
+			this.Direction = Direction;
 			
 			this.intervals = [];
 			
@@ -136,6 +133,7 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
 			this.resetTimer();			
             requestAnimationFrame(function () { _this.update(); });
         };
+		
 		 /**
          * Starts the game from data
          **/
@@ -581,7 +579,7 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
 		GameRunner.prototype.resetScene = function(scene){
 			
 			var index = this.scenes.indexOf(scene);
-			this.scenes[index] = scene_1.Scene.constructScene(this.backupScenes[index]);
+			this.scenes[index] = Scene.constructScene(this.backupScenes[index]);
 			
 			return this.scenes[index];
 		};
@@ -830,8 +828,8 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
          * Entities with collides=false will not be checked for collision.
          **/
         GameRunner.prototype.moveAndCollideEntities = function () {
-            var loopVar = [{ comp: "x", velComp: "velX", prevComp: "prevX", sizeComp: "width", dirs: [enums_1.Direction.left, enums_1.Direction.right] },
-                { comp: "y", velComp: "velY", prevComp: "prevY", sizeComp: "height", dirs: [enums_1.Direction.up, enums_1.Direction.down] }];
+            var loopVar = [{ comp: "x", velComp: "velX", prevComp: "prevX", sizeComp: "width", dirs: [Direction.left, Direction.right] },
+                { comp: "y", velComp: "velY", prevComp: "prevY", sizeComp: "height", dirs: [Direction.up, Direction.down] }];
             for (var _i = 0, _a = this.entityList; _i < _a.length; _i++) {
                 var ent = _a[_i];
                 /* ent.blockedUp = false;
@@ -860,7 +858,7 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
                         var entB = this.entityList[b];
                         if (!entB.collides)
                             continue;
-                        if (collision_1.Collision.testCollision(entA.__getCollisionBounds(), entB.__getCollisionBounds())) {
+                        if (Collision.testCollision(entA.__getCollisionBounds(), entB.__getCollisionBounds())) {
                             var entAEvent = {
                                 other: entB,
                                 direction: dirs[0]
@@ -1224,8 +1222,8 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
 				    result.scenes = [];
 					result.backupScenes = [];
 					for (var i = 0; i < game.scenes.length; i++) {
-					var copied = scene_1.Scene.constructScene(game.scenes[i]);
-					var copied1 = scene_1.Scene.constructScene(game.scenes[i]);
+					var copied = Scene.constructScene(game.scenes[i]);
+					var copied1 = Scene.constructScene(game.scenes[i]);
 					result.scenes.push(copied);
 					result.backupScenes.push(copied1);
 					if(copied.active)result.scene = copied;
@@ -1243,10 +1241,23 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
             return result;
         };
 		
-        return GameRunner;
-    }());
-    exports.GameRunner = GameRunner;
-    var Controls = (function () {
+		/**
+         * Run game
+         **/
+        GameRunner.runGame = function ( ) {
+		
+            this.canvas = document.getElementById("field");
+			this.progress = document.getElementById('progress');
+			//this.splash = ...
+            
+            this.game = new GameRunner(this.canvas);
+			window.Game = this.game;
+			
+			this.game.progress = this.progress;
+			this.game.startFromFile('Game.game');	
+			
+        };
+
         function Controls() {
             //populates with data of the form {pressed, wasPressed} as each new key is pressed for the first time
             this.keyData = {};
@@ -1258,7 +1269,7 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
          **/
         Controls.prototype.isHeld = function (key) {
             if (typeof key !== "number")
-                key = keys_1.Keys[key];
+                key = Keys[key];
             if (!(key in this.keyData)) {
                 return false;
             }
@@ -1271,7 +1282,7 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
          **/
         Controls.prototype.isHeldOneFrame = function (key) {
             if (typeof key !== "number")
-                key = keys_1.Keys[key];
+                key = Keys[key];
             if (!(key in this.keyData)) {
                 return false;
             }
@@ -1332,10 +1343,6 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
 			
 			};
 		
-		
-        return Controls;
-    }());
-});
 
 
 var touchToMouse = function(event) {

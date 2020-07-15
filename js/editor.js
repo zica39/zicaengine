@@ -1442,6 +1442,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			f1.add(obj, 'drawBorder');
 			f1.addColor(obj, 'borderColor');
 			f1.add(obj, 'borderWidth');
+			f1.add(obj,'borderStyle',['solid','dashed']);
 			
 			var f1 = this.propertiesGui.addFolder('Background');
 			f1.open();
