@@ -95,7 +95,7 @@
 	  <li>
 	    <p align='center'>Linux</p>
 		<img src="img/linux.png" alt="Logo">
-		<button style = 'position:absolute;bottom:0px;right:0px'  onclick = "">
+		<button style = 'position:absolute;bottom:0px;right:0px'  onclick = "Editor.buildLinux();">
           <i class="fa fa-download" ></i>
         </button>
 	  </li>
@@ -103,7 +103,7 @@
 	  <li>
 	    <p align='center'>Mac</p>
 		<img src="img/osx.png" alt="Logo">
-		<button style = 'position:absolute;bottom:0px;right:0px'  onclick = "">
+		<button style = 'position:absolute;bottom:0px;right:0px'  onclick = "Editor.buildMac();">
           <i class="fa fa-download" ></i>
         </button>
 	  </li>
@@ -1041,6 +1041,7 @@
 		div.style.bottom = '10px';
 		//div.classList.add('fa fa-add');
 		div.onclick = function(){
+			frames[0].files.value = '';
 			frames[0].files.click();
 		}
 		
@@ -1114,6 +1115,7 @@
 		div.style.bottom = '10px';
 	
 		div.onclick = function(){
+			frames[1].document.getElementById('files').value = '';
 			frames[1].document.getElementById('files').click()
 		}
 		

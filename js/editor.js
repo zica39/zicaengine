@@ -124,17 +124,18 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				var _this = Editor;
 				
 				if(e.dataTransfer.files.length){
+					
 					var files = e.dataTransfer.files;
+					//var file = files[0];
+					//console.log(file.type);
 					
 					if(files.length > 1) return false;
 					
+					Editor.fileDialog.value = '';
 					Editor.fileDialog.files = files;
 					Editor.dropMouse = Mouse.get(e);
 					Editor.dropMouse = Editor.camera.screenToWorld(Editor.dropMouse.x,Editor.dropMouse.y);
-					//Editor.onFileDialogClose(null,files);
-					
-					//var file = files[0];
-					//console.log(file.type);
+					Editor.onFileDialogClose();
 					
 					return;
 				}else{
@@ -637,7 +638,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				this.lastElementChild.innerHTML = img;
 				this.lastElementChild.appendChild(x);
 				
+				if(obj.width<this.firstElementChild.naturalWidth)
 				obj.width = this.firstElementChild.naturalWidth;
+				if(obj.height<this.firstElementChild.naturalHeight)
 				obj.height = this.firstElementChild.naturalHeight;
 				
 				Editor.update();
@@ -675,14 +678,16 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			iconDelete.onclick = function(){
 				this.obj.map = '';
 				//this.obj.__image.data = null;
-				img.src = '';
+				this.img.alt = '';
+				this.img.src = '';
+				this.img.style.border = '1px solid white';
 				
 				var par = this.parentElement;
 				this.parentElement.innerHTML = 'none';
 				par.appendChild(this);
 				
-				obj.width = Editor.canvas.width;
-				obj.height = Editor.canvas.height;
+				//obj.width = Editor.canvas.width;
+				//obj.height = Editor.canvas.height;
 				Editor.update();
 				Editor.sceneGui.updateDisplay();
 			};
@@ -770,7 +775,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			iconDelete.onclick = function(){
 				this.obj.image = '';
 				//this.obj.__image.data = null;
-				img.src = '';
+				this.img.alt = '';
+				this.img.src = '';
+				this.img.style.border = '1px solid white';
 				
 				var par = this.parentElement;
 				this.parentElement.innerHTML = 'none';
@@ -1148,11 +1155,16 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				for (var i1 in this.sceneGui.__folders[i].__controllers) {
 					
 					this.sceneGui.__folders[i].__controllers[i1].onChange(function(e){
-					
-					/* if(this.property == 'width')Editor.canvas.width = e;
-					if(this.property == 'height')Editor.canvas.height = e; */
-					Editor.update();
-			}); 
+					return;
+						if(this.property == 'width')
+							if(Editor.scene.width<Editor.canvas.width)Editor.scene.width = Editor.canvas.width;
+						if(this.property == 'height')
+							if(Editor.scene.height<Editor.canvas.height)Editor.scene.height = Editor.canvas.height;
+						
+						/* if(this.property == 'width')Editor.canvas.width = e;
+						if(this.property == 'height')Editor.canvas.height = e; */
+						Editor.update();
+					}); 
 					
 				}
 					
@@ -1309,10 +1321,18 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 					
 					this.appGui.__folders[i].__controllers[i1].onChange(function(e){
 					
-					if(this.property == 'width')Editor.canvas.width = e;
-					if(this.property == 'height')Editor.canvas.height = e;
-					if(this.property == 'autoSize')Editor.canvas.redraw();
-					Editor.update();
+					if(this.property == 'width'){
+						Editor.canvas.width = e;
+						if(Editor.scene.width<e)Editor.scene.width = e;
+						Editor.sceneGui.updateDisplay();
+						Editor.update();
+					}
+					if(this.property == 'height'){
+						Editor.canvas.height = e;
+						if(Editor.scene.height<e)Editor.scene.height = e;
+						Editor.sceneGui.updateDisplay();
+						Editor.update();
+					}
 			}); 
 					
 				}
@@ -1657,8 +1677,10 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		EditorViewModel.prototype.drawGrid = function(context,bw,bh,size){
 			
 			var context = Editor.drawContext;
-			var bw = Math.max(Editor.scene.width,Editor.canvas.width);
-			var bh = Math.max(Editor.scene.height,Editor.canvas.height);
+			//var bw = Math.max(Editor.scene.width,Editor.canvas.width);
+			//var bh = Math.max(Editor.scene.height,Editor.canvas.height);
+			var bw = Editor.scene.width;
+			var bh = Editor.scene.height;
 			var size = Editor.settings.Editor.gridSize;
 			var p = 0;
 			
@@ -2019,32 +2041,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			return out;
 			
 		};
-		
-		//Export android project as a zip package
-		EditorViewModel.prototype.buildAndroid = function(e)
-		{
-			
-			 JSZipUtils.getBinaryContent("js/lib/build/android.zip", function(err, data) {
-			  if(err) {
-				throw err // or handle err
-			  }
-
-			  var zip = new JSZip();
-			  zip.load(data);
-			
-			var out = game_1.GameRunner.constructApp(Editor.game);
-			var data = JSON.stringify(out,null,'\n');
-			
-			var logo,icon;
-			
-			if(Game.logo)logo = Game.assets[Game.logo];
-			else logo = Editor.asset.logo;
-			
-			if(Game.icon)icon = Game.assets[Game.icon];
-			else icon = Editor.asset.icon;
-			
-			var logo = logo.replace(/^data:image\/(png|jpg|gif);base64,/, "");
-			var icon = icon.replace(/^data:image\/(png|jpg|gif);base64,/, "");
+		EditorViewModel.prototype.dataToHTML = function(out){
 			
 			var html = 
 `<!doctype html>
@@ -2079,6 +2076,35 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 (out.showProgress?'\n	  <div id = "progress" class="progress-line"></div>':'')+`	
   </body>
 </html>`;
+			return html;
+		};
+		//Export android project as a zip package
+		EditorViewModel.prototype.buildAndroid = function(e)
+		{
+			
+			 JSZipUtils.getBinaryContent("js/lib/build/android.zip", function(err, data) {
+			  if(err) {
+				throw err // or handle err
+			  }
+
+			  var zip = new JSZip();
+			  zip.load(data);
+			
+			var out = game_1.GameRunner.constructApp(Editor.game);
+			var data = JSON.stringify(out,null,'\n');
+			
+			var logo,icon;
+			
+			if(Game.logo)logo = Game.assets[Game.logo];
+			else logo = Editor.asset.logo;
+			
+			if(Game.icon)icon = Game.assets[Game.icon];
+			else icon = Editor.asset.icon;
+			
+			var logo = logo.replace(/^data:image\/(png|jpg|gif);base64,/, "");
+			var icon = icon.replace(/^data:image\/(png|jpg|gif);base64,/, "");
+			
+			var html = Editor.dataToHTML(out);
 
 			zip.file("bin/res/drawable-hdpi/ic_launcher.png", icon,{base64: true});
 			zip.file("bin/res/drawable-mdpi/ic_launcher.png", icon,{base64: true});
@@ -2150,11 +2176,86 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			 });
 			
 		}
-		//Export windows project as a zip package
-		EditorViewModel.prototype.buildWindows = function(e)
+		//Export Mac project as a zip package
+		EditorViewModel.prototype.buildLinux = function(e)
 		{
 			
-			 JSZipUtils.getBinaryContent("js/lib/build/win32.zip", function(err, data) {
+			 JSZipUtils.getBinaryContent("js/lib/build/lin.zip", function(err, data1) {
+			  if(err) {
+				throw err // or handle err
+			  }
+
+			  var zip = new JSZip();
+			
+			var out = game_1.GameRunner.constructApp(Editor.game);
+			var data = JSON.stringify(out,null,'\n');
+			
+			var logo,icon;
+			
+			if(Game.logo)logo = Game.assets[Game.logo];
+			else logo = Editor.asset.logo;
+			
+			if(Game.icon)icon = Game.assets[Game.icon];
+			else icon = Editor.asset.icon;
+			
+			var logo = logo.replace(/^data:image\/(png|jpg|gif);base64,/, "");
+			var icon = icon.replace(/^data:image\/(png|jpg|gif);base64,/, "");
+			
+			var html = Editor.dataToHTML(out);
+			
+			var appName = zip.folder(out.name)
+			appName.load(data1);
+			//var zip = new JSZip();
+			//zip.file("index.html", FileSystem.readFile("app/index.htm"));
+			appName.file("app/index.html", html);
+			appName.file("app/favicon.ico", icon,{base64: true});
+			appName.file("app/Game.game", data);
+			
+			appName.folder("app/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
+			appName.folder("app/css").file("logo.gif", logo, {base64: true});
+			
+			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
+			appName.folder("app/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
+			appName.folder("app/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
+			appName.folder("app/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
+			appName.folder("app/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
+			appName.folder("app/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
+			
+			appName.folder("app/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
+			appName.folder("app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
+			appName.folder("app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
+
+			// Your Logo
+			appName.file("app/icons/16.png", icon,{base64: true});
+			appName.file("app/icons/32.png", icon,{base64: true});
+			appName.file("app/icons/64.png", icon,{base64: true});
+			appName.file("app/icons/128.png", icon,{base64: true});
+			appName.file("app/icons/logo.png", logo,{base64: true});
+			  
+		    // Files for exported app
+			  appName.file("package.json", '{\n  "main"  : "app/index.html",\n  "name"  : "'+ out.name +'",\n  "window": {\n      "toolbar" : false,\n      "icon"    : "app/icons/128.png",\n      "width"   : 1000,\n      "height"  : 600,\n      "position": "center"\n  }\n}');
+
+			  zip.file("make.sh", "if [ -d ${HOME}/"+ out.name.replace(/ /g, "-") +" ]; then\n  typeset LP_FILE=${HOME}/"+ out.name.replace(/ /g, "-") +"/"+ out.name.replace(/ /g, "-") +".desktop\n\n  # Remove the target file if any\n  rm -f ${LP_FILE}\n  printf \"%s[Desktop Entry]\\nName="+ out.name +"\\nPath=${HOME}/"+ out.name.replace(/ /g, "-") +"\\nActions=sudo\\nExec=./"+ out.name.replace(/ /g, "-") +"/nw\\nIcon=${HOME}/"+ out.name.replace(/ /g, "-") +"/app/icons/128.png\\nTerminal=true\\nType=Application\\nStartupNotify=true > ${HOME}/"+ out.name.replace(/ /g, "-") +".desktop\" >> ${LP_FILE}\n\n  echo 'Your application and launcher are now located at ${HOME}/"+ out.name.replace(/ /g, "-") +"'\n  rm README.md\n  rm make.sh\n  cd ../\n  rmdir "+ out.name.replace(/ /g, "-") +"-linsite\n  cd ${HOME}/"+ out.name.replace(/ /g, "-") +"/\n  chmod 775 nw\nfi\n\nif [ ! -d ${HOME}/"+ out.name.replace(/ /g, "-") +" ]; then\n  mv "+ out.name.replace(/ /g, "-") +" ${HOME}\n\n  typeset LP_FILE=${HOME}/"+ out.name.replace(/ /g, "-") +"/"+ out.name.replace(/ /g, "-") +".desktop\n\n  # Remove the target file if any\n  rm -f ${LP_FILE}\n  printf \"%s[Desktop Entry]\\nName="+ out.name +"\\nPath=${HOME}/"+ out.name.replace(/ /g, "-") +"\\nActions=sudo\\nExec=./"+ out.name.replace(/ /g, "-") +"/nw\\nIcon=${HOME}/"+ out.name.replace(/ /g, "-") +"/app/icons/128.png\\nTerminal=true\\nType=Application\\nStartupNotify=true > ${HOME}/"+ out.name.replace(/ /g, "-") +".desktop\" >> ${LP_FILE}\n\n  echo 'Your application and launcher are now located at ${HOME}/"+ out.name.replace(/ /g, "-") +"'\n  rm README.md\n  rm make.sh\n  cd ../\n  rmdir "+ out.name.replace(/ /g, "-") +"-linsite\n  cd ${HOME}/"+ out.name.replace(/ /g, "-") +"/\n  chmod 775 nw\nfi\n\n# For Windows OS\n#if EXIST ${HOME}/"+ out.name.replace(/ /g, "-") +" (\n  #echo Yes\n#) ELSE (\n  #echo No\n#)\n");
+			  zip.file("README.md", "### Instructions\n 1. Extract the `"+ out.name.replace(/ /g, "-") +"-linsite.zip` folder anywhere on your computer except the home folder. \n 2. Open a terminal and then navigate to "+ out.name.replace(/ /g, "-") +"'s directory and `run the make.sh file`.\n\n  **example**:\n  cd Downloads/"+ out.name.replace(/ /g, "-") +"-linsite\n\n 3. This will move the "+ out.name.replace(/ /g, "-") +" sibling folder and it's descendants to your home directory and create an application launcher.\n");
+
+			  // Export your application
+			   var content = zip.generate({type:"blob"});
+			   
+			   var virtualLink = document.createElement("a");
+				virtualLink.href = window.URL.createObjectURL(content);;
+				virtualLink.download = 'Game.zip';
+				virtualLink.dispatchEvent(new MouseEvent("click"));
+							
+		
+			
+			 });
+			
+		};
+		//Export Mac project as a zip package
+		EditorViewModel.prototype.buildMac = function(e)
+		{
+			
+			 JSZipUtils.getBinaryContent("js/lib/build/mac.zip", function(err, data) {
 			  if(err) {
 				throw err // or handle err
 			  }
@@ -2176,40 +2277,85 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var logo = logo.replace(/^data:image\/(png|jpg|gif);base64,/, "");
 			var icon = icon.replace(/^data:image\/(png|jpg|gif);base64,/, "");
 			
-			var html = 
-`<!doctype html>
-<html class="no-js" lang="">
-  <head>
-	<meta charset="utf-8">
-	<meta http-equiv="x-ua-compatible" content="ie=edge">
-	<meta name="application-name" content="`+out.name+`">
-	<meta name="author" content="`+out.author+`">
-	<meta name="version" content="`+out.version+`">
-	<meta name="description" content="`+out.description+`">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="icon" href="favicon.ico" type="image/x-icon">
+			var html = Editor.dataToHTML(out);
+					
+			//var zip = new JSZip();
+			//zip.file("index.html", FileSystem.readFile("app/index.htm"));
+			zip.file("content/app/index.html", html);
+			zip.file("content/app/favicon.ico", icon,{base64: true});
+			zip.file("content/app/Game.game", data);
+			
+			zip.folder("content/app/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
+			zip.folder("content/app/css").file("logo.gif", logo, {base64: true});
+			
+			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
+			zip.folder("content/app/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
+			zip.folder("content/app/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
+			zip.folder("content/app/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
+			zip.folder("content/app/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
+			zip.folder("content/app/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
+			
+			zip.folder("content/app/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
+			zip.folder("content/app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
+			zip.folder("content/app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
+			
+			  // Your Web Application
+			  //zip.folder("app/").load(webAppZipBinary);
 
-	<title>`+out.name+`</title>
-	
-	<link rel="stylesheet" type="text/css" href="css/style.css">
-	
-	<script  src="js/collision.js"></script>
-	<script  src="js/keys.js"></script>
-	<script  src="js/enums.js"></script>
-	<script  src="js/ZICA.js"></script>
-	<script  src="js/camera.js"></script>
-	<script  src="js/scene.js"></script>
-	<script  src="js/entity.js"></script>
-	<script  src="js/game.js"></script>
-	
-  </head>
+			  // Your Logo
+			zip.file("content/app/icons/16.png", icon,{base64: true});
+			zip.file("content/app/icons/32.png", icon,{base64: true});
+			zip.file("content/app/icons/64.png", icon,{base64: true});
+			zip.file("content/app/icons/128.png", icon,{base64: true});
+			zip.file("content/app/icons/logo.png", logo,{base64: true});
+			  
+			  // For Mac Application
+			  zip.file("package.json", '{\n  "main"  : "content/index.html",\n  "name"  : "'+ out.name +'",\n  "window": {\n    "toolbar"    : false\n  }\n}');
+			  zip.file("content/index.html", '<!doctype html>\n<html>\n <head>\n    <title>'+ out.name +'</title>\n    <style>\n      iframe {\n        position: absolute;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n        overflow: visible;\n        border: 0;\n      }\n    </style>\n  </head>\n <body>\n    <iframe src="app/index.html"></iframe>\n\n    <script src="js/main.js"></script>\n  </body>\n</html>');
+			  zip.file("content/js/main.js", 'document.addEventListener("DOMContentLoaded", function() {\n  // Load library\n  var gui = require("nw.gui");\n\n  // Reference to window\n  var win = gui.Window.get();\n\n  // Create menu container\n  var Menu = new gui.Menu({\n    type: "menubar"\n  });\n\n  //initialize default mac menu\n  Menu.createMacBuiltin("'+ out.name +'");\n\n  // Get the root menu from the default mac menu\n  var rootMenu = Menu.items[0].submenu;\n  var windowMenu = Menu.items[2].submenu;\n\n  // Append new item to root menu\n  windowMenu.insert(\n    new gui.MenuItem({\n      type: "normal",\n      label: "Toggle Fullscreen",\n      key: "F",\n      modifiers: "cmd",\n      click : function () {\n        win.toggleFullscreen();\n      }\n    })\n  );\n\n  windowMenu.insert(\n    new gui.MenuItem({\n      type: "normal",\n      label: "Reload App",\n      key: "r",\n      modifiers: "cmd",\n      click : function () {\n        win.reload();\n      }\n    })\n  );\n\n  // Remove About Node-Webkit\n  rootMenu.removeAt(0);\n\n  // Append Menu to Window\n  gui.Window.get().menu = Menu;\n});');
+			  zip.file("run.sh", "open -a /Applications/"+ out.name.replace(/ /g, "") +".app/Contents/data/"+ out.name.replace(/ /g, "") +".app");
+			  // zip.file("README", "If WebDGap was at all helpful for you. Would you consider donating to the project?\nhttps://www.paypal.com/cgi-bin/webscr?business=mikethedj4%40yahoo.com&cmd=_xclick&amount=5.0&item_name=Donation&currency_code=USD\n\n");
 
-  <body ontouchstart="" onload="GameRunner.runGame();">
-	  <canvas id="field" tabindex="1" ></canvas>`+
-(out.showProgress?'\n	  <div id = "progress" class="progress-line"></div>':'')+`	
-  </body>
-</html>`;
+			  // Export your application
+			   var content = zip.generate({type:"blob"});
+			   
+			   var virtualLink = document.createElement("a");
+				virtualLink.href = window.URL.createObjectURL(content);;
+				virtualLink.download = 'Game.zip';
+				virtualLink.dispatchEvent(new MouseEvent("click"));
+							
+		
+			
+			 });
+			
+		};
+		//Export windows project as a zip package
+		EditorViewModel.prototype.buildWindows = function(e)
+		{
+			
+			 JSZipUtils.getBinaryContent("js/lib/build/win.zip", function(err, data) {
+			  if(err) {
+				throw err // or handle err
+			  }
 
+			  var zip = new JSZip();
+			  zip.load(data);
+			
+			var out = game_1.GameRunner.constructApp(Editor.game);
+			var data = JSON.stringify(out,null,'\n');
+			
+			var logo,icon;
+			
+			if(Game.logo)logo = Game.assets[Game.logo];
+			else logo = Editor.asset.logo;
+			
+			if(Game.icon)icon = Game.assets[Game.icon];
+			else icon = Editor.asset.icon;
+			
+			var logo = logo.replace(/^data:image\/(png|jpg|gif);base64,/, "");
+			var icon = icon.replace(/^data:image\/(png|jpg|gif);base64,/, "");
+			
+			var html = Editor.dataToHTML(out);
 					
 			//var zip = new JSZip();
 			//zip.file("index.html", FileSystem.readFile("app/index.htm"));
@@ -2291,39 +2437,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var logo = logo.replace(/^data:image\/(png|jpg|gif);base64,/, "");
 			var icon = icon.replace(/^data:image\/(png|jpg|gif);base64,/, "");
 			
-			var html = 
-`<!doctype html>
-<html class="no-js" lang="">
-  <head>
-	<meta charset="utf-8">
-	<meta http-equiv="x-ua-compatible" content="ie=edge">
-	<meta name="application-name" content="`+out.name+`">
-	<meta name="author" content="`+out.author+`">
-	<meta name="version" content="`+out.version+`">
-	<meta name="description" content="`+out.description+`">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="icon" href="favicon.ico" type="image/x-icon">
-
-	<title>`+out.name+`</title>
-	
-	<link rel="stylesheet" type="text/css" href="css/style.css">
-	
-	<script  src="js/collision.js"></script>
-	<script  src="js/keys.js"></script>
-	<script  src="js/enums.js"></script>
-	<script  src="js/ZICA.js"></script>
-	<script  src="js/camera.js"></script>
-	<script  src="js/scene.js"></script>
-	<script  src="js/entity.js"></script>
-	<script  src="js/game.js"></script>
-	
-  </head>
-
-  <body ontouchstart="" onload="GameRunner.runGame();">
-	  <canvas id="field" tabindex="1" ></canvas>`+
-(out.showProgress?'\n	  <div id = "progress" class="progress-line"></div>':'')+`	
-  </body>
-</html>`;
+			var html = Editor.dataToHTML(out);
 
 					
 			var zip = new JSZip();
@@ -2454,41 +2568,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var logo = logo.replace(/^data:image\/(png|jpg|gif);base64,/, "");
 			var icon = icon.replace(/^data:image\/(png|jpg|gif);base64,/, "");
 			
-			var html = 
-`<!doctype html>
-<html class="no-js" lang="">
-  <head>
-	<meta charset="utf-8">
-	<meta http-equiv="x-ua-compatible" content="ie=edge">
-	<meta name="application-name" content="`+out.name+`">
-	<meta name="author" content="`+out.author+`">
-	<meta name="version" content="`+out.version+`">
-	<meta name="description" content="`+out.description+`">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="icon" href="favicon.ico" type="image/x-icon">
-
-	<title>`+out.name+`</title>
-	
-	<link rel="stylesheet" type="text/css" href="css/style.css">
-	
-	<script  src="js/collision.js"></script>
-	<script  src="js/keys.js"></script>
-	<script  src="js/enums.js"></script>
-	<script  src="js/ZICA.js"></script>
-	<script  src="js/camera.js"></script>
-	<script  src="js/scene.js"></script>
-	<script  src="js/entity.js"></script>
-	<script  src="js/game.js"></script>
-	
-  </head>
-
-  <body ontouchstart="" onload="GameRunner.runGame();">
-	  <canvas id="field" tabindex="1" ></canvas>`+
-(out.showProgress?'\n	  <div id = "progress" class="progress-line"></div>':'')+`	
-  </body>
-</html>`;
-
-					
+			var html = this.dataToHTML(out);
+			
 			var zip = new JSZip();
 			//zip.file("index.html", FileSystem.readFile("app/index.htm"));
 			zip.file("index.html", html);
@@ -2764,6 +2845,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
             if (run_tab)
                 return;
             //open file dialog
+			this.fileDialog.value = '';
 			this.fileDialog.accept = '.game';
             this.fileDialog.click();
         };

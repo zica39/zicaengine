@@ -281,9 +281,11 @@ function render()
 		//addButton.style.margin = '3px 1px';
 		addButton.onclick = function(e){
 			
+			if(!top.Editor.selected)return;
+			
 			createBeh(this);
 			
-			var sel = parent.Editor.propertiesGui.domElement.querySelectorAll('select')[1];
+			var sel = top.Editor.propertiesGui.domElement.querySelectorAll('select')[2];
 			var opt = document.createElement('option');
 			opt.value = selected.innerText;
 			opt.innerHTML = opt.value;
