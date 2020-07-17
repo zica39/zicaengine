@@ -20,11 +20,13 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 ![ZICA Engine ZScript system](img/c3events.png)
 
 ## To do...
-- [ ] Windows Mac Linux 32&64 build
+- [x] Windows Mac Linux build
 - [ ] Image & audio editor
 - [ ] RPG map editor
-- [ ] iOS buid
+- [ ] Adroid & IOS build
+- [ ] Admob integration
 - [ ] Physic engine
+- [ ] Website and prefabs shop
 - [ ] Demos
 - [ ] Docs & tutorials
 - [ ] Undo/Redo
@@ -41,4 +43,4 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 - ZICA Enigne uses a MIT license that allow for commercial usage of the platform without any cost.
 
 - The project  build on top of open source libraries [monaco-editor](https://microsoft.github.io/monaco-editor/), [dat.gui](https://github.com/dataarts/dat.gui), [litegui.js](https://github.com/jagenjo/litegui.js), [javascript-sandbox-console](http://openexchangerates.github.io/javascript-sandbox-console/),
-[nwjs.io](https://nwjs.io),[copperlicht](https://github.com/Sebmaster/copperlicht)
+[nwjs.io](https://nwjs.io), [copperlicht](https://github.com/Sebmaster/copperlicht)

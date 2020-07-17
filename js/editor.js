@@ -20,11 +20,15 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			this.asset.web = 'img/web.png';
 			this.asset.android = 'img/android.png';
 			this.asset.windows = 'img/windows.png';
+			this.asset.linux = 'img/linux.png';
+			this.asset.mac = 'img/osx.png';
+			this.asset.chrome = 'img/chrome.png';
 			
 			this.asset.icon = 'img/icon.png';
 			this.asset.logo = 'img/logo.png';
 			
 			this.asset.empty = 'img/empty.png';
+			this.asset.loading = 'img/loading.gif';
 			
 			this.asset.notfound = 'img/notfound.png';
 	
@@ -2081,10 +2085,14 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		//Export android project as a zip package
 		EditorViewModel.prototype.buildAndroid = function(e)
 		{
+			e.setAttribute('disabled','');
+			e.previousElementSibling.src = Editor.asset.loading;
+			Editor.log('Building android app...');
 			
 			 JSZipUtils.getBinaryContent("js/lib/build/android.zip", function(err, data) {
 			  if(err) {
 				throw err // or handle err
+				Editor.error(err);
 			  }
 
 			  var zip = new JSZip();
@@ -2171,7 +2179,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				virtualLink.download = 'Game.zip';
 				virtualLink.dispatchEvent(new MouseEvent("click"));
 							
-		
+				e.removeAttribute('disabled');
+				e.previousElementSibling.src = Editor.asset.android;
+				Editor.log('done');
 			
 			 });
 			
@@ -2179,10 +2189,14 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		//Export Mac project as a zip package
 		EditorViewModel.prototype.buildLinux = function(e)
 		{
+			e.setAttribute('disabled','');
+			e.previousElementSibling.src = Editor.asset.loading;
+			Editor.log('Building linux app...');
 			
 			 JSZipUtils.getBinaryContent("js/lib/build/lin.zip", function(err, data1) {
 			  if(err) {
 				throw err // or handle err
+				Editor.error(err);
 			  }
 
 			  var zip = new JSZip();
@@ -2246,7 +2260,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				virtualLink.download = 'Game.zip';
 				virtualLink.dispatchEvent(new MouseEvent("click"));
 							
-		
+				e.removeAttribute('disabled');
+				e.previousElementSibling.src = Editor.asset.linux;
+				Editor.log('done');
 			
 			 });
 			
@@ -2254,10 +2270,14 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		//Export Mac project as a zip package
 		EditorViewModel.prototype.buildMac = function(e)
 		{
+			e.setAttribute('disabled','');
+			e.previousElementSibling.src = Editor.asset.loading;
+			Editor.log('Building mac app...');
 			
 			 JSZipUtils.getBinaryContent("js/lib/build/mac.zip", function(err, data) {
 			  if(err) {
 				throw err // or handle err
+				Editor.error(err);
 			  }
 
 			  var zip = new JSZip();
@@ -2324,7 +2344,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				virtualLink.download = 'Game.zip';
 				virtualLink.dispatchEvent(new MouseEvent("click"));
 							
-		
+				e.removeAttribute('disabled');
+				e.previousElementSibling.src = Editor.asset.mac;
+				Editor.log('done');
 			
 			 });
 			
@@ -2332,10 +2354,14 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		//Export windows project as a zip package
 		EditorViewModel.prototype.buildWindows = function(e)
 		{
+			e.setAttribute('disabled','');
+			e.previousElementSibling.src = Editor.asset.loading;
+			Editor.log('Building window app...');
 			
 			 JSZipUtils.getBinaryContent("js/lib/build/win.zip", function(err, data) {
 			  if(err) {
 				throw err // or handle err
+				Editor.error(err);
 			  }
 
 			  var zip = new JSZip();
@@ -2377,6 +2403,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			zip.folder("package.nw/app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
 			zip.folder("package.nw/app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
 			
+			//zip.file(out.name+ ".exe", FileSystem.readFile("js/lib/build/nw.exe"),{binary:true});
+			
 			/*   // Your Web Application
 			  zip.folder("app/").load(webAppZipBinary);
 			  
@@ -2412,8 +2440,10 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				virtualLink.href = window.URL.createObjectURL(content);;
 				virtualLink.download = 'Game.zip';
 				virtualLink.dispatchEvent(new MouseEvent("click"));
-							
-		
+				
+				e.removeAttribute('disabled');
+				e.previousElementSibling.src = Editor.asset.windows;
+				Editor.log('done');
 			
 			 });
 			
@@ -2422,6 +2452,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		//Export web project as a zip package
 		EditorViewModel.prototype.buildChrome = function(e)
 		{
+			e.setAttribute('disabled','');
+			e.previousElementSibling.src = Editor.asset.loading;
+			Editor.log('Building chrome app...');
 			
 			var out = game_1.GameRunner.constructApp(this.game);
 			var data = JSON.stringify(out,null,'\n');
@@ -2548,11 +2581,17 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				virtualLink.download = 'Game.zip';
 				virtualLink.dispatchEvent(new MouseEvent("click"));
 				
+				e.removeAttribute('disabled');
+				e.previousElementSibling.src = Editor.asset.chrome;
+				Editor.log('done');
 		};
 		
 		//Export web project as a zip package
 		EditorViewModel.prototype.buildWeb = function(e)
 		{
+			e.setAttribute('disabled','');
+			e.previousElementSibling.src = Editor.asset.loading;
+			Editor.log('Building web app...');
 			
 			var out = game_1.GameRunner.constructApp(this.game);
 			var data = JSON.stringify(out,null,'\n');
@@ -2610,6 +2649,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				virtualLink.download = 'Game.zip';
 				virtualLink.dispatchEvent(new MouseEvent("click"));
 				
+				e.removeAttribute('disabled');
+				e.previousElementSibling.src = Editor.asset.web;
+				Editor.log('done');
 			/* zip.generateAsync({type:"blob"}).then(function(content)
 			{
 				
