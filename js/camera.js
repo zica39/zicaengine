@@ -122,13 +122,27 @@ function Camera(context, settings) {
 		window.addEventListener("keydown", function(e) {
 			var scene = Game.scene || Editor.scene;
 			
-			if(e.keyCode == 37)scene.x -= 5;
-			if(e.keyCode == 38)scene.y -= 5;
-			if(e.keyCode == 39)scene.x += 5;
-			if(e.keyCode == 40)scene.y += 5;
-	  
-			Editor.update();
-			Editor.sceneGui.updateDisplay();
+			if(e.keyCode == 37){
+				scene.x -= 5;
+				Editor.update();
+				Editor.sceneGui.updateDisplay();
+			}
+			if(e.keyCode == 38){
+				scene.y -= 5;
+				Editor.update();
+				Editor.sceneGui.updateDisplay();
+			}
+			if(e.keyCode == 39){
+				scene.x += 5;
+				Editor.update();
+				Editor.sceneGui.updateDisplay();
+			}
+			if(e.keyCode == 40){
+				scene.y += 5;
+				Editor.update();
+				Editor.sceneGui.updateDisplay();
+			}
+			
 			//self.set(scene.x,scene.y);
 	  
 	}, false);

@@ -260,9 +260,13 @@
 						var w = this.__image.naturalWidth;
 						var h = this.__image.naturalHeight;
 						var scale = Math.min(this.width / w, this.height / h);
-
+						
+						var cx = Game.camera.viewport.left;
+						var cy = Game.camera.viewport.top;
+						
 						drawContext.save();
-						drawContext.setTransform(scale, 0, 0, scale, this.x + (this.width/2),this.y + (this.height/2));
+						
+						drawContext.setTransform(scale, 0, 0, scale, this.x-cx + (this.width/2),this.y-cy + (this.height/2));
 						drawContext.rotate( this.angle * Math.PI / 180 );
 						drawContext.drawImage(this.__image, -w / 2, -h / 2, w, h);
 						drawContext.restore();

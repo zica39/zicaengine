@@ -1159,11 +1159,11 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				for (var i1 in this.sceneGui.__folders[i].__controllers) {
 					
 					this.sceneGui.__folders[i].__controllers[i1].onChange(function(e){
-					return;
+					
 						if(this.property == 'width')
-							if(Editor.scene.width<Editor.canvas.width)Editor.scene.width = Editor.canvas.width;
+							if(e<Editor.canvas.width)Editor.scene.width = Editor.canvas.width;
 						if(this.property == 'height')
-							if(Editor.scene.height<Editor.canvas.height)Editor.scene.height = Editor.canvas.height;
+							if(e<Editor.canvas.height)Editor.scene.height = Editor.canvas.height;
 						
 						/* if(this.property == 'width')Editor.canvas.width = e;
 						if(this.property == 'height')Editor.canvas.height = e; */
@@ -1337,6 +1337,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 						Editor.sceneGui.updateDisplay();
 						Editor.update();
 					}
+					Editor.update();
 			}); 
 					
 				}

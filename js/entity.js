@@ -92,7 +92,6 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 			this.borderWidth = 2.5;
 			this.borderColor = "rgba(255,0,0,1)";
 			this.borderStyle = 'solid';
-
 			//higher means it will be drawn on top of other objects
             this.priority = 1;
             //whether or not the entity is being blocked by another (should be set manually through collision)
@@ -279,7 +278,10 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 						var scale = Math.min(this.width / w, this.height / h);
 
 						drawContext.save();
-						drawContext.setTransform(scale, 0, 0, scale, this.x + (this.width/2),this.y + (this.height/2));
+						var cx = Game.camera.viewport.left;
+						var cy = Game.camera.viewport.top;
+						
+						drawContext.setTransform(scale, 0, 0, scale, this.x-cx + (this.width/2),this.y-cy + (this.height/2));
 						drawContext.rotate( this.angle * Math.PI / 180 );
 						drawContext.drawImage(this.__image, -w / 2, -h / 2, w, h);
 						drawContext.restore();
