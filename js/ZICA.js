@@ -10,6 +10,24 @@ ZICA.boxIntersection = function (a, b) {
 
 ZICA.Keys = ["Left Mouse Button", "Right Mouse Button", "Escape", "Enter", "Tab", "Shift", "Control", "Space", "Left", "Up", "Right", "Down", "Delete", "App Menu Key", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
+
+/**
+ZICA.Vect2d, ZICA.Animator & ZICA.Action (and their extends) are modified classes from the copperlitch open source library
+https://github.com/Sebmaster/copperlicht
+https://www.ambiera.com/copperlicht/
+
+CopperLicht License
+Copyright © 2009-2020 Nikolaus Gebhardt
+
+This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it subject to the following restrictions:
+
+If you use this software in a product, an acknowledgment in the product documentation is necessary.
+Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+This notice may not be removed or altered from any source distribution.
+*/
+
 /**
  * 2d vector class, used for example for texture coordinates.
  * @class 2d vector class, used for example for texture coordinates.
@@ -66,7 +84,7 @@ ZICA.Vect2d.prototype.clone = function()
 }
 ZICA.Vect2d.prototype.add = function(other)
 {
-	return new ZICA.Vect3d(this.X+other.X, this.Y+other.Y);
+	return new ZICA.Vect2d(this.X+other.X, this.Y+other.Y);
 }
 
 ZICA.Vect2d.prototype.multiplyWithVect = function(v)
@@ -124,7 +142,7 @@ ZICA.Animator.prototype.getType = function()
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @public
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.Animator.prototype.animateNode = function(n, timeMs)
@@ -218,8 +236,7 @@ ZICA.Animator.prototype.onKeyPress = function(event)
 	return false;
 }
 /**
- * Event handler called by the engine so the animator can react to mouse and key input
- * Returns false if the event has not been processed.
+ * Event handler called by the engine so the animator can react when the entity was called by another entity
  * @public
  */
 ZICA.Animator.prototype.onCollision = function(event)
@@ -247,7 +264,7 @@ ZICA.Animator.prototype.findActionByType = function(type)
  * Creates an exact, deep copy of this animator
  * @public
  */
-ZICA.Animator.prototype.createClone = function(node, scene, oldNodeId, newNodeId)
+ZICA.Animator.prototype.createClone = function()
 {
 	return null;
 }
@@ -257,12 +274,12 @@ ZICA.Animator.prototype.createClone = function(node, scene, oldNodeId, newNodeId
 /////////////////////////////////////////////////////
 
 /**
- * Scene node animator making {@link ZICA.SceneNode}s rotate
+ * Scene node animator making {@link ZICA.Entity}s rotate
  * @constructor
  * @public
  * @extends ZICA.Animator
- * @class  Scene node animator making {@link ZICA.SceneNode}s rotate
- * @param speed {ZICA.Vect3d} vector defining the RotationSpeed in each direction
+ * @class  Scene node animator making {@link ZICA.Entity}s rotate
+ * @param speed {ZICA.Vect2d} vector defining the RotationSpeed in each direction
  */
 ZICA.AnimatorRotation = function(obj)
 {
@@ -301,7 +318,7 @@ ZICA.AnimatorRotation.prototype.createClone = function()
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @public
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param timeMs: The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorRotation.prototype.animateNode = function(n, timeMs)
@@ -364,13 +381,13 @@ ZICA.AnimatorRotation.prototype.setRotateToTargetAndStop = function(targetRot, b
 /////////////////////////////////////////////
 
 /**
- * Scene node animator making {@link ZICA.SceneNode}s move along straight line between two points.
+ * Scene node animator making {@link ZICA.Entity}s move along straight line between two points.
  * @constructor
  * @public
  * @extends ZICA.Animator
- * @class Scene node animator making {@link ZICA.SceneNode}s move along straight line between two points.
- * @param {ZICA.Vect3d} start Start 2d position of the line
- * @param {ZICA.Vect3d} end End 2d position of the line
+ * @class Scene node animator making {@link ZICA.Entity}s move along straight line between two points.
+ * @param {ZICA.Vect2d} start Start 2d position of the line
+ * @param {ZICA.Vect2d} end End 2d position of the line
  * @param {Number} timeForWay Time for moving along the whole line in milliseconds. For example 2000 for 2 seconds.
  * @param {Boolean} loop set to true for looping along the line, false for stopping movement when the end has been reached.
  * @param {Boolean} deleteMeAfterEndReached set to true if the animator should delete itself after the end has been reached.
@@ -454,7 +471,7 @@ ZICA.AnimatorFlyStraight.prototype.createClone = function()
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @public
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorFlyStraight.prototype.animateNode = function(n, event)
@@ -581,16 +598,12 @@ ZICA.AnimatorFlyStraight.prototype.recalculateImidiateValues = function()
 
 //////////AnimatorOnClick////////////////////////
 /**
- * Scene node animator which invokes a callback function when the scene node has been clicked.
- * <b>Note</b>: In this version, only bounding box checks are working, this will change in one of the next releases.
- * It works like in this example:
  * @constructor
  * @public
  * @extends ZICA.Animator
- * @class  Scene node animator which invokes a callback function when the scene node has been clicked.
+ * @class  Scene node animator which invokes actons when the scene node has been clicked.
  * @param scene {ZICA.Scene} The scene of the animator.
  * @param engine {ZICA} an instance of the 2d engine
- * @param functionToCall {function} a function which should be called when the scene node has been clicked
  * @param register {Boolean} (optional) set to true to prevent registering at the scene using registerSceneNodeAnimatorForEvents
  */
 ZICA.AnimatorOnClick = function(obj)
@@ -629,7 +642,7 @@ ZICA.AnimatorOnClick.prototype.createClone = function()
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @public
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorOnClick.prototype.animateNode = function(n, timeMs)
@@ -713,7 +726,7 @@ ZICA.AnimatorOnFirstFrame.prototype = new ZICA.Animator();
 
 /** 
  * Returns the type of the animator.
- * For the AnimatorTimer, this will return 'timer'.
+ * For the AnimatorOnFirstFrame, this will return 'onfirstframe'.
  * @private
  */
 ZICA.AnimatorOnFirstFrame.prototype.getType = function()
@@ -724,7 +737,7 @@ ZICA.AnimatorOnFirstFrame.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorOnFirstFrame.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorOnFirstFrame.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorOnFirstFrame({});
 	a.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
@@ -735,7 +748,7 @@ ZICA.AnimatorOnFirstFrame.prototype.createClone = function(node, newManager, old
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @private
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorOnFirstFrame.prototype.animateNode = function(n, event)
@@ -765,7 +778,7 @@ ZICA.AnimatorOnEveryFrame.prototype = new ZICA.Animator();
 
 /** 
  * Returns the type of the animator.
- * For the AnimatorTimer, this will return 'timer'.
+ * For the AnimatorOnEveryFrame, this will return 'oneveryframe'.
  * @private
  */
 ZICA.AnimatorOnEveryFrame.prototype.getType = function()
@@ -776,7 +789,7 @@ ZICA.AnimatorOnEveryFrame.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorOnEveryFrame.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorOnEveryFrame.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorOnEveryFrame({});
 	a.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
@@ -787,7 +800,7 @@ ZICA.AnimatorOnEveryFrame.prototype.createClone = function(node, newManager, old
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @private
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorOnEveryFrame.prototype.animateNode = function(n, event)
@@ -799,17 +812,9 @@ ZICA.AnimatorOnEveryFrame.prototype.animateNode = function(n, event)
 
 //////////AnimatorOnMouse////////////////////////
 /**
- * Scene node animator which invokes a callback function when the scene node has been clicked.
- * <b>Note</b>: In this version, only bounding box checks are working, this will change in one of the next releases.
- * It works like in this example:
  * @constructor
  * @public
  * @extends ZICA.Animator
- * @class  Scene node animator which invokes a callback function when the scene node has been clicked.
- * @param scene {ZICA.Scene} The scene of the animator.
- * @param engine {ZICA} an instance of the 2d engine
- * @param functionToCall {function} a function which should be called when the scene node has been clicked
- * @param register {Boolean} (optional) set to true to prevent registering at the scene using registerSceneNodeAnimatorForEvents
  */
 ZICA.AnimatorOnMouse = function(obj)
 {
@@ -824,19 +829,19 @@ ZICA.AnimatorOnMouse.prototype = new ZICA.Animator();
 
 /** 
  * Returns the type of the animator.
- * For the AnimatorOnClick, this will return 'onclick'.
+ * For the AnimatorOnMouseAnimatorOnMouse, this will return 'onmouse'.
  * @public
  */
 ZICA.AnimatorOnMouse.prototype.getType = function()
 {
-	return 'onmouseevents';
+	return 'onmouse';
 }
 
 
 /** 
  * @private
  */
-ZICA.AnimatorOnMouse.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorOnMouse.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorOnMouse({});
 	a.type = this.type;
@@ -848,7 +853,7 @@ ZICA.AnimatorOnMouse.prototype.createClone = function(node, newManager, oldNodeI
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @public
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorOnMouse.prototype.animateNode = function(n, timeMs)
@@ -954,17 +959,8 @@ ZICA.AnimatorOnMouse.prototype.findActionByType = function(type)
 
 //////////AnimatorOnKey////////////////////////
 /**
- * Scene node animator which invokes a callback function when the scene node has been clicked.
- * <b>Note</b>: In this version, only bounding box checks are working, this will change in one of the next releases.
- * It works like in this example:
- * @constructor
  * @public
  * @extends ZICA.Animator
- * @class  Scene node animator which invokes a callback function when the scene node has been clicked.
- * @param scene {ZICA.Scene} The scene of the animator.
- * @param engine {ZICA} an instance of the 2d engine
- * @param functionToCall {function} a function which should be called when the scene node has been clicked
- * @param register {Boolean} (optional) set to true to prevent registering at the scene using registerSceneNodeAnimatorForEvents
  */
 ZICA.AnimatorOnKey = function(obj)
 {
@@ -980,7 +976,7 @@ ZICA.AnimatorOnKey.prototype = new ZICA.Animator();
 
 /** 
  * Returns the type of the animator.
- * For the AnimatorOnClick, this will return 'onclick'.
+ * For the AnimatorOnKey, this will return 'onkey'.
  * @public
  */
 ZICA.AnimatorOnKey.prototype.getType = function()
@@ -992,7 +988,7 @@ ZICA.AnimatorOnKey.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorOnKey.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorOnKey.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorOnKey({});
 	a.Key = this.Key;
@@ -1004,7 +1000,7 @@ ZICA.AnimatorOnKey.prototype.createClone = function(node, newManager, oldNodeId,
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @public
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorOnKey.prototype.animateNode = function(n, event)
@@ -1098,7 +1094,7 @@ ZICA.AnimatorTimer.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorTimer.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorTimer.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorTimer({});
 	a.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
@@ -1111,7 +1107,7 @@ ZICA.AnimatorTimer.prototype.createClone = function(node, newManager, oldNodeId,
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @private
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorTimer.prototype.animateNode = function(n, event)
@@ -1163,7 +1159,7 @@ ZICA.AnimatorOnProximity.prototype = new ZICA.Animator();
 
 /** 
  * Returns the type of the animator.
- * For the AnimatorTimer, this will return 'timer'.
+ * For the AnimatorOnProximity, this will return 'onproximity'.
  * @private
  */
 ZICA.AnimatorOnProximity.prototype.getType = function()
@@ -1174,7 +1170,7 @@ ZICA.AnimatorOnProximity.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorOnProximity.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorOnProximity.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorOnProximity({});
 	a.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
@@ -1188,7 +1184,7 @@ ZICA.AnimatorOnProximity.prototype.createClone = function(node, newManager, oldN
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @private
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorOnProximity.prototype.animateNode = function(n, event)
@@ -1257,7 +1253,7 @@ ZICA.AnimatorOnProximity.prototype = new ZICA.Animator();
 
 /** 
  * Returns the type of the animator.
- * For the AnimatorTimer, this will return 'timer'.
+ * For the AnimatorOnProximity, this will return 'onproximity'.
  * @private
  */
 ZICA.AnimatorOnProximity.prototype.getType = function()
@@ -1268,7 +1264,7 @@ ZICA.AnimatorOnProximity.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorOnProximity.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorOnProximity.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorOnProximity({});
 	a.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
@@ -1282,7 +1278,7 @@ ZICA.AnimatorOnProximity.prototype.createClone = function(node, newManager, oldN
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @private
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorOnProximity.prototype.animateNode = function(n, event)
@@ -1340,7 +1336,7 @@ ZICA.AnimatorCollide.prototype = new ZICA.Animator();
 
 /** 
  * Returns the type of the animator.
- * For the AnimatorTimer, this will return 'timer'.
+ * For the AnimatorCollide, this will return 'collide'.
  * @private
  */
 ZICA.AnimatorCollide.prototype.getType = function()
@@ -1351,7 +1347,7 @@ ZICA.AnimatorCollide.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorCollide.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorCollide.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorCollide({});
 	return a;
@@ -1361,7 +1357,7 @@ ZICA.AnimatorCollide.prototype.createClone = function(node, newManager, oldNodeI
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @private
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorCollide.prototype.animateNode = function(n, event)
@@ -1377,7 +1373,8 @@ ZICA.AnimatorCollide.prototype.onCollision = function(event , n)
 
 
 ///////////////////////////////////////////////////////
-//+ AnimatorAnimateTexture
+// AnimatorAnimateTexture
+///////////////////////////////////////////////////////
 
 ZICA.AnimatorAnimateTexture = function(obj)//textures, timeperframe, donotloop)
 {
@@ -1404,7 +1401,7 @@ ZICA.AnimatorAnimateTexture.prototype.getType = function()
 /** 
  * @private
  */
-ZICA.AnimatorAnimateTexture.prototype.createClone = function(node, newManager, oldNodeId, newNodeId)
+ZICA.AnimatorAnimateTexture.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorAnimateTexture({});
 	a.Textures = this.Textures;
@@ -1416,7 +1413,7 @@ ZICA.AnimatorAnimateTexture.prototype.createClone = function(node, newManager, o
 /**
  * Animates the scene node it is attached to and returns true if scene node was modified.
  * @public
- * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
  * @param {Integer} timeMs The time in milliseconds since the start of the scene.
  */
 ZICA.AnimatorAnimateTexture.prototype.animateNode = function(n, event)
@@ -1484,14 +1481,14 @@ ZICA.Action = function()
 /**
  * @private
  */
-ZICA.Action.prototype.execute = function(node, mgr)
+ZICA.Action.prototype.execute = function(node)
 {
 }
 
 /**
  * @private
  */
-ZICA.Action.prototype.createClone = function(oldNodeId, newNodeId)
+ZICA.Action.prototype.createClone = function()
 {
 	return null;
 }
@@ -1550,7 +1547,7 @@ ZICA.ActionHandler.prototype.findAction = function(type)
 /**
  * @private
  */
-ZICA.ActionHandler.prototype.createClone = function(oldNodeId, newNodeId)
+ZICA.ActionHandler.prototype.createClone = function()
 {
 	var c = new ZICA.ActionHandler();
 	
@@ -1627,7 +1624,7 @@ ZICA.Action.MakeSceneNodeInvisible = function(obj)
 /**
  * @private
  */
-ZICA.Action.MakeSceneNodeInvisible.prototype.createClone = function(oldNodeId, newNodeId)
+ZICA.Action.MakeSceneNodeInvisible.prototype.createClone = function()
 {
 	var a = new ZICA.Action.MakeSceneNodeInvisible({});
 	a.InvisibleMakeType = this.InvisibleMakeType;
@@ -1705,7 +1702,7 @@ ZICA.Action.ChangeSceneNodeScale = function(obj)
 /**
  * @private
  */
-ZICA.Action.ChangeSceneNodeScale.prototype.createClone = function(oldNodeId, newNodeId)
+ZICA.Action.ChangeSceneNodeScale.prototype.createClone = function()
 {
 	var a = new ZICA.Action.ChangeSceneNodeScale({});
 	a.ScaleChangeType = this.ScaleChangeType;
@@ -1719,7 +1716,7 @@ ZICA.Action.ChangeSceneNodeScale.prototype.createClone = function(oldNodeId, new
 /**
  * @private
  */
-ZICA.Action.ChangeSceneNodeScale.prototype.execute = function(currentNode, sceneManager)
+ZICA.Action.ChangeSceneNodeScale.prototype.execute = function(currentNode)
 {
 	if (!currentNode)
 		return;
@@ -1776,7 +1773,7 @@ ZICA.Action.ChangeSceneNodeRotation = function(obj)
 /**
  * @private
  */
-ZICA.Action.ChangeSceneNodeRotation.prototype.createClone = function(oldNodeId, newNodeId)
+ZICA.Action.ChangeSceneNodeRotation.prototype.createClone = function()
 {
 	var a = new ZICA.Action.ChangeSceneNodeRotation({});
 	a.RotationChangeType = this.RotationChangeType;
@@ -1792,7 +1789,7 @@ ZICA.Action.ChangeSceneNodeRotation.prototype.createClone = function(oldNodeId, 
 /**
  * @private
  */
-ZICA.Action.ChangeSceneNodeRotation.prototype.execute = function(currentNode, sceneManager)
+ZICA.Action.ChangeSceneNodeRotation.prototype.execute = function(currentNode)
 {
 	if (!currentNode)
 		return;
@@ -1902,7 +1899,7 @@ ZICA.Action.ChangeSceneNodePosition = function(obj)
 /**
  * @private
  */
-ZICA.Action.ChangeSceneNodePosition.prototype.createClone = function(oldNodeId, newNodeId)
+ZICA.Action.ChangeSceneNodePosition.prototype.createClone = function()
 {
 	var a = new ZICA.Action.ChangeSceneNodePosition({});
 	a.PositionChangeType = this.PositionChangeType;
@@ -1921,7 +1918,7 @@ ZICA.Action.ChangeSceneNodePosition.prototype.createClone = function(oldNodeId, 
 /**
  * @private
  */
-ZICA.Action.ChangeSceneNodePosition.prototype.execute = function(currentNode, sceneManager)
+ZICA.Action.ChangeSceneNodePosition.prototype.execute = function(currentNode)
 {
 	if (!currentNode)
 		return;
@@ -2742,7 +2739,7 @@ ZICA.Action.ActionStopSound = function()
 /**
  * @private
  */
-ZICA.Action.ActionStopSound.prototype.createClone = function(oldNodeId, newNodeId)
+ZICA.Action.ActionStopSound.prototype.createClone = function()
 {
 	var a = new ZICA.Action.ActionStopSound();
 	return a;

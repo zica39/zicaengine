@@ -1188,6 +1188,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var game = this.game;
 			
 			/////Scenes
+			var f1 = this.appGui.addFolder('Scene Manager');
+			f1.domElement.querySelector('li.title').style.background = 'black';
+			f1.open();
 			
 			var select = document.createElement('select');
 			select.onchange = function(e){
@@ -1247,6 +1250,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			////////////////////////////////////////////
 			
 			var f1 = this.appGui.addFolder('App Inforamtion');
+			f1.domElement.querySelector('li.title').style.background = 'black';
 			f1.open();
 			this.appGui.add(game,'name');
 			this.appGui.add(game,'version');

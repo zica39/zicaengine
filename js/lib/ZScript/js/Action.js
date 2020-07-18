@@ -30,18 +30,19 @@
 			
 	
 	var comboProps = {
-		'borderStyle':['solid','dashed']
+		'borderStyle':['solid','dashed'],
+		'position':['absoulte','fixed']
 	};	
 	
-	var properties = ["name","x","y","width","height","angle","visible","drawImage","aspectRatio","image","loop","muted","autoplay","volume","audio","text","font","fontSize","fontBold","fontItalic","fontColor","velX","velY","opacity","drawColor","color","priority","collides","drawBorder","borderColor","borderWidth","borderStyle","animLoop","fps"];
+	var properties = ["name","x","y","width","height","angle","visible","drawImage","aspectRatio","image","loop","muted","autoplay","volume","audio","text","font","fontSize","fontBold","fontItalic","fontColor","velX","velY","opacity","drawColor","color","priority","collides","drawBorder","borderColor","borderWidth","borderStyle","animLoop","fps","position","X","Y"];
 	var types = {};
 	
-	types.combo = ['borderStyle'];
+	types.combo = ['borderStyle','position'];
 	types.audio = ['audio'];
 	types.image = ['image'];
 	types.slider = ['opacity','volume'];
 	types.string = ['name','text','font'];
-	types.float = ['x','y','width','height','velX','velY','borderWidth'];
+	types.float = ['x','y','width','height','velX','velY','borderWidth','X','Y'];
 	types.int = ['angle','fontSize','priority','fps'];
 	types.bool = ['visible','drawImage','aspectRatio','loop','muted','autoplay','fontBold','fontItalic','drawColor','collides','drawBorder','animLoop'];
 	types.color = ['color','fontColor','borderColor'];
@@ -76,7 +77,7 @@
 		{
 			jsname : 'MakeSceneNodeInvisible', 
 			name: 'Hide or Unhide a Scene node',
-			description : 'Makes a 3D scene node visible or invisible.',
+			description : 'Makes a 2D scene node visible or invisible.',
 			'InvisibleMakeType' : ['combo', 'Toggle Visiblilty', ['Make Visible' , 'Make Invisible' , 'Toggle Visiblilty']],
 			'SceneNodeToMakeInvisible': [ 'node' , ''],
 		},
@@ -85,8 +86,8 @@
 			
 		{
 			jsname : 'ChangeSceneNodePosition', 
-			name: 'Set fixsed 3D Position',
-			description : 'Lets a 3D scene node change its position.',
+			name: 'Set fixsed 2D Position',
+			description : 'Lets a 2D scene node change its position.',
 			'PositionChangeType': ['hidden', '0' ],
 			'SceneNodeToChangePosition': [ 'node' , ''],
 			'Position': [ 'vect2d' , '[0.0, 0.0]'] ,
@@ -97,7 +98,7 @@
 		{
 			jsname : 'ChangeSceneNodePosition', 
 			name: 'Move by a Vector',
-			description : 'Lets a 3D scene node change its position.',
+			description : 'Lets a 2D scene node change its position.',
 			'PositionChangeType': ['hidden', '1' ],
 			'SceneNodeToChangePosition': [ 'node' , ''],
 			'Vector': [ 'vect2d' , '[0.0, 0.0]'] ,
@@ -108,7 +109,7 @@
 		{
 			jsname : 'ChangeSceneNodePosition', 
 			name: 'Set relative to scene node',
-			description : 'Lets a 3D scene node change its position.',
+			description : 'Lets a 2D scene node change its position.',
 			'PositionChangeType': ['hidden', '2' ],
 			'SceneNodeToChangePosition': [ 'node' , ''],
 			'Position': [ 'vect2d' , '[0.0, 0.0]'],
@@ -120,7 +121,7 @@
 		{
 			jsname : 'ChangeSceneNodePosition', 
 			name: 'Set relative to scene node by percentage',
-			description : 'Lets a 3D scene node change its position.',
+			description : 'Lets a 2D scene node change its position.',
 			'PositionChangeType': ['hidden', '3' ],
 			'SceneNodeToChangePosition': [ 'node' , ''],
 			'Percentage': [ 'vect2d' , '[0.0, 0.0]'],
@@ -132,7 +133,7 @@
 		{
 			jsname : 'ChangeSceneNodePosition', 
 			name: 'Set to random position in area',
-			description : 'Lets a 3D scene node change its position.',
+			description : 'Lets a 2D scene node change its position.',
 			'PositionChangeType': ['hidden', '4' ],
 			'SceneNodeToChangePosition': [ 'node' , ''],
 			'MinPosition': [ 'vect2d' , '[0.0, 0.0]'],
@@ -157,7 +158,7 @@
 		{
 			jsname : 'ChangeSceneNodeRotation', 
 			name: 'Change Rotation of a Scene node',
-			description : 'Lets a 2D scene node change its rotation. Based on the settings set, it is possible to set it to a new fixed 3d rotation or rotate it a bit relative to the current rotation.',
+			description : 'Lets a 2D scene node change its rotation. Based on the settings set, it is possible to set it to a new fixed 2d rotation or rotate it a bit relative to the current rotation.',
 			'RotationChangeType': ['combo', 'Set absoulte rotation' , ['Set absoulte rotation' , 'Rotate by the rotation'] ],
 			'SceneNodeToChangeRotation': [ 'node' , ''],
 			'Angle': [ 'int' , '0'],
@@ -168,7 +169,7 @@
 		{
 			jsname : 'ChangeSceneNodeScale', 
 			name: 'Change Scale of a Scene node	',
-			description : 'Lets a 2D scene node change its scale. Based on the settings set, it is possible to set it to a new fixed 3d scale or scale it a bit relative to the current scale.',
+			description : 'Lets a 2D scene node change its scale. Based on the settings set, it is possible to set it to a new fixed 2d scale or scale it a bit relative to the current scale.',
 			'ScaleChangeType': ['combo', 'Set absoulte scale' , ['Set absoulte scale' ,'Set relative scale', 'Scale by the vector'] ],
 			'SceneNodeToChangeScale': [ 'node' , ''],
 			'Size': [ 'vect2d' , '[0.0, 0.0]'],
@@ -258,7 +259,7 @@
 		{	
 			name: 'Stop all Sounds',
 			jsname : 'ActionStopSound',
-			description : 'Resume ,pause or toggle scne node sound',
+			description : 'Stop all sounds',
 			none:['hidden','']
 		},
 		
@@ -353,7 +354,7 @@
 		/* {
 			name: 'Change a texture',
 			jsname : 'ChangeSceneNodeTexture',
-			description : 'Changes the texture of the 3D object this behavior is attached to',
+			description : 'Changes the texture of the 2D object this behavior is attached to',
 			'SceneNodeToChange': [ 'node' , ''],
 			'TextureChangeType' : ['combo', 'Change all textures', ['Change material whit index','Change all textures']],
 			'Index': [ 'int' , '0'],
@@ -1076,6 +1077,20 @@
 		
 		}
 		div1.appendChild(copyButton);
+		
+		var cutButton  = iconButton('cut');
+		//copyButton.textContent  = 'c';
+		//copyButton.style.margin = '3px 1px';
+		cutButton.onclick = function(){
+			if(selected){
+					
+				copyButton.click();
+				removeButton.click();
+
+			}
+		
+		}
+		div1.appendChild(cutButton);
 		
 		var pasteButton  = iconButton('paste');
 		//pasteButton.textContent  = 'p';

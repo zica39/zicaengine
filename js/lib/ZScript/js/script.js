@@ -37,7 +37,7 @@
 		{
 			name: 'Collide When Moved',
 			jsname : 'AnimatorCollide',
-			description : "This behavior makes it possible to move 3D objects within a 3D world without letting them go through walls. For example simply attach this behavior to the active camera, and when moving it, it won't be possible to go through walls anymore, where 'walls' are 3D objects which have the 'collision' attribute checked in their property window. See collision for further information about this.",
+			description : "This behavior makes it possible to move 2D objects within a 2D world without letting them go through walls. ",
 			'AffectedByGravity': [ 'bool' , false]
 		},
 		[
@@ -94,7 +94,7 @@
 		{
 			name: 'Animate a texture',
 			jsname : 'AnimatorAnimateTexture',
-			description : 'Changes the texture of the 3D object this behavior is attached to',
+			description : 'Changes the texture of the 2D object this behavior is attached to',
 			'TimePerFrame': [ 'int' , '200'],
 			'Textures': [ 'array' , []],
 			'Loop': [ 'bool' , true]
@@ -130,14 +130,14 @@
 		{
 			name: 'Rotate',
 			jsname : 'AnimatorRotation',
-			description : 'Lets a 3D scene node rotate around itself.',
+			description : 'Lets a 2D scene node rotate around itself.',
 			'Rotation': [ 'vect3d' , '[0.3, 0.0, 0.0]']
 		},
 		
 		{
 			name: 'Fly along a line',
 			jsname : 'AnimatorFlyStraight',
-			description : 'Makes a 3D scene node fly along a straight line.',
+			description : 'Makes a 2D scene node fly along a straight line.',
 			'Start': [ 'vect3d' , '[0.0, 0.0, 0.0]'],
 			'End': [ 'vect3d' , '[100.0, 100.0, 100.0]'],
 			'TimeForWay': [ 'int' , '1000'],
@@ -147,7 +147,7 @@
 		{
 			name: 'Collide When Moved',
 			jsname : 'AnimatorCollisionResponse',
-			description : "This behavior makes it possible to move 3D objects within a 3D world without letting them go through walls. For example simply attach this behavior to the active camera, and when moving it, it won't be possible to go through walls anymore, where 'walls' are 3D objects which have the 'collision' attribute checked in their property window. See collision for further information about this.",
+			description : "This behavior makes it possible to move 2D objects within a 2D world without letting them go through walls. For example simply attach this behavior to the active camera, and when moving it, it won't be possible to go through walls anymore, where 'walls' are 2D objects which have the 'collision' attribute checked in their property window. See collision for further information about this.",
 			'Size': [ 'vect3d' , '[6.0, 12.0, 6.0]'],
 			'RelativePosition': [ 'vect3d' , '[0.0, 3.0, 0.0]'],
 			'AffectedByGravity': [ 'bool' , true],
@@ -159,7 +159,7 @@
 		{
 			name: 'When Clicked do something',
 			jsname : 'AnimatorOnClick',
-			description : 'Triggers a user defineable action when the user clicks on the 3D object this behavior is attached to.',
+			description : 'Triggers a user defineable action when the user clicks on the 2D object this behavior is attached to.',
 			'Action': [ 'action' , []],
 			'BoundingBoxTestOnly': [ 'bool' , false],  
 			'NoClickWhenOccluded': [ 'bool' , false]
@@ -168,7 +168,7 @@
 		{
 			name: 'When Cursor Moved Over do something',
 			jsname : 'AnimatorOnMove',
-			description : 'Triggers a user defineable action when the user moves the mouse cursor over the 3D object this behavior is attached to.',
+			description : 'Triggers a user defineable action when the user moves the mouse cursor over the 2D object this behavior is attached to.',
 			'BoundingBoxTestOnly': [ 'bool' , false],  
 			'NoActionWhenOccluded': [ 'bool' , true],
 			'ActionOnEnterMouse': [ 'action' , []],
@@ -201,7 +201,7 @@
 		{
 			name: 'Animate a texture',
 			jsname : 'AnimatorAnimateTexture',
-			description : 'Changes the texture of the 3D object this behavior is attached to',
+			description : 'Changes the texture of the 2D object this behavior is attached to',
 			'TimePerFrame': [ 'int' , '200'],
 			'Changewhichmaterial' : ['combo', 'Change material whit index', ['Change material whit index','Change all meterials of node']],
 			'Index': [ 'int' , '0'],
@@ -710,6 +710,20 @@
 		
 		}
 		div1.appendChild(copyButton);
+		
+		var cutButton  = iconButton('cut');
+		//copyButton.textContent  = 'c';
+		//copyButton.style.margin = '3px 1px';
+		cutButton.onclick = function(){
+			if(selected){
+					
+				copyButton.click();
+				removeButton.click();
+
+			}
+		
+		}
+		div1.appendChild(cutButton);
 		
 		var pasteButton  = iconButton('paste');
 		//pasteButton.textContent  = 'p';

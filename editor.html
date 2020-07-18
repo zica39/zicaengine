@@ -883,7 +883,13 @@
 			
 			}
 			
-			settingsTab.defaultSettings = function(){Editor.defaultSettings()};
+			settingsTab.defaultSettings = function(){
+			Editor.defaultSettings();
+			if(document.getElementById('grid-show-button').showGrid)
+				document.getElementById('grid-show-button').click();
+				Editor.update();
+			};
+			
 			settingsTab.reloadEditor = function(){location.reload();};
 			
 			settingsTab.settingsGui.add(settingsTab,'defaultSettings');
@@ -904,7 +910,10 @@
 					
 					settingsTab.settingsGui.__folders[i].__controllers[i1].onFinishChange(function(e){
 					
-					if(this.property == 'showGrid' || this.property == 'gridSize'){Editor.update();}
+					if(this.property == 'showGrid' || this.property == 'gridSize'){
+						document.getElementById('grid-show-button').click();
+						Editor.update();
+					}
 					/* if(this.property == 'width')Editor.canvas.width = e;
 					if(this.property == 'height')Editor.canvas.height = e; */
 					//Editor.update();
