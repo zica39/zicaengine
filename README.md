@@ -13,6 +13,8 @@ But also supports scripting for advanced users. Games can be exported in one cli
 desktop platforms (Linux, Mac OSX, Windows), mobile
 (Android) and web-based (HTML5) platforms.
 
+![ZICA Engine review](img/preview.gif)
+
 #### Features
 ![ZICA Engine Features](img/c3events2.png)
 
