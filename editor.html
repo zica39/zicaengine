@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <title>ZICA ENGINE</title>
-	
-    <link rel="icon" href="favicon.ico">
+    
+	<link rel="icon" href="favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     
 	<script type="text/javascript" src="js/lib/datgui/dat.gui.min.js"></script>
@@ -129,35 +129,35 @@
       <div class="sidebar-controls">
         <input id="file-dialog" type="file" style="display: none;" data-bind="boundEvent: { change: onFileDialogClose }">
 
-        <button id="file-new-button" data-bind="click: newProject">
+        <button id="file-new-button" title = 'New' data-bind="click: newProject">
           <i class="fa fa-file-o" aria-hidden="true"></i>
         </button>
 
-        <button id="file-open-button" data-bind="click: openProject">
+        <button id="file-open-button" title = 'Open' data-bind="click: openProject">
           <i class="fa fa-folder-open-o" aria-hidden="true"></i>
         </button>
 
-        <button id="file-save-button" data-bind="click: saveProject">
+        <button id="file-save-button" title = 'Save' data-bind="click: saveProject">
           <i class="fa fa-floppy-o" aria-hidden="true"></i>
         </button>
-
-        <button id="file-export-button" data-bind="click: exportProject">
-          <i class="fa fa-download" aria-hidden="true"></i>
+		
+		<button  id="file-inport-button" title = 'Import' onclick = "Editor.import();">
+          <i class="fas fa-file-import" aria-hidden="true"></i>
         </button>
 		
-		<button  id="file-inport-button" onclick = "Editor.import();">
-          <i class="fa fa-upload" aria-hidden="true"></i>
+        <button id="file-export-button" title = 'Export' data-bind="click: exportProject">
+          <i class="fas fa-file-export" aria-hidden="true"></i>
         </button>
 		
-		<button id="file-share-button" onclick='Editor.shareToPrefabs();'>
+		<button id="file-share-button" title = 'Create Prefab' onclick='Editor.shareToPrefabs();'>
           <i class="fa fa-share-square-o" aria-hidden="true"></i>
         </button>
 		
-		<button id="play-pause-button" data-bind="click: togglePlayPauseGame">
+		<button id="play-pause-button" title = 'Play/Pause' data-bind="click: togglePlayPauseGame">
           <i class="fa" data-bind="css: { 'fa-play': gameRunningState() != 2, 'fa-pause': gameRunningState() == 2 }" aria-hidden="true"></i>
         </button>
 
-        <button id="stop-button" data-bind="click: stopGame, style: { flex: gameRunningState() == 1 ? 0 : 1 }, css: { 'no-padding': gameRunningState() == 1 }">
+        <button id="stop-button" title = 'Stop' data-bind="click: stopGame, style: { flex: gameRunningState() == 1 ? 0 : 1 }, css: { 'no-padding': gameRunningState() == 1 }">
           <i class="fa" aria-hidden="true" data-bind="css: { 'fa-stop': gameRunningState() != 1 }"></i>
         </button>
 		
@@ -174,51 +174,51 @@
           <i class="fa fa-puzzle-piece" aria-hidden="true"></i>
         </button>-->
 		
-		<button id="build-button" onclick = "openBuildTab();">
+		<button id="build-button" title = 'Build' onclick = "openBuildTab();">
            <i class="fa fa-android" aria-hidden="true"></i>
         </button>
 		
-		<button id="up-button" >
+		<button id="up-button" title = 'Send to Back'>
            <i class="fa fa-arrow-up" aria-hidden="true"></i>
         </button>
 		
-		<button id="down-button" >
+		<button id="down-button" title = 'Bring to Front'>
            <i class="fa fa-arrow-down"  aria-hidden="true"></i>
         </button>
 		
-		<button id="add-sprite-button" data-bind="click: spawnEntity">
+		<button id="add-sprite-button" title = 'Add Entity' data-bind="click: spawnEntity">
            <i class="fa fa-plus-circle" aria-hidden="true"></i>
         </button>
         
-        <button id="duplicate-sprite-button" data-bind="click: duplicateSelectedEntity">
+        <button id="duplicate-sprite-button" title = 'Duplicate Entity' data-bind="click: duplicateSelectedEntity">
            <i class="fa fa-clone" aria-hidden="true"></i>
         </button>
         
-        <button id="remove-sprite-button" data-bind="click: removeSelectedEntity">
+        <button id="remove-sprite-button" title = 'Remove Entity' data-bind="click: removeSelectedEntity">
           <i class="fa fa-trash" aria-hidden="true"></i>
         </button>
 		
-		<button id="copy-sprite-button" onclick = 'Editor.copyEntity();'>
+		<button id="copy-sprite-button" title = 'Copy' onclick = 'Editor.copyEntity();'>
           <i class="fa fa-copy" aria-hidden="true"></i>
         </button>
 		
-		<button id="paste-sprite-button" onclick = 'Editor.pasteEntity();'>
+		<button id="paste-sprite-button" title = 'Paste' onclick = 'Editor.pasteEntity();'>
           <i class="fa fa-paste" aria-hidden="true"></i>
         </button>
 		
-		<button id="cut-sprite-button" onclick = 'Editor.cutEntity();'>
+		<button id="cut-sprite-button" title = 'Cut' onclick = 'Editor.cutEntity();'>
           <i class="fa fa-cut" aria-hidden="true"></i>
         </button>
 		
-		<button id="settings" onclick = "openSettingTab();">
+		<button id="settings" title = 'Settings' onclick = "openSettingTab();">
           <i class="fa fa-cog" aria-hidden="true"></i>
         </button>
 		
-		<button id="remove-sprite-button" onclick = "openAboutTab();">
+		<button id="remove-sprite-button" title = 'About' onclick = "openAboutTab();">
           <i class="fa fa-info-circle" aria-hidden="true"></i>
         </button>
 		
-		<button id="remove-sprite-button" onclick = "Editor.toggleFullScreen();">
+		<button id="remove-sprite-button" title = 'FullScreen' onclick = "Editor.toggleFullScreen();">
           <i id = 'fsicon' class="fa fa-expand" aria-hidden="true"></i>
         </button>
 		
@@ -237,15 +237,15 @@
         </button> -->
       </div>
       
-	   <div id = 'snapbar' class="sidebar-controls" hidden>
+	   <div id = 'snapbar' title = 'Grid' class="sidebar-controls" hidden>
 	   <button id="grid-show-button" >
            <i class="fa fa-th"  aria-hidden="true"></i>
         </button>
 		
-		<button id="snap-button" >
-           <i class="fa fa-pencil"  aria-hidden="true"></i>
+		<button id="snap-button" title = 'Snap to Grid' >
+           <i class="fas fa-ruler"  aria-hidden="true"></i>
         </button>
-		<button id="focus-button" >
+		<button id="focus-button" title = 'Focus'>
            <i class="fa fa-dot-circle-o"  aria-hidden="true"></i>
         </button>
 	  </div>

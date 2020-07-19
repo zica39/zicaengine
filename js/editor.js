@@ -1607,6 +1607,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			}};
 			
 			f1.add(a, 'eventTextEditor') */
+			var f1 = this.propertiesGui.addFolder('');
+			f1.domElement.querySelector('li.title').style.background = 'black';
 		
 		for (var i in this.propertiesGui.__controllers) {
 			this.propertiesGui.__controllers[i].onChange(function(e){
