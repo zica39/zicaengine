@@ -1,4 +1,5 @@
 @import "reset.css";
+@import "../js/lib/font-awsome/css/all.min.css";
 @import "font-awesome.min.css";
 /** Font inclusions **/
 @font-face {
