@@ -150,7 +150,8 @@ function Camera(context, settings) {
 
         // Center camera on "R"
         window.addEventListener('keydown', e => {
-            if (e.key === 'r') {
+            if (e.key === 'r' && e.ctrlKey) {
+				e.preventDefault();
                 this.zoomTo(1000);
                 //this.moveTo(0, 0);
 				this.set(0,0);

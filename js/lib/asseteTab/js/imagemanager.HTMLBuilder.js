@@ -44,6 +44,27 @@ ImageManager.HTMLBuilder = {
 		
 		img[0].style.width  = '100%';
 		img[0].style.height  = '100%';
+		
+		img[0].onclick = function(){
+			var name = this.parentElement.parentElement.lastElementChild.innerHTML;
+			var type  = that.getType(name);
+			
+			var obj = {};
+			obj.name = name;
+			obj.type = type;
+			
+			$('#images li img.thumbnail').css('opacity','1');
+			
+			if(top.Editor.selectedFile)
+			if(name == top.Editor.selectedFile.name){
+				top.Editor.selectedFile = null;
+				return;
+			}
+			
+			this.style.opacity = '0.4';
+			top.Editor.selectedFile = obj;
+		};
+		
 		img[0].onload = function(){window.parent.Editor.update();};
 		img[0].ondragstart = function(event){
 			var name = this.parentElement.parentElement.lastElementChild.innerHTML;
@@ -56,6 +77,14 @@ ImageManager.HTMLBuilder = {
 			
 			event.dataTransfer.setData("Text", obj);
 		}
+		
+		var typeIcon = that.addButton(that.getType(data.fileName));
+		typeIcon.style.bottom = '22px';
+		typeIcon.style.right = '2px';
+		typeIcon.style.position = 'absolute';
+		typeIcon.style.padding = '2px';
+		typeIcon.style.paddingBottom = '0px';
+		typeIcon.disabled = true;
 		
 		iconDelete[0].style.top = '1px';
 		iconDelete[0].style.right = '1px';
@@ -86,11 +115,37 @@ ImageManager.HTMLBuilder = {
         iconFav.addClass("icon").addClass("fav");//.attr("onclick", "FavImg('" + data.id + "');");
         if (data.favorite) { iconFav.addClass('enable'); } else { iconFav.addClass('disable');}
         imgName.addClass('imgName').html(data.fileName);
-        li.attr("id", "image" + data.id).append(a).append(iconDelete).append(iconFav).append(imgName);
+        li.attr("id", "image" + data.id).append(a).append(iconDelete).append(typeIcon).append(imgName);
 
         return li;
     },
-
+	
+	addButton: function(type,cb){
+		
+			var icon = 'file';
+			
+			switch(type){
+				case 'Image': icon = 'picture-o'; break;
+				case 'Audio': icon = 'music'; break;
+				case 'Video': icon = 'video-camera'; break;
+				case 'Text': icon = 'code'; break;
+				case 'File' : icon = 'file'; break;		
+			};
+			
+		var addButton = document.createElement('button');
+		addButton.style.background = 'transparent';
+		addButton.style.border = 'none';
+		//addButton.style.outline = '-1px solid white';
+		//addButton.setAttribute('onclick' , 'Editor.addScene()');
+		var a = document.createElement('a');
+		a.className = 'fa fa-'+ icon;
+		a.setAttribute('aria-hidden',"true");
+		a.style.color = 'white';
+		addButton.appendChild(a)
+		addButton.onclick = cb;
+		return addButton;
+			
+	},
 
     BuildImages:function (data) {
         var that = ImageManager.HTMLBuilder;
@@ -244,6 +299,7 @@ ImageManager.HTMLBuilder = {
 		//if(name == 'Image')data.type = 'images/fileicons/other_image.png';
 		if(name == 'Audio')data.type = 'images/fileicons/other_music2.png';
 		if(name == 'Video')data.type = 'images/fileicons/other_movie.png';
+		if(name == 'Text')data.type = 'images/fileicons/txt.png';
 		
 		data.atype = name;
 		return data;
@@ -254,9 +310,10 @@ ImageManager.HTMLBuilder = {
 		var type = '';
 		
 		if (name.match(/.(jpg|jpeg|png|gif)$/i))type = 'Image';
-		if (name.match(/.(mp3|ogg|wav)$/i))type = 'Audio';
-		if (name.match(/.(js|json|txt)$/i))type = 'File';
-		
+		else if (name.match(/.(mp3|ogg|wav)$/i))type = 'Audio';
+		else if (name.match(/.(mp4|webm)$/i))type = 'Video';
+		else if (name.match(/.(js|json|txt)$/i))type = 'Text';
+		else type = 'File'
 		return type;
 	},
 	
@@ -273,4 +330,3 @@ ImageManager.HTMLBuilder = {
         }
     }
 };
-

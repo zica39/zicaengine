@@ -27,12 +27,21 @@ AssetManager.prototype.remove = function(obj){
 	
 	Editor.removeImage();
 	Editor.removeAduio();
+	
+	if(top.Editor.selectedFile)
+		if(obj.fileName == top.Editor.selectedFile.name){
+			top.Editor.selectedFile = null;
+	}
 					
 };
 
 AssetManager.prototype.clear = function(){
 	
 	this.assets.length = 0;
+	
+	$('#images li img.thumbnail').css('opacity','1');
+	top.Editor.selectedFile = null;
+	
 	this.update();
 };
 
@@ -117,4 +126,3 @@ $(document).ready(function() {
 // public aliases
 window.DelImg = ImageManager.HTMLBuilder.RemoveImage;
 window.FavImg = ImageManager.HTMLBuilder.ToggleFavorite;
-

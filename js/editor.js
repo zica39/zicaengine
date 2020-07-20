@@ -63,6 +63,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			this.isMoving = false;
 			//set to the currently selected entity, false otherwise
 			this.selected = null;
+			//set to the currently selected file from assete
+			this.selectedFile = null;
             //last position of the mouse {x, y}
             this.lastMouse = null;
 			//on drop entities position of the mouse {x,y}
@@ -614,6 +616,30 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			div.style.border = 'white 1px solid';
 			div.obj = obj;
 			
+			div.onclick = function(e){
+
+				if(e.target.tagName != 'IMG')return;
+				if(!Editor.selectedFile)return;
+				if(Editor.selectedFile.type != 'Image')return;
+				
+				var img = Editor.selectedFile.name;
+				
+				this.obj.map = img;
+				this.firstElementChild.src = Game.assets[img];
+				var x = this.lastElementChild.firstElementChild;
+				this.lastElementChild.innerHTML = img;
+				this.lastElementChild.appendChild(x);
+				
+				if(obj.width<this.firstElementChild.naturalWidth)
+				obj.width = this.firstElementChild.naturalWidth;
+				if(obj.height<this.firstElementChild.naturalHeight)
+				obj.height = this.firstElementChild.naturalHeight;
+				
+				Editor.update();
+				Editor.sceneGui.updateDisplay();
+				
+			};
+			
 			div.ondragover = function(e){
 				e.preventDefault();
 				this.style.borderStyle = 'dashed';
@@ -655,6 +681,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			img.style.width = '75px';
 			img.style.height = '75px';
 			img.style.marginTop = '5px';
+			img.style.background = 'url(img/empty.png)';
 			
 			img.ondragstart = function(e) {
 				e.preventDefault();
@@ -718,6 +745,25 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			div.style.border = 'white 1px solid';
 			div.obj = obj;
 			
+			div.onclick = function(e){
+
+				if(e.target.tagName != 'IMG')return;
+				if(!Editor.selectedFile)return;
+				if(Editor.selectedFile.type != 'Image')return;
+				
+				var img = Editor.selectedFile.name;
+				
+				if(!(img in Game.assets))return false;
+				
+				this.obj.image = img;
+				this.firstElementChild.src = Game.assets[img];
+				var x = this.lastElementChild.firstElementChild;
+				this.lastElementChild.innerHTML = img;
+				this.lastElementChild.appendChild(x);
+				Editor.update();
+				
+			};
+			
 			div.ondragover = function(e){
 				e.preventDefault();
 				this.style.borderStyle = 'dashed';
@@ -752,6 +798,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			img.style.width = '75px';
 			img.style.height = '75px';
 			img.style.marginTop = '5px';
+			img.style.background = 'url(img/empty.png)';
 			
 			img.ondragstart = function(e) {
 				e.preventDefault();
@@ -781,7 +828,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				//this.obj.__image.data = null;
 				this.img.alt = '';
 				this.img.src = '';
-				this.img.style.border = '1px solid white';
+				//this.img.style.border = '1px solid white';
 				
 				var par = this.parentElement;
 				this.parentElement.innerHTML = 'none';
@@ -811,6 +858,20 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			div.style.flexDirection = 'column';
 			div.style.border = 'white 1px solid';
 			div.obj = obj;
+			
+			div.onclick = function(e){
+
+				if(e.target.tagName != 'IMG')return;
+				if(!Editor.selectedFile)return;
+				if(Editor.selectedFile.type != 'Image')return;
+				
+				var img = Editor.selectedFile.name;
+				
+				if((img == Game.logo))return false;
+			
+				Game.logo = img;//Game.assets[img];
+				this.firstElementChild.src = Game.assets[img];
+			};
 			
 			div.ondragover = function(e){
 				e.preventDefault();
@@ -849,6 +910,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			img.style.width = '75px';
 			img.style.height = '75px';
 			img.style.marginTop = '5px';
+			img.style.background = 'url(img/empty.png)';
 			img.ondragstart = function(e) {
 				e.preventDefault();
 				return false;
@@ -896,6 +958,20 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			div.style.border = 'white 1px solid';
 			div.obj = obj;
 			
+			div.onclick = function(e){
+
+				if(e.target.tagName != 'IMG')return;
+				if(!Editor.selectedFile)return;
+				if(Editor.selectedFile.type != 'Image')return;
+				
+				var img = Editor.selectedFile.name;
+				
+				if((img == Game.icon))return false;
+			
+				Game.icon = img;//Game.assets[img];
+				this.firstElementChild.src = Game.assets[img];
+			};
+			
 			div.ondragover = function(e){
 				e.preventDefault();
 				this.style.borderStyle = 'dashed';
@@ -933,6 +1009,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			img.style.width = '75px';
 			img.style.height = '75px';
 			img.style.marginTop = '5px';
+			img.style.background = 'url(img/empty.png)';
 			img.ondragstart = function(e) {
 				e.preventDefault();
 				return false;
@@ -1481,6 +1558,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			f1.add(obj,'drawImage');
 			///////////////////////////
 			//f1.add(obj,'image');
+			//var title = f1.add({'image':true},'image');
+			//title.domElement.parentElement.querySelector('div.c').innerHTML = '';
+			
 			var a = f1.add({a:true},'a');
 			var b = a.domElement.parentElement.parentElement;
 			a.domElement.parentElement.innerHTML = '';
