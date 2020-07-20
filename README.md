@@ -3,7 +3,7 @@
 
 Homepage: https://zica39.github.io/zicaengine/
 
-[![ZICA Engine logo](img/product.png)](https://zica39.github.io/zicaengine/)
+[![ZICA Engine logo](docs/imges/product.png)](https://zica39.github.io/zicaengine/)
 
 #### 2D cross-platform game engine
 
@@ -13,13 +13,13 @@ But also supports scripting for advanced users. Games can be exported in one cli
 desktop platforms (Linux, Mac OSX, Windows), mobile
 (Android) and web-based (HTML5) platforms.
 
-![ZICA Engine review](img/preview.gif)
+![ZICA Engine review](docs/imges/preview.gif)
 
 #### Features
-![ZICA Engine Features](img/c3events2.png)
+![ZICA Engine Features](docs/imges/c3events2.png)
 
 #### Rapidly develop your ideas whit ZScript event system
-![ZICA Engine ZScript system](img/c3events.png)
+![ZICA Engine ZScript system](docs/imges/c3events.png)
 
 ## To do
 - [x] Windows Mac Linux build
@@ -38,7 +38,7 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 - [ ] More actions and behaviours
 
 #### Code example
-![ZICA Engine ZScript system](img/c3events1.png)
+![ZICA Engine ZScript system](docs/imges/c3events1.png)
 
 ### License
 - [MIT](https://opensource.org/licenses/MIT) © [Zeljko Ivanovic](https://github.com/zica39)
