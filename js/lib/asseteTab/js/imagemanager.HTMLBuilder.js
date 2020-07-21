@@ -45,6 +45,17 @@ ImageManager.HTMLBuilder = {
 		img[0].style.width  = '100%';
 		img[0].style.height  = '100%';
 		
+		img[0].ondblclick = function(){
+			
+			var name = this.parentElement.parentElement.lastElementChild.innerHTML;
+			var type  = that.getType(name);
+			if(type != 'Image')return;
+			
+			top.Editor.selectedImage = name;
+			top.openPaintTab();
+			if(top.Editor.selectedFile.name != name)this.click();
+		}
+		
 		img[0].onclick = function(){
 			var name = this.parentElement.parentElement.lastElementChild.innerHTML;
 			var type  = that.getType(name);

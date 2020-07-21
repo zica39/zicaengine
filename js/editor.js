@@ -63,6 +63,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			this.isMoving = false;
 			//set to the currently selected entity, false otherwise
 			this.selected = null;
+			//set to the currently selected image from assete
+			this.selectedImage = null;
 			//set to the currently selected file from assete
 			this.selectedFile = null;
             //last position of the mouse {x, y}

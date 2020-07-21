@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Literally Canvas</title>
+    <link href="css/literallycanvas.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+
+    <style type="text/css">
+      .fs-container {
+        width: 100%;
+        margin: auto;
+      }
+
+      .literally {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+	  
+	html::-webkit-scrollbar {
+		height: 12px !important;
+		width: 10px !important;
+		background: #222 !important;
+	}
+	html::-webkit-scrollbar-thumb {
+		background: #aaa !important;
+	}
+	html::-webkit-scrollbar-corner {
+		background: #666 !important;
+	}
+    </style>
+  </head>
+
+  <body>
+    <div class="fs-container">
+      <div id="lc"></div>
+    </div>
+
+    <!-- you really ought to include react-dom, but for react 0.14 you don't strictly have to. -->
+    <script src="js/react-0.14.3.js"></script>
+    <script src="js/literallycanvas.js"></script>
+
+    <script type="text/javascript">
+	var image = top.Editor.selectedImage;
+	
+	var watermarkImage = new Image();
+    watermarkImage.src = 'css/lc-images/empty.png';
+	
+      var lc = LC.init(document.getElementById("lc"), {
+        imageURLPrefix: 'css/lc-images',
+        toolbarPosition: 'bottom',
+        defaultStrokeWidth: 2,
+        strokeWidths: [1, 2, 3, 5, 30],
+		watermarkImage: watermarkImage
+      });
+	  
+	  var newImage = new Image()
+	  newImage.src = top.Game.assets[image];
+	
+      lc.saveShape(LC.createShape('Image', {x: 0, y: 0, image: newImage}));
+	
+	 var saveButton  = document.querySelector('div.lc-clear');
+	saveButton.innerText = 'Save';
+	saveButton.onclick = save;
+	
+	function save(){
+	 var data =  lc.getImage().toDataURL();
+	 top.Game.assets[image] = data;
+	 top.Editor.updateAsset();
+	}
+    </script>
+  </body>
+</html>

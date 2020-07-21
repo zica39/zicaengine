@@ -61,8 +61,7 @@
 	  <iframe id = 'filemanager' style = "position:absolute; top:0%;height:100%;width:100%;" src = "js/lib/asseteTab/ImageManager.html"></iframe>
 	  <iframe id = 'prefabsTab' style = "position:absolute; top:0%;height:100%;width:100%;" src = "js/lib/prefabsTab/index.html"></iframe>
 	  <iframe id = 'ZScript' style = "position:absolute; top:0%;height:100%;width:100%;" src = "js/lib/ZScript/index.html"></iframe>
-	  <iframe id = 'animaiton' style = "position:absolute; top:0%;height:100%;width:100%;" src = "js/lib/AnimationManager/index.html"></iframe>
-	  
+	  <iframe id = 'animaiton' style = "position:absolute; top:0%;height:100%;width:100%;" src = "js/lib/AnimationManager/index.html"></iframe>	  
 	  <!-- <iframe id = 'timeline' style = "position:absolute; top:0%;height:100%;width:100%;" src = "js/lib/timeline/examples/index.html#" ></iframe> -->
 	 
 	<!-- </div> -->
@@ -1010,6 +1009,32 @@
 		build_tab.content.appendChild(build);
 		
 		build_tab.tab.children[1].onclick = function(){scene_tab.click()}
+		
+		}
+		
+		function openPaintTab(){
+		
+		var tab = tabs.getTab('Paint');
+		if(tab)tab.destroy();
+
+		if(tabs.getTab("Paint")){tabs.getTab("Paint").click();return};
+		
+		window.paint_tab = tabs.addTab("Paint", { selected:true, closable:true , size: "full" });
+		addIconToTab(paint_tab,'paint-brush',null);
+		paint_tab.content.style.overflow = 'hidden';
+		
+		var paint = document.createElement('iframe');
+		paint.style.position = 'absolute';
+		paint.style.top = '0px';
+		paint.style.left = '0px';
+		paint.style.width = '100%';
+		paint.style.height = '100%';
+		paint.src = 'js/lib/literallycanvas/index.html';
+		paint_tab.content.appendChild(paint);
+		bubbleIframeMouseMove(paint);
+		
+		
+		paint_tab.tab.children[1].onclick = function(){scene_tab.click()}
 		
 		}
 		
