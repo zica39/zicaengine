@@ -53,7 +53,8 @@ ImageManager.HTMLBuilder = {
 			
 			top.Editor.selectedImage = name;
 			top.openPaintTab();
-			if(top.Editor.selectedFile.name != name)this.click();
+			
+			this.click();
 		}
 		
 		img[0].onclick = function(){
@@ -226,7 +227,8 @@ ImageManager.HTMLBuilder = {
 			ImgObj.find('img').attr('srcset',asset.type);
 			ImgObj.find('img').attr('src',asset.fileBody);
 			ImageManager.assetManager.update();
-			//da se ubrza ako bi se unaprijed znao tip dadoteke
+			
+			//check type 
 			parent.Editor.updateImage(asset.fileName);
 			parent.Editor.updateAudio(asset.fileName);
 		}else{
@@ -341,3 +343,4 @@ ImageManager.HTMLBuilder = {
         }
     }
 };
+

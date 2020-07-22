@@ -1,0 +1,22 @@
+  .fs-container {
+        width: 100%;
+        margin: auto;
+      }
+
+      .literally {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+	  
+	html::-webkit-scrollbar {
+		height: 12px !important;
+		width: 10px !important;
+		background: #222 !important;
+	}
+	html::-webkit-scrollbar-thumb {
+		background: #aaa !important;
+	}
+	html::-webkit-scrollbar-corner {
+		background: #666 !important;
+	}

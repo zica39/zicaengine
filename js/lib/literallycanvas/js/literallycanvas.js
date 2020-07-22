@@ -4246,13 +4246,14 @@ ClearButton = React.createClass({
     });
     onClick = lc.canUndo() ? ((function(_this) {
       return function() {
-        return lc.clear();
+        //return lc.clear();
+		window.save();
       };
     })(this)) : function() {};
     return div({
       className: className,
       onClick: onClick
-    }, _('Clear'));
+    }, _('Save'));
   }
 });
 
