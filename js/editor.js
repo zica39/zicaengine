@@ -250,7 +250,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
             this.update();
 			this.updateTree();
 			this.camera.addListeners();
+			
 			document.getElementById('asseteAddButton').style.display = '';
+			document.getElementById('loading').style.display = 'none';
         }
 		
 		EditorViewModel.prototype.defaultSettings = function(){
