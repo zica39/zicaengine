@@ -47,6 +47,16 @@
 		
 		<select id = "select-event"></select>
 		
+		<button style = 'margin-left:7px;'  title = 'Undo' onclick = 'Editor.eventViewModel.undo();'><i class="fa fa-undo" aria-hidden="true"></i> </button>
+		<button  title = 'Redo' onclick = 'Editor.eventViewModel.redo();'><i class="fa fa-redo" aria-hidden="true"></i> </button>
+
+		<button  style = 'margin-left:7px;' title = 'Copy' onclick = 'Editor.eventViewModel.copy();'><i class="fa fa-copy" aria-hidden="true"></i> </button>
+		<button  title = 'Cut' onclick = 'Editor.eventViewModel.cut();'><i class="fa fa-cut" aria-hidden="true"></i> </button>
+	    <button  title = 'Paste' onclick = 'Editor.eventViewModel.paste();'><i class="fa fa-paste" aria-hidden="true"></i> </button>
+
+		<button style = 'margin-left:7px;' title = 'Find' onclick = 'Editor.eventViewModel.find();'><i class="fa fa-binoculars" aria-hidden="true"></i> </button>
+	    <button  title = 'Goto' onclick = 'Editor.eventViewModel.goToLine();'><i class="fas fa-running" aria-hidden="true"></i> </button>
+
 		<!-- <button onclick = "Editor.eventViewModel.onEventApplyButtonClick();" >Apply</button> -->
 		<button hidden onclick = "Editor.eventViewModel.eventApply();" >Apply</button>
 		
@@ -1038,6 +1048,31 @@
 		
 		}
 		
+		function openAudioEditorTab(){
+		
+		var tab = tabs.getTab('Audio Editor');
+		if(tab)tab.destroy();
+
+		if(tabs.getTab("Audio Editor")){tabs.getTab("Audio Editor").click();return};
+		
+		window.audioEditor_tab = tabs.addTab("Audio Editor", { selected:true, closable:true , size: "full" });
+		addIconToTab(audioEditor_tab,'file-audio-o',null);
+		audioEditor_tab.content.style.overflow = 'hidden';
+		
+		var audioEditor = document.createElement('iframe');
+		audioEditor.style.position = 'absolute';
+		audioEditor.style.top = '0px';
+		audioEditor.style.left = '0px';
+		audioEditor.style.width = '100%';
+		audioEditor.style.height = '100%';
+		audioEditor.src = 'js/lib/audioEditor/index.html';
+		audioEditor_tab.content.appendChild(audioEditor);
+		bubbleIframeMouseMove(audioEditor);
+		
+		
+		audioEditor_tab.tab.children[1].onclick = function(){scene_tab.click()}
+		
+		}
 		//closable:true 
 		//widgets.addButton(null,"Detach Code tab", function() { tabs.detachTab("Code"); });
 			
