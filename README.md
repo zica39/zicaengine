@@ -23,7 +23,7 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 
 ## To do
 - [x] Windows Mac Linux build
-- [ ] Image & audio editor
+- [ ] Image, audio & text editor
 - [ ] RPG map editor
 - [ ] Adroid & IOS build
 - [ ] Admob integration
