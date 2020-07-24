@@ -55,6 +55,7 @@ define(["require", "exports"], function (require, exports) {
                 fontFamily: "Inconsolata-g",
                 lineNumbers: "on",
                 fontSize: 13,
+				//contextmenu:false,
 				automaticLayout: true, // the important part
 				theme : "vs-dark"
             });
@@ -72,12 +73,58 @@ define(["require", "exports"], function (require, exports) {
 			});
 			this.isCreated = true;
 			this.updateEventEditor();
-		}
+		};
+		
+		EventViewModel.prototype.undo = function (){	
+			this.eventEditor.getModel().undo();
+
+		};
+		
+		EventViewModel.prototype.redo = function (){	
+			this.eventEditor.getModel().redo();
+		};
+		
+		EventViewModel.prototype.copy = function (){	
+			//this.eventEditor.focus();
+			//document.execCommand('copy');
+			var text = this.getSelection();
+			navigator.clipboard.writeText(text);
+		};
+		EventViewModel.prototype.cut = function (){	
+			this.eventEditor.focus();
+			document.execCommand('cut');
+		};
+		EventViewModel.prototype.paste = function (){
+			
+			this.eventEditor.focus();
+			var _this = this;
+			navigator.clipboard.readText()
+			.then(text => {
+				this.eventEditor.trigger('keyboard', 'type', {text: text});
+			})
+			.catch(err => {
+				console.error('Failed to read clipboard contents: ', err);
+			});
+
+			//document.execCommand('paste');
+		};
+		EventViewModel.prototype.getSelection = function(){
+			this.eventEditor.focus();
+			return this.eventEditor.getModel().getValueInRange(this.eventEditor.getSelection());
+		};
+		EventViewModel.prototype.find = function (){	
+			this.eventEditor.focus();
+			this.eventEditor.trigger('source','actions.find');
+		};
+		EventViewModel.prototype.goToLine = function (){	
+			this.eventEditor.focus();
+			this.eventEditor.trigger('source','editor.action.gotoLine');
+		};
 		
 		EventViewModel.prototype.chosenEvent = function (){
 				
 				return document.getElementById('select-event').value;
-			}
+		};
 			
         EventViewModel.prototype.selectEntity = function (ent) {
             this.selected = ent;
