@@ -235,3 +235,15 @@ footer {
     text-align: center;
     display: none;
 }
+
+::-webkit-scrollbar {
+    height: 12px !important;
+	width: 10px !important;
+	background: #222 !important;
+}
+::-webkit-scrollbar-thumb {
+    background: #aaa !important;
+}
+::-webkit-scrollbar-corner {
+    background: #666 !important;
+}

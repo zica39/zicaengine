@@ -49,10 +49,22 @@ ImageManager.HTMLBuilder = {
 			
 			var name = this.parentElement.parentElement.lastElementChild.innerHTML;
 			var type  = that.getType(name);
-			if(type != 'Image')return;
 			
-			top.Editor.selectedImage = name;
-			top.openPaintTab();
+			if(type == 'Image'){
+				top.Editor.selectedImage = name;
+				top.openPaintTab();
+			}
+			
+			if(type == 'Text'){
+				top.Editor.selectedText = name;
+				var ext = 'text';
+				
+					if (name.match(/.(js)$/i))ext = 'javascript';
+					else if (name.match(/.(json)$/i))ext = 'json';
+					else if (name.match(/.(txt)$/i))ext = 'text';
+					
+				top.openTextEditorTab(ext);
+			}
 			
 			this.click();
 		}
@@ -137,8 +149,13 @@ ImageManager.HTMLBuilder = {
 			var icon = 'file';
 			
 			switch(type){
+				/* case 'Image': icon = 'file-picture-o'; break;
+				case 'Audio': icon = 'file-audio-o'; break;
+				case 'Video': icon = 'file-video-o'; break;
+				case 'Text': icon = 'file-text-o'; break; */
+				
 				case 'Image': icon = 'picture-o'; break;
-				case 'Audio': icon = 'music'; break;
+				case 'Audio': icon = 'volume-up'; break;
 				case 'Video': icon = 'video-camera'; break;
 				case 'Text': icon = 'code'; break;
 				case 'File' : icon = 'file'; break;		
@@ -343,4 +360,3 @@ ImageManager.HTMLBuilder = {
         }
     }
 };
-

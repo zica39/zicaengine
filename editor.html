@@ -1075,6 +1075,53 @@
 		audioEditor_tab.tab.children[1].onclick = function(){scene_tab.click()}
 		
 		}
+		
+		function openTextEditorTab(type){
+		
+		if(!type)type = 'javascript';
+		
+		var tab = tabs.getTab('Text Editor');
+		if(tab)tab.destroy();
+
+		if(tabs.getTab("Text Editor")){tabs.getTab("Text Editor").click();return};
+		
+		window.textEditor_tab = tabs.addTab("Text Editor", { selected:true, closable:true , size: "full" });
+		addIconToTab(textEditor_tab,'file-text-o',null);
+		textEditor_tab.content.style.overflow = 'hidden';
+		
+		var textEditorDiv = document.createElement('div');
+		textEditorDiv.style.position = 'absolute';
+		textEditorDiv.style.top = '0px';
+		textEditorDiv.style.left = '0px';
+		textEditorDiv.style.width = '100%';
+		textEditorDiv.style.height = '100%';
+		textEditor_tab.content.appendChild(textEditorDiv);
+		
+		var value = Game.assets[Editor.selectedText];
+		
+		var textEditor = window["monaco"].editor.create(textEditorDiv, {
+                value: value,
+                language: type,
+                fontFamily: "Inconsolata-g",
+                lineNumbers: "on",
+                fontSize: 13,
+				//contextmenu:false,
+				automaticLayout: true, // the important part
+				theme : "vs-dark"
+            });
+        textEditor.getModel().updateOptions({ tabSize: 2 });
+		
+		textEditor.fileName = Editor.selectedText;
+		
+		var _this = textEditor;
+		textEditor.onDidChangeModelContent(function (e) {
+				if(Game.assets[_this.fileName])
+				Game.assets[_this.fileName] = _this.getValue();
+		});
+		
+		textEditor_tab.tab.children[1].onclick = function(){scene_tab.click()}
+		
+		}
 		//closable:true 
 		//widgets.addButton(null,"Detach Code tab", function() { tabs.detachTab("Code"); });
 			

@@ -65,6 +65,10 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			this.selected = null;
 			//set to the currently selected image from assete
 			this.selectedImage = null;
+			//set to the currently selected audio from assete
+			this.selectedAudio = null;
+			//set to the currently selected text from assete
+			this.selectedText = null;
 			//set to the currently selected file from assete
 			this.selectedFile = null;
             //last position of the mouse {x, y}
