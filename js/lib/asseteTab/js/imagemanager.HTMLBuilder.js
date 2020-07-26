@@ -55,6 +55,11 @@ ImageManager.HTMLBuilder = {
 				top.openPaintTab();
 			}
 			
+			if(type == 'Audio'){
+				top.Editor.selectedAudio = name;
+				top.openAudioEditorTab();
+			}
+			
 			if(type == 'Text'){
 				top.Editor.selectedText = name;
 				var ext = 'text';

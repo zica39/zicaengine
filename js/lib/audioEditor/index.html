@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>HTML5 Audio Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+	<link href="bootstrap/css/style.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body onload="onDocumentLoaded()">
+	
+	<div style= 'margin:5px 0px;' class="sidebar-controls">
+	
+        <button onclick="save();" title = 'Save' >
+          <i class="fa fa-save" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].copy();" title = 'Copy' >
+          <i class="fa fa-copy" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].paste();" title = 'Paste' >
+          <i class="fa fa-paste" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].cut();" title = 'Cut' >
+          <i class="fa fa-cut" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].crop();" title = 'Crop' >
+          <i class="fa fa-crop" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].del();" title = 'Delete' >
+          <i class="fa fa-trash" aria-hidden="true"></i>
+        </button>
+		
+		<button onclick="$('#audioLayerControl')[0].selectAll();" title = 'Select All' >
+          <i class="fas icon-resize-horizontal icon-white" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].zoomIntoSelection();" title = 'Zoom into Selection' >
+          <i class="fa fa-search-plus" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].zoomToFit();" title = 'Zoom To Fit' >
+          <i class="fa fa-search-minus" aria-hidden="true"></i>
+		 </button>  
+		
+		<!-- <button onclick="$('#audioLayerControl')[0].play();" title = 'Play' >
+          <i class="fa fa-play" aria-hidden="true"></i>
+        </button>
+		<button onclick="$('#audioLayerControl')[0].stop();" title = 'Stop' >
+          <i class="fa fa-stop" aria-hidden="true"></i>
+        </button>
+		<button id="btn_loop" data-toggle="button" onclick="$('#audioLayerControl')[0].toggleLoop();" title = 'Loop' >
+          <i class="fa fa-repeat" aria-hidden="true"></i>
+        </button> -->
+		
+       
+		
+	</div>
+	
+    <div class="container">
+      
+        <div class="btn-toolbar"> 
+			<div style = 'display:flex;justify-content:center;' class="btn-group">
+				<a class="btn btn-warning" onclick="$('#audioLayerControl')[0].filterNormalize();" title = 'Adjust the volume to the maximum of the selected audio sequence.'>Normalize</a>
+				<a class="btn btn-warning" onclick="$('#audioLayerControl')[0].filterSilence();" title = 'Silence the selected audio sequence'></i> Silence</a>
+				<a class="btn btn-warning" onclick="$('#audioLayerControl')[0].filterFadeIn();" title = 'Create a linear fade int of the selected audio sequence'></i> Fade In</a>
+				<a class="btn btn-warning" onclick="$('#audioLayerControl')[0].filterFadeOut();" title = 'Create a linear fade out of the selected audio sequence'></i> Fade Out</a>
+
+				<button class="btn disabled">Gain</button>
+				<button class="btn btn-warning" onclick="decrease_db()"><i class="icon-minus"></i></button>
+				<button id="gain-db" class="btn disabled" onclick="gain_btn_clicked()">0 db</button>
+				<button class="btn btn-warning" onclick="increase_db()"><i class="icon-plus"></i></button> 
+			</div>
+        </div>
+    
+	  
+      <div class="row">
+        
+          <div style='margin-bottom:2px;' class="well">
+             <audioLayerControl id="audioLayerControl" title="CloudCompany.mp3" />
+		  </div>
+       
+		 <div style = 'display:flex;justify-content:center;' class="btn-group">
+             
+				<a id="btn_play" class="btn btn-success" onclick="$('#audioLayerControl')[0].play()" rel="tooltip" title="first tooltip"><i class="icon-play icon-white"></i></a>
+                <!-- <a id="btn_pause" class="btn btn-success disabled"><i class="icon-pause icon-white"></i></a> -->
+                <a id="btn_stop" class="btn btn-success" onclick="$('#audioLayerControl')[0].stop()"><i class="icon-stop icon-white"></i></a>
+                <a style='display:none' class="btn btn-large btn-primary" onclick="$('#audioLayerControl')[0].save($('#savelink')[0]);"><i class="icon-fire"></i>Save</a>
+				<a style='display:none' class="btn btn-large btn-success disabled" id="savelink" download="export.wav"><i class="icon-download"></i></a>
+				<a id="btn_loop" class="btn btn-success" data-toggle="button" onclick="$('#audioLayerControl')[0].toggleLoop();"><i class="icon-repeat icon-white"></i></a>
+							
+		</div>
+		
+      </div>
+	  
+	  <div style = 'display:none' class="span4">
+          <h6>Spectrum</h6>
+          <div class="well">
+            <div id="spectrum"></div>
+          </div>
+        </div>
+
+	  
+      <div hidden class="row">
+        <div class="span4 offset4">
+          <div class="progress progress-striped active">
+            <div id="app-progress" class="bar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div> 
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="jquery/js/jquery-1.7.2.js"></script>
+    <script src="bootstrap/js/bootstrap-transition.js"></script>
+    <script src="bootstrap/js/bootstrap-alert.js"></script>
+    <script src="bootstrap/js/bootstrap-modal.js"></script>
+    <script src="bootstrap/js/bootstrap-dropdown.js"></script>
+    <script src="bootstrap/js/bootstrap-scrollspy.js"></script>
+    <script src="bootstrap/js/bootstrap-tab.js"></script>
+    <script src="bootstrap/js/bootstrap-tooltip.js"></script>
+    <script src="bootstrap/js/bootstrap-popover.js"></script>
+    <script src="bootstrap/js/bootstrap-button.js"></script>
+    <script src="bootstrap/js/bootstrap-collapse.js"></script>
+    <script src="bootstrap/js/bootstrap-carousel.js"></script>
+    <script src="bootstrap/js/bootstrap-typeahead.js"></script>
+
+	
+	<script type="text/javascript" src="app/js/base64-binary.js"></script>
+    <script type="text/javascript" src="app/js/ACFIRFilter.js"></script>
+    <script type="text/javascript" src="app/js/ACAAFilter.js"></script> 
+    <script type="text/javascript" src="app/js/ACSpectrum.js"></script>    
+    <script type="text/javascript" src="app/js/ACFFT.js"></script>
+    <script type="text/javascript" src="app/js/SpectrumWorker.js"></script>
+    <script type="text/javascript" src="app/js/SpectrumDisplay.js"></script>
+    <script type="text/javascript" src="app/js/audioplayback.js"></script>
+    <script type="text/javascript" src="app/js/filedropbox.js"></script>
+    <script type="text/javascript" src="app/js/fft.js"></script>
+    <script type="text/javascript" src="app/js/audioLayerControl.js"></script>
+    <script type="text/javascript" src="app/js/audiosequence.js"></script>
+    <script type="text/javascript" src="app/js/AudioSequenceEditor.js"></script>
+    <script type="text/javascript" src="app/js/mathutilities.js"></script>
+    <script type="text/javascript" src="app/js/wavetrack.js"></script>
+    <script type="text/javascript" src="app/js/binarytoolkit.js"></script>
+    <script type="text/javascript" src="app/js/filesystemutility.js"></script>
+    <script type="text/javascript" src="app/js/recorder.js"></script>
+    <script type="text/javascript" src="app/js/recorderWorker.js"></script>
+    <script type="text/javascript" src="app/js/editorapp.js"></script>
+
+    <script type="text/javascript">
+	
+	function save(){
+	$('#audioLayerControl')[0].save($('#savelink')[0]);
+	var url = $('#savelink')[0].href;
+	$('#savelink')[0].disabled = true;
+	
+	var request = new XMLHttpRequest();
+	request.open('GET', url, true);
+	request.responseType = 'blob';
+	request.onload = function() {
+		var reader = new FileReader();
+		reader.readAsDataURL(request.response);
+		reader.onload =  function(e){
+		
+		top.Game.assets[audio] = e.target.result;
+		top.Editor.updateAsset();
+	    top.Editor.updateAudio(audio);
+		$('#savelink')[0].disabled = false;
+		};
+	};
+	request.send();
+	 
+	}
+	function dataURLtoFile(dataurl, filename) {
+ 
+        var arr = dataurl.split(','),
+            mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), 
+            n = bstr.length, 
+            u8arr = new Uint8Array(n);
+            
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        
+        return new File([u8arr], filename, {type:mime});
+    };
+	
+	 var db_gain = 0;
+
+	function decrease_db()
+	{
+	  --db_gain;
+	  update_db_gain_btn();
+	}
+
+	function increase_db()
+	{
+	  ++db_gain;
+	  update_db_gain_btn();
+	}
+
+	function update_db_gain_btn()
+	{
+	  var gain_btn = $('#gain-db')[0];
+
+	  gain_btn.innerHTML = db_gain + ' db'; 
+
+	  if (db_gain === 0)
+	  {
+		gain_btn.className = 'btn disabled';
+	  }
+	  else
+	  {
+		gain_btn.className = 'btn btn-primary';
+	  }
+	}
+
+	function gain_btn_clicked()
+	{
+	  $('#audioLayerControl')[0].filterGain(db_gain);
+	  db_gain = 0;
+	  update_db_gain_btn();
+	}
+	
+      $(window).load(function()
+      {
+        var supportLabel =  $('#browser_support')[0];
+		this.audio = top.Editor.selectedAudio;
+
+        if (typeof(window.AudioContext || window.webkitAudioContext) === 'undefined')
+        {
+          //supportLabel.className = "label label-important";
+          //supportLabel.innerHTML = 'no web audio API support. try the latest Google Chrome build.';
+        }
+        else
+        {
+		   var base64 = top.Game.assets[audio];
+		   var file = dataURLtoFile(base64,audio);
+		   var audioEditor = document.querySelector("#audioLayerControl");
+		   
+		var reader = new FileReader();
+        
+        // init the reader event handlers
+        reader.onload = function (evt)
+        {
+            var arrayBuffer = evt.target.result;
+            
+            audioEditor.masterObj.resultArrayBuffer = arrayBuffer;
+            // write into the result array
+            audioEditor.masterObj.result = new Uint8Array(arrayBuffer);
+            
+            // callback
+            if (audioEditor.masterObj.onFinish !== null)
+            {
+                audioEditor.masterObj.onFinish();
+            }
+        }; // event handle on success
+        
+        reader.onerror = audioEditor.masterObj.onFail; // event handle on failure
+        
+        // load the file as array buffer
+        reader.readAsArrayBuffer(file);
+		 
+          //supportLabel.className = "label label-success";
+          //supportLabel.innerHTML = 'you have web audio API support.';
+        }
+
+       // $('#welcomeAsModal').modal('show');
+      });
+    </script>
+  </body>
+</html>

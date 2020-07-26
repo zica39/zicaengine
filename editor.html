@@ -1026,16 +1026,17 @@
 		
 		function openPaintTab(){
 		
-		var tab = tabs.getTab('Paint');
+		var tab = tabs.getTab('Image Editor');
 		if(tab)tab.destroy();
 
-		if(tabs.getTab("Paint")){tabs.getTab("Paint").click();return};
+		if(tabs.getTab("Image Editor")){tabs.getTab("Image Editor").click();return};
 		
-		window.paint_tab = tabs.addTab("Paint", { selected:true, closable:true , size: "full" });
+		window.paint_tab = tabs.addTab("Image Editor", { selected:true, closable:true , size: "full" });
 		addIconToTab(paint_tab,'paint-brush',null);
 		paint_tab.content.style.overflow = 'hidden';
 		
 		var paint = document.createElement('iframe');
+		paint.name = 'Image Editor';
 		paint.style.position = 'absolute';
 		paint.style.top = '0px';
 		paint.style.left = '0px';
@@ -1062,6 +1063,7 @@
 		audioEditor_tab.content.style.overflow = 'hidden';
 		
 		var audioEditor = document.createElement('iframe');
+		audioEditor.name = 'Audio Editor';
 		audioEditor.style.position = 'absolute';
 		audioEditor.style.top = '0px';
 		audioEditor.style.left = '0px';
@@ -1090,6 +1092,7 @@
 		textEditor_tab.content.style.overflow = 'hidden';
 		
 		var textEditorDiv = document.createElement('div');
+		textEditorDiv.name = 'Text Editor';
 		textEditorDiv.style.position = 'absolute';
 		textEditorDiv.style.top = '0px';
 		textEditorDiv.style.left = '0px';

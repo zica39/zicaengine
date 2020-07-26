@@ -1,0 +1,70 @@
+@import "../../../../../css/font-awesome.min.css";
+
+body {
+	background:transparent;
+}
+* ::-webkit-scrollbar {
+    height: 12px !important;
+	width: 10px !important;
+	background: #222 !important;
+}
+*::-webkit-scrollbar-thumb {
+    background: #aaa !important;
+}
+*::-webkit-scrollbar-corner {
+    background: #666 !important;
+}	  
+.sidebar-controls {
+  margin: 0;
+  text-align: center;
+  display: flex;
+  /*border-top: 1px solid #333;*/
+}
+.sidebar-controls:first-child {
+  border-top: none;
+}
+.sidebar-controls > button,
+.sidebar-controls:nth-child(2n+1) > button {
+  height: 2em;
+  font: inherit;
+  font-size: 1em;
+  flex: 1;
+  border: none;
+  /*margin: 0.2em;*/
+  background: #505065;
+  outline: none;
+  border-left: 1px solid #454557;
+  color: lightgray;
+}
+.sidebar-controls > button:first-of-type,
+.sidebar-controls:nth-child(2n+1) > button:first-of-type {
+  border-left: none;
+}
+.sidebar-controls > button:hover,
+.sidebar-controls:nth-child(2n+1) > button:hover {
+  background: #72728f;
+  color: white;
+}
+.sidebar-controls > button:active,
+.sidebar-controls:nth-child(2n+1) > button:active {
+  background: #80809b;
+  outline: none !important;
+}
+.sidebar-controls > button.no-padding,
+.sidebar-controls:nth-child(2n+1) > button.no-padding {
+  padding: 0;
+}
+.sidebar-controls:nth-child(2n+1) > button {
+  background: #666681;
+  border-left: 1px solid #5b5b73;
+}
+#field {
+  outline: none;
+}
+/* Properties Table */
+.sidebar-properties > * {
+  margin-bottom: 0.4em;
+}
+canvas{
+width:100%;	
+}
