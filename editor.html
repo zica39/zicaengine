@@ -1125,6 +1125,33 @@
 		textEditor_tab.tab.children[1].onclick = function(){scene_tab.click()}
 		
 		}
+		
+		function openMapEditorTab(){
+		
+		var tab = tabs.getTab('RPG Map Editor');
+		if(tab)tab.destroy();
+
+		if(tabs.getTab("RPG Map Editor")){tabs.getTab("RPG Map Editor").click();return};
+		
+		window.mapEditor_tab = tabs.addTab("RPG Map Editor", { selected:true, closable:true , size: "full" });
+		addIconToTab(mapEditor_tab,'map-o',null);
+		mapEditor_tab.content.style.overflow = 'hidden';
+		
+		var mapEditor = document.createElement('iframe');
+		mapEditor.name = 'RPG Map Editor';
+		mapEditor.style.position = 'absolute';
+		mapEditor.style.top = '0px';
+		mapEditor.style.left = '0px';
+		mapEditor.style.width = '100%';
+		mapEditor.style.height = '100%';
+		mapEditor.src = 'js/lib/rpg-map-editor/index.html';
+		mapEditor_tab.content.appendChild(mapEditor);
+		bubbleIframeMouseMove(mapEditor);
+		
+		
+		mapEditor_tab.tab.children[1].onclick = function(){scene_tab.click()}
+		
+		}
 		//closable:true 
 		//widgets.addButton(null,"Detach Code tab", function() { tabs.detachTab("Code"); });
 			

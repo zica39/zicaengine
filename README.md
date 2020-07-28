@@ -43,4 +43,4 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 ### License
 - [MIT](https://opensource.org/licenses/MIT) © [Zeljko Ivanovic](https://github.com/zica39)
 - The project  build on top of open source libraries: [monaco-editor](https://microsoft.github.io/monaco-editor/), [dat.gui](https://github.com/dataarts/dat.gui), [litegui.js](https://github.com/jagenjo/litegui.js), [javascript-sandbox-console](http://openexchangerates.github.io/javascript-sandbox-console/),
-[nwjs.io](https://nwjs.io), [copperlicht](https://github.com/Sebmaster/copperlicht), [literallycanvas](https://github.com/literallycanvas/literallycanvas), [RPG Map Factory](https://github.com/rvhuang/rpg-map-factory)
+[nwjs.io](https://nwjs.io), [copperlicht](https://github.com/Sebmaster/copperlicht), [literallycanvas](https://github.com/literallycanvas/literallycanvas), [rpg-map-factory](https://github.com/rvhuang/rpg-map-factory)

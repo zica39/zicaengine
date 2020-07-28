@@ -26,10 +26,15 @@ $(document).ready(function (ev) {
     mapFactory.backgroundAssetMapping(function (i, j) {
         if (typeof mapData[i] === 'undefined' || typeof mapData[i][j] === 'undefined') {
             if (i === 0 || j === 0 || i === mapSize - 1 || j === mapSize - 1) {
-                return {
+                return{
+                    x: 7 * tileSize, 
+                    y: 3 * tileSize
+                }; // default background tile.
+				
+				/* {
                     x: 4 * tileSize,
                     y: 1 * tileSize
-                }; // default background tile on border. 
+                }; // default background tile on border.  */
             }
             else {
                 return {
