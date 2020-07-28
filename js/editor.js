@@ -503,7 +503,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			for(var i = 0; i<= Game.scenes.length-1;i++){
 				
 			if((Game.scenes[i].image == img))Game.scenes[i].__image = null;
-				
+			if((Game.scenes[i].map == img))Game.scenes[i].__map = null;
+			
 				for (var _i = 0, _a = Game.scenes[i].children; _i < _a.length; _i++) {
 					var ent = _a[_i];
 					
@@ -624,6 +625,22 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			div.style.border = 'white 1px solid';
 			div.obj = obj;
 			
+			/* var title = document.createElement('p');
+			title.innerHTML = 'Map:'
+			title.style.position = 'relative';
+			title.style.left = '-90px';
+			div.appendChild(title); */
+			
+			var mapEditorButton = this.addButton('pencil');
+			mapEditorButton.onclick = function(){
+				openMapEditorTab();
+			};
+			
+			mapEditorButton.style.position = 'absolute';
+			mapEditorButton.style.right = '7px';
+			mapEditorButton.style.border = '';
+			div.appendChild(mapEditorButton);
+			
 			div.onclick = function(e){
 
 				if(e.target.tagName != 'IMG')return;
@@ -716,6 +733,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			iconDelete.img = img;
 			iconDelete.onclick = function(){
 				this.obj.map = '';
+				this.obj.mapData = null;
+				
 				//this.obj.__image.data = null;
 				this.img.alt = '';
 				this.img.src = '';
@@ -739,6 +758,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			
 			name.appendChild(iconDelete);
 			div.appendChild(name);
+			
 			
 			
 			return div;
