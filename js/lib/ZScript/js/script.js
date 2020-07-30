@@ -12,10 +12,19 @@
 			
 	var Behaviours = [
 		{
-			name: 'On first frame do something',
+			name: 'On First frame do something',
 			jsname : 'AnimatorOnFirstFrame',
 			description : "This behavior detect first frame",
 			'Action': [ 'action' , []]
+		},
+		
+		{
+			name: 'Fly in a circle',
+			jsname : 'AnimatorFlyCircle',
+			description : 'Lets the 2D scene node move in a circle. ',
+			'Center': [ 'vect2d' , '[0.0, 0.0]'],
+			'Radius': [ 'float' , '50'],
+			'Speed': [ 'float' , '0.1']
 		},
 		
 		{

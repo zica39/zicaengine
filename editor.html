@@ -817,7 +817,7 @@
 		scene_tab.content.appendChild(toolbar);
 		scene_tab.content.appendChild(canvasDiv);
 		
-		scene_tab.tab.onclick = function(){Editor.canvas.redraw();scene_tab.content.style.display = 'flex';};
+		scene_tab.tab.onclick = function(){Editor.canvas.redraw();scene_tab.content.style.overflow='hidden';scene_tab.content.style.display = 'flex';};
 		
 		canvas.redraw = function() {
 		

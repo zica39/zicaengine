@@ -95,6 +95,11 @@ ZICA.Vect2d.prototype.multiplyWithScal = function(v)
 {
 	return new ZICA.Vect2d(this.X*v, this.Y*v);
 }
+ZICA.Vect2d.prototype.multiplyThisWithScal = function(v)
+{
+	this.X *= v;
+	this.Y *= v;
+}
 ZICA.Vect2d.prototype.getLength = function()
 {
 	return Math.sqrt(this.X*this.X + this.Y*this.Y );
@@ -268,6 +273,90 @@ ZICA.Animator.prototype.createClone = function()
 {
 	return null;
 }
+
+/////////////////////////////////////////////////////
+//AnimatorFlyCircle
+/////////////////////////////////////////////////////
+
+/**
+ * Scene node animator making {@link ZICA.Entity}s move in a circle
+ * @constructor
+ * @public
+ * @extends ZICA.Animator
+ * @class Scene node animator making {@link ZICA.Entity}s move in a circle
+ * @param {ZICA.Vect2d} center 2d position of the center of the circle
+ * @param {Number} radius radius of the circle
+ * @param {Number} speed movement speed, for example 0.1
+ */
+ZICA.AnimatorFlyCircle = function(obj)//center, radius, direction, speed)
+{
+	this.Center = obj.Center;
+	this.Direction = obj.Direction;
+	this.VecU = new ZICA.Vect2d();
+	this.VecV = new ZICA.Vect2d();
+	this.StartTime = Date.now();//ZICA.CLTimer.getTime();
+	this.Speed = obj.Speed;
+	this.Radius = obj.Radius;
+	
+}		
+ZICA.AnimatorFlyCircle.prototype = new ZICA.Animator();
+
+/** 
+ * Returns the type of the animator.
+ * For the AnimatorFlyCircle, this will return 'flycircle'.
+ * @public
+ */
+ZICA.AnimatorFlyCircle.prototype.getType = function()
+{
+	return 'flycircle';
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorFlyCircle.prototype.createClone = function()
+{
+	var a = new ZICA.AnimatorFlyCircle({});
+	a.Center = this.Center.clone();
+	a.Direction = this.Direction;
+	a.VecU = this.VecU.clone();
+	a.VecV = this.VecV.clone();
+	a.Speed = this.Speed;
+	a.Radius = this.Radius;
+	return a;
+}
+
+
+/**
+ * Animates the scene node it is attached to and returns true if scene node was modified.
+ * @public
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
+ * @param {Integer} timeMs The time in milliseconds since the start of the scene.
+ */
+ZICA.AnimatorFlyCircle.prototype.animateNode = function(n, timeMs)
+{
+	var timeMs = Date.now();
+	var diff = (timeMs-this.StartTime);
+
+	if (diff != 0)
+	{
+		var t = diff * this.Speed;
+
+		var newX  = this.Radius * Math.cos(t * (Math.PI/180));
+		var newY = this.Radius * Math.sin(t * (Math.PI/180));
+		
+		// to place the square correctly we must add the calculated
+		// new x and y values to the circle center
+		var x = newX + this.Center.X;
+		var y = newY + this.Center.Y;
+		n.x = x;
+		n.y = y;
+	
+		return true;
+	}
+	
+	return false;
+}		
 
 /////////////////////////////////////////////////////
 //AnimatorRotation

@@ -2997,6 +2997,11 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			delete scene.assets;
 			Editor.setScene(scene);
 			Editor.updateAsset();
+			
+			if(Editor.scene.width<Editor.canvas.width)Editor.scene.width = Editor.canvas.width;
+			if(Editor.scene.height<Editor.canvas.height)Editor.scene.height = Editor.canvas.height;
+			Editor.sceneGui.updateDisplay();
+			Editor.update();	
 			//return;
 		}
 			
@@ -3005,8 +3010,8 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
          * Show a file dialog for opening up a game project
          **/
         EditorViewModel.prototype.openProject = function () {
-            if (run_tab)
-                return;
+            //if (run_tab)return;
+			
             //open file dialog
 			this.fileDialog.value = '';
 			this.fileDialog.accept = '.game';
@@ -3115,12 +3120,20 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 					_this.importPrefabs(data);
 					return;
 						
-					}else
+					}//else
+					
+					if(run_tab)document.getElementById('stop-button').click();
+			
+					for(var tab in tabs.tabs){
+						if(tab != 'Scene Editor')
+							tabs.tabs[tab].destroy();
+						if(tab == 'Scene Editor')tabs.tabs[tab].click();
+					}	
+					
 					game_1.GameRunner.constructApp(data,_this.game);
-					//console.log(_this.game);
 					_this.scene = _this.game.scene;
 					var scene = _this.scene;
-					
+				
 					Editor.updateSceneGUI();
 					Editor.updateAppGUI(true);
 					Editor.updateAsset();
@@ -3151,6 +3164,10 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 					
 					Editor.updateTree();
 					Editor.canvas.redraw();
+					
+					if(Editor.scene.width<Editor.canvas.width)Editor.scene.width = Editor.canvas.width;
+					if(Editor.scene.height<Editor.canvas.height)Editor.scene.height = Editor.canvas.height;
+					
 					Editor.update();
                 };
                 //read the selected file
