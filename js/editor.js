@@ -625,12 +625,6 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			div.style.border = 'white 1px solid';
 			div.obj = obj;
 			
-			/* var title = document.createElement('p');
-			title.innerHTML = 'Map:'
-			title.style.position = 'relative';
-			title.style.left = '-90px';
-			div.appendChild(title); */
-			
 			var mapEditorButton = this.addButton('pencil');
 			mapEditorButton.onclick = function(){
 				openMapEditorTab();
@@ -1219,8 +1213,12 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var b = a.domElement.parentElement.parentElement;
 			a.domElement.parentElement.innerHTML = '';
 			b.style.height = 'auto';
-			b.appendChild(this.addMap(scene));
 			
+			var title = document.createElement('p');
+			title.innerHTML = 'map'
+			b.appendChild(title);
+			
+			b.appendChild(this.addMap(scene));	
 			
 			var f1 = this.sceneGui.addFolder('Camera');
 			f1.open();
@@ -2879,8 +2877,16 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
          * Prompt the user if they really want to delete everything, and then do so
          **/
         EditorViewModel.prototype.newProject = function () {
-            if (run_tab || !confirm("Shell will clear everything. Did you save your work?"))
+            if (!confirm("Shell will clear everything. Did you save your work?"))
                 return;
+			
+			if(run_tab)document.getElementById('stop-button').click();
+			
+			for(var tab in tabs.tabs){
+				if(tab != 'Scene Editor')
+					tabs.tabs[tab].destroy();
+				if(tab == 'Scene Editor')tabs.tabs[tab].click();
+			}
 			
 			this.scene = new scene_1.Scene();
 			this.scene.name = 'Scene';
