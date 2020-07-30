@@ -152,7 +152,7 @@
           <i class="fa fa-floppy-o" aria-hidden="true"></i>
         </button>
 		
-		<button  id="file-inport-button" title = 'Import' onclick = "Editor.import();">
+		<button  id="file-import-button" title = 'Import' onclick = "Editor.import();">
           <i class="fas fa-file-import" aria-hidden="true"></i>
         </button>
 		
@@ -225,11 +225,11 @@
           <i class="fa fa-cog" aria-hidden="true"></i>
         </button>
 		
-		<button id="remove-sprite-button" title = 'About' onclick = "openAboutTab();">
+		<button id="about-button" title = 'About' onclick = "openAboutTab();">
           <i class="fa fa-info-circle" aria-hidden="true"></i>
         </button>
 		
-		<button id="remove-sprite-button" title = 'FullScreen' onclick = "Editor.toggleFullScreen();">
+		<button id="fullscreen-button" title = 'FullScreen' onclick = "Editor.toggleFullScreen();">
           <i id = 'fsicon' class="fa fa-expand" aria-hidden="true"></i>
         </button>
 		
@@ -591,19 +591,19 @@
 		}
 		div2.appendChild(button);
 		
-		var button = document.getElementById('add-sprite-button');
+		var button = document.getElementById('file-import-button');
 		button.style.height = '20px';
 		button.style.fontSize = '10px';
 		button.style.backgroundColor = color;
 		div2.appendChild(button);
 		
-		var button = document.getElementById('duplicate-sprite-button');
+		var button = document.getElementById('file-export-button');
 		button.style.height = '20px';
 		button.style.fontSize = '10px';
 		button.style.backgroundColor = color;
 		div2.appendChild(button);
 		
-		var button = document.getElementById('remove-sprite-button');
+		var button = document.getElementById('file-share-button');
 		button.style.height = '20px';
 		button.style.fontSize = '10px';
 		button.style.backgroundColor = color;
@@ -647,16 +647,53 @@
 		//create some tabs
 		var tabs = new LiteGUI.Tabs("tabs",{ size: "full" });
 		
-		var scene_tab = tabs.addTab("Scene Editor", { height: "95%",width:"100%" });
+		var scene_tab = tabs.addTab("Scene Editor", { height: "95%" });
 		addIconToTab(scene_tab,'edit',null);
-		scene_tab.content.style.overflow = 'auto';
+		scene_tab.content.style.display = 'flex';
+		//scene_tab.content.style.overflow = 'auto';
+		
+		var toolbar = document.createElement('div');
+		toolbar.style.background = '#aaa';
+		toolbar.style.outline = '1px solid black';
+		toolbar.style.outlineOffset = '-1px';
+		toolbar.style.width = '83px';
+		toolbar.style.height = '100%';
+		
+		var div2 = document.createElement('div');
+		div2.className = 'sidebar-controls';
+		div2.style.border = '1px solid black';
+		div2.style.marginTop = '1px';
+		
+		
+		var button = document.getElementById('add-sprite-button');
+		div2.appendChild(button);
+		var button = document.getElementById('duplicate-sprite-button');
+		div2.appendChild(button);
+		var button = document.getElementById('remove-sprite-button');
+		div2.appendChild(button);
+		
+		toolbar.appendChild(div2);
+		
+		var div2 = document.createElement('div');
+		div2.className = 'sidebar-controls';
+		div2.style.border = '1px solid black';
+		div2.style.marginTop = '1px';
+		
+		var button = document.getElementById('copy-sprite-button');
+		div2.appendChild(button);
+		var button = document.getElementById('cut-sprite-button');
+		div2.appendChild(button);
+		var button = document.getElementById('paste-sprite-button');
+		div2.appendChild(button);
+		
+		toolbar.appendChild(div2);
 		
 		var snap_controls = document.getElementById('snap-controls');
 		snap_controls.removeAttribute('hidden');
 		snap_controls.style.display = 'table';
-		snap_controls.style.position = 'fixed';
-		snap_controls.style.opacity = 0.7;
-		snap_controls.style.background = '#666681';
+		snap_controls.style.border = '1px solid black';
+		snap_controls.style.margin = '4px';
+		snap_controls.style.background = '#72728f';
 		
 		snap_controls.children[0].onclick = function(){
 		if(!Editor.selected) return;
@@ -732,31 +769,14 @@
 		Editor.pupdate();
 		Editor.propertiesGui.updateDisplay();
 		}
-		
-		if(settings.Editor.split == 'vertical'){
-		snap_controls.style.right = '13px';
-		snap_controls.style.top = '82px';
-		}else{
-		snap_controls.style.bottom = '62px';
-		snap_controls.style.margin = '1px';
-		}
 
-		scene_tab.content.appendChild(snap_controls);
+		toolbar.appendChild(snap_controls);
 		
 		var snapbar = document.getElementById('snapbar');
 		snapbar.removeAttribute('hidden');
-		snapbar.style.position = 'fixed';
-		snapbar.style.opacity = 0.7;
+		snapbar.style.border = '1px solid black';
 		//snapbar.style.background = '#666681';
 		
-		if(settings.Editor.split == 'vertical'){
-		snapbar.style.right = '13px';
-		snapbar.style.top = '160px';
-		}else{
-		snapbar.style.bottom = '142px';
-		snapbar.style.margin = '1px';
-		}
-			
 		snapbar.children[0].showGrid = settings.Editor.showGrid;
 		snapbar.children[0].style.backgroundColor = settings.Editor.showGrid?'black':'';
 		
@@ -784,37 +804,20 @@
 		if(!Editor.selected)return;
 		Editor.focus(Editor.selected);
 		}
-		scene_tab.content.appendChild(snapbar);
+		toolbar.appendChild(snapbar);
 		
-		var div2 = document.createElement('div');
-		div2.className = 'sidebar-controls';
-		div2.style.height = '10px';
-		div2.style.opacity = 0.7;
-		
-		if(settings.Editor.split == 'vertical'){
-		div2.style.right = '13px';
-		div2.style.marginTop = '1px';
-		}else{
-		div2.style.bottom = '45px';
-		div2.style.margin = '1px';
-		}
-		
-		div2.style.position = 'fixed';
-		
-		var button = document.getElementById('copy-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('cut-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('paste-sprite-button');
-		div2.appendChild(button);
-		
-		scene_tab.content.appendChild(div2);
+		var canvasDiv = document.createElement('div');
+		canvasDiv.style.overflow = 'auto';
+		canvasDiv.style.width = 'calc(100% - 83px)';
+		canvasDiv.style.height = '100%';
 		
 		var canvas = document.getElementById('field');
+		canvasDiv.appendChild(canvas);
 		
-		scene_tab.content.appendChild(canvas);
+		scene_tab.content.appendChild(toolbar);
+		scene_tab.content.appendChild(canvasDiv);
 		
-		scene_tab.tab.onclick = function(){Editor.canvas.redraw()};
+		scene_tab.tab.onclick = function(){Editor.canvas.redraw();scene_tab.content.style.display = 'flex';};
 		
 		canvas.redraw = function() {
 		
