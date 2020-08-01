@@ -42,13 +42,18 @@
 			'TimeForWay': [ 'int' , '1000'],
 			'Loop': [ 'bool' , false]
 		},
-		
 		{
+			name: 'Collide When Moved',
+			jsname : 'AnimatorCollisionResponse',
+			description : "This behavior makes it possible to move 2D objects within a 2D world without letting them go through walls. ",
+			'AffectedByGravity': [ 'bool' , false]
+		},		
+		/* {
 			name: 'Collide When Moved',
 			jsname : 'AnimatorCollide',
 			description : "This behavior makes it possible to move 2D objects within a 2D world without letting them go through walls. ",
 			'AffectedByGravity': [ 'bool' , false]
-		},
+		}, */
 		[
 		'Behaviour triggered by events',
 		/* {
@@ -109,6 +114,32 @@
 			'Loop': [ 'bool' , true]
 			
 		}
+		
+		],
+		[
+		
+		'Game Behaviours',
+		
+		{
+			name: 'Object controlled by keyboard',
+			jsname : 'AnimatorKeyboardControlled',
+			description : 'A behavior which makes it possible to control a 2d object by the keyboard input, and also trigger animations, if wanted.',
+			'MoveSpeed': [ 'float' , '0.1'],
+			'RotateSpeed': [ 'float' , '45'],
+			'JumpSpeed': [ 'float' , '0.2'],
+			'RunSpeed': [ 'float' , '0.2'],
+			'StandAnimation': [ 'string' , ''],
+			'WalkAnimation': [ 'string' , ''],
+			'RunAnimation': [ 'string' , ''],
+			'JumpAnimation': [ 'string' , ''],
+			'AdditionalRotationForLooking': [ 'float' , '-90'],
+			'UseAcceleration': [ 'bool' , false],
+			'AccelerationSpeed': [ 'float' , '0.1'],
+			'DecelerationSpeed': [ 'float' , '0.1'],
+			'JumpSpeed': [ 'float' , '0.2'],
+			'PauseAfterJump': [ 'bool' , false]
+		}
+		
 		
 		]
 		/* {

@@ -69,7 +69,7 @@ ImageManager.ddHelper = {
 			//reader.type = files[i].type.substring(files[i].type.indexOf('/'));
             reader.onprogress = that.handleReaderProgress;
             reader.onloadend = that.handleReaderLoadEnd;
-			if(files[i].type.includes('image/') || files[i].type.includes('audio/'))
+			if(files[i].type.includes('image/') || files[i].type.includes('audio/') || files[i].type.includes('video/'))
             reader.readAsDataURL(files[i]);
 			else
 			reader.readAsText(files[i]);

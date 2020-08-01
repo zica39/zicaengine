@@ -650,9 +650,10 @@
 		var scene_tab = tabs.addTab("Scene Editor", { height: "95%" });
 		addIconToTab(scene_tab,'edit',null);
 		scene_tab.content.style.display = 'flex';
-		//scene_tab.content.style.overflow = 'auto';
+		scene_tab.content.style.overflow = 'hidden';
 		
 		var toolbar = document.createElement('div');
+		toolbar.style.overflow = 'hidden';
 		toolbar.style.background = '#aaa';
 		toolbar.style.outline = '1px solid black';
 		toolbar.style.outlineOffset = '-1px';
@@ -817,9 +818,14 @@
 		scene_tab.content.appendChild(toolbar);
 		scene_tab.content.appendChild(canvasDiv);
 		
-		scene_tab.tab.onclick = function(){Editor.canvas.redraw();scene_tab.content.style.overflow='hidden';scene_tab.content.style.display = 'flex';};
+		scene_tab.tab.onclick = function(){Editor.canvas.redraw();};
 		
 		canvas.redraw = function() {
+		
+		if(tabs.current_tab[0] == 'Scene Editor'){
+		scene_tab.content.style.display = 'flex';
+		scene_tab.content.style.overflow = 'hidden';
+		}
 		
 		if(!Game.autoSize){
 		scene_tab.content.style.overflow = 'auto';
@@ -1004,6 +1010,7 @@
 			
 			var out = Editor.getGameData();
 			this.contentWindow.gameData = out;
+			this.contentWindow.document.getElementsByTagName('canvas')[0].focus();
 			
 		}
 		//code_tab.tab.children[1].onclick = function(){scene_tab.click()}

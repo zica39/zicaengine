@@ -1184,6 +1184,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			
 			this.sceneGui.add(scene,'name');
 			this.sceneGui.add(scene,'active');
+			this.sceneGui.add(scene,'gravity');
 			//this.sceneGui.addColor(scene,'color');
 			//this.sceneGui.add(scene,'bgImage');
 			

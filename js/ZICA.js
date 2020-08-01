@@ -104,6 +104,16 @@ ZICA.Vect2d.prototype.getLength = function()
 {
 	return Math.sqrt(this.X*this.X + this.Y*this.Y );
 }
+ZICA.Vect2d.prototype.setLength = function(n)
+{
+	var l = this.X*this.X + this.Y*this.Y;
+	if (l > -0.0000001 && l < 0.0000001)
+		return;
+		
+	l = n / Math.sqrt(l);
+	this.X *= l;
+	this.Y *= l;
+}
 ZICA.Vect2d.prototype.substract = function(other)
 {
 	return new ZICA.Vect2d(this.X-other.X, this.Y-other.Y);
@@ -123,6 +133,16 @@ ZICA.Vect2d.prototype.addToThis = function(other)
 {
 	this.X += other.X;
 	this.Y += other.Y;
+}
+
+ZICA.Vect2d.prototype.equals = function(other)
+{
+	return (this.X == other.X) && (this.Y == other.Y);
+}
+
+ZICA.Vect2d.prototype.equalsZero = function()
+{
+	return (this.X == 0) && (this.Y == 0);
 }
 ////////////////////////////////////////////////////////
 ///////ZICA.Animator
@@ -357,7 +377,474 @@ ZICA.AnimatorFlyCircle.prototype.animateNode = function(n, timeMs)
 	
 	return false;
 }		
+/////////////////////////////////////////////////////////////////////////////////////////
+// Keyboard controlled animator
+/////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @constructor
+ * @class
+ * @private
+ * @extends ZICA.Animator
+ */
+ZICA.AnimatorKeyboardControlled = function(obj)
+{
+	this.lastAnimTime = 0;
+	//this.SMGr = scene;
+	
+	this.MoveSpeed = 0;
+	this.RunSpeed = 0;
+	this.RotateSpeed = 0;
+	this.JumpSpeed = 0;
+	this.PauseAfterJump = false;
+	
+	this.UseAcceleration = false;
+	this.AccelerationSpeed = 0;
+	this.DecelerationSpeed = 0;
+	
+	this.FollowSmoothingSpeed = 15;
+	this.AdditionalRotationForLooking = 0; //new ZICA.Vect2d();
+	
+	this.StandAnimation = "";
+	this.WalkAnimation = "";
+	this.JumpAnimation = "";
+	this.RunAnimation = "";
+
+	this.LastAnimationTime = Date.now();//ZICA.CLTimer.getTime();	
+	this.LastJumpTime = this.LastAnimationTime;
+	this.WasMovingLastFrame = false;		
+	this.ShiftIsDown = false;		
+	
+	this.Registered = false;
+	
+	this.leftKeyDown = false;
+	this.rightKeyDown = false;
+	this.upKeyDown = false;
+	this.downKeyDown = false;
+	this.jumpKeyDown = false;
+	
+	this.AcceleratedSpeed = 0;
+	this.AccelerationIsForward = false;
+	
+	this.firstUpdate = true;
+	this.DisableWithoutActiveCamera = false;
+	
+	
+	this.MoveSpeed = obj.MoveSpeed;
+	this.RunSpeed = obj.RunSpeed;
+	this.RotateSpeed = obj.RotateSpeed;
+	this.JumpSpeed = obj.JumpSpeed;
+	
+	this.UseAcceleration = obj.UseAcceleration;
+	this.AccelerationSpeed = obj.AccelerationSpeed;
+	this.DecelerationSpeed = obj.DecelerationSpeed;
+	
+	this.PauseAfterJump = obj.PauseAfterJump;
+	
+	this.StandAnimation = obj.StandAnimation;
+	this.WalkAnimation = obj.WalkAnimation;
+	this.JumpAnimation = obj.JumpAnimation;
+	this.RunAnimation = obj.RunAnimation;
+	
+	this.AdditionalRotationForLooking = obj.AdditionalRotationForLooking;
+	//this.Engine = engine;
+	//engine.registerAnimatorForKeyUp(this);
+	//engine.registerAnimatorForKeyDown(this);
+}		
+ZICA.AnimatorKeyboardControlled.prototype = new ZICA.Animator();
+
+
+/** 
+ * Returns the type of the animator.
+ * For the AnimatorTimer, this will return 'keyboardcontrolled'.
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.getType = function()
+{
+	return 'keyboardcontrolled';
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.createClone = function()
+{
+	var a = new ZICA.AnimatorKeyboardControlled({});
+	a.MoveSpeed = this.MoveSpeed;
+	a.RunSpeed = this.RunSpeed;
+	a.RotateSpeed = this.RotateSpeed;
+	a.JumpSpeed = this.JumpSpeed;				
+	a.FollowSmoothingSpeed = this.FollowSmoothingSpeed;
+	a.AdditionalRotationForLooking = this.AdditionalRotationForLooking;		
+	a.StandAnimation = this.StandAnimation;
+	a.WalkAnimation = this.WalkAnimation;
+	a.JumpAnimation = this.JumpAnimation;
+	a.RunAnimation = this.RunAnimation;
+	a.UseAcceleration = this.UseAcceleration;
+	a.AccelerationSpeed = this.AccelerationSpeed;
+	a.DecelerationSpeed = this.DecelerationSpeed;
+	a.DisableWithoutActiveCamera = this.DisableWithoutActiveCamera;
+			
+	return a;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.setKeyBool = function(down, code)
+{
+	// 37 = left arrow key
+	// 38 = up arrow key
+	// 39 = right arrow key
+	// 40 = down arrow key
+	// 65 = a or A
+	// 87 = w or W
+	// 68 = d or D
+	// 83 = s or S
+	// 32 = space
+
+	if (code == 37 || code == 65 )
+	{
+		this.leftKeyDown = down;
+		
+		// fix chrome key down problem (key down sometimes doesn't arrive)
+		if (down) this.rightKeyDown = false;
+		return true;
+	}
+		
+	if (code == 39 || code == 68 )
+	{
+		this.rightKeyDown = down;
+		
+		// fix chrome key down problem (key down sometimes doesn't arrive)
+		if (down) this.leftKeyDown = false;
+		return true;
+	}
+		
+	if (code == 38 || code == 87 )
+	{
+		this.upKeyDown = down;			
+		
+		// fix chrome key down problem (key down sometimes doesn't arrive)
+		if (down) this.downKeyDown = false;
+		return true;
+	}
+		
+	if (code == 40 || code == 83 )
+	{
+		this.downKeyDown = down;
+		
+		// fix chrome key down problem (key down sometimes doesn't arrive)
+		if (down) this.upKeyDown = false;
+		return true;
+	}
+	
+	if (code == 32)
+	{
+		// jump key
+		this.jumpKeyDown = down;
+		return true;
+	}
+	
+	return false;
+}
+
+/**
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.onKeyDown = function(evt)
+{
+	this.ShiftIsDown = (evt.shiftKey == 1);
+	return this.setKeyBool(true, evt.keyCode);
+}
+
+/**
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.onKeyUp = function(evt)
+{
+	this.ShiftIsDown = (evt.shiftKey == 1);
+	return this.setKeyBool(false, evt.keyCode);
+}
+
+/**
+ * Animates the scene node it is attached to and returns true if scene node was modified.
+ * @private
+ * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {Integer} timeMs The time in milliseconds since the start of the scene.
+ */
+ZICA.AnimatorKeyboardControlled.prototype.animateNode = function(node, timeMs)
+{
+	var timeMs = Date.now();
+	var timeDiff = timeMs - this.lastAnimTime;			
+	if (timeDiff > 250)
+		timeDiff = 250;
+	
+	this.lastAnimTime = timeMs;
+		
+	var bChanged = false;
+		
+	this.LastAnimationTime = timeMs;
+	
+	// disable if user wants disabled without active camera following the object we are controlling
+	
+	if (this.DisableWithoutActiveCamera)
+	{
+		var cam = node.scene.getActiveCamera();
+		if (cam != null)
+		{
+			var an = cam.getAnimatorOfType('3rdpersoncamera');
+			if (an != null)
+			{
+				if (!(an.NodeToFollow === node))
+					return false;
+			}
+			else
+				return false;
+		}
+	}
+
+	// Update rotation
+
+	//var currentRot = node.angle;	
+
+	if (this.leftKeyDown)
+	{
+		node.angle -= timeDiff * this.RotateSpeed * 0.001;
+		bChanged = true;
+	}
+
+	if (this.rightKeyDown)
+	{
+		node.angle += timeDiff * this.RotateSpeed * 0.001;
+		bChanged = true;
+	}
+
+	// move forward/backward
+
+	//var pos = node.Pos;
+
+	/* var matrot = new ZICA.Matrix4();
+	matrot.setRotationDegrees(currentRot);
+	var directionForward = new ZICA.Vect3d(0,0,1);
+
+	var matrot2 = new ZICA.Matrix4();
+	matrot2.setRotationDegrees(this.AdditionalRotationForLooking);
+	matrot = matrot.multiply(matrot2);
+
+	matrot.rotateVect(directionForward); */
+	var x = Math.cos((node.angle + this.AdditionalRotationForLooking)*Math.PI/180);
+	var y = Math.sin((node.angle + this.AdditionalRotationForLooking)*Math.PI/180);
+	
+	var directionForward = new ZICA.Vect2d(x,y);
+
+	var bRun = this.ShiftIsDown;
+	var speed = (bRun ? this.RunSpeed : this.MoveSpeed) * timeDiff;
+	var origSpeed = 0;
+			
+	var bBackward = this.downKeyDown;
+	var bForward = this.upKeyDown;
+	
+	if (this.UseAcceleration && timeDiff)
+	{
+		if (bForward || bBackward)
+		{
+			// accelerate normally 
+
+			if (this.AccelerationIsForward != bForward)
+			{
+				// user change direction.
+				if (this.DecelerationSpeed == 0)
+					this.AcceleratedSpeed *= -1.0; //  We need to invert the force so he has to work against it
+				else
+					this.AcceleratedSpeed = 0.0; // no deceleration, stop immediately
+			}
+
+			this.AccelerationIsForward = !bBackward;
+
+			origSpeed = speed / timeDiff;
+			this.AcceleratedSpeed += (this.AccelerationSpeed) * origSpeed * (timeDiff / 1000.0);
+			if (this.AcceleratedSpeed > origSpeed) this.AcceleratedSpeed = origSpeed;
+
+			speed = this.AcceleratedSpeed * timeDiff;
+		}
+		else
+		{
+			// no key pressed, decellerate
+
+			if (this.DecelerationSpeed == 0.0)
+				this.AcceleratedSpeed = 0;
+			else
+			{
+				origSpeed = speed / Number(timeDiff);
+				this.AcceleratedSpeed -= (this.DecelerationSpeed) * origSpeed * (timeDiff / 1000.0);
+				if (this.AcceleratedSpeed < 0) this.AcceleratedSpeed = 0;
+				speed = this.AcceleratedSpeed * timeDiff;
+			}
+		}
+	}
+
+	directionForward.setLength(speed);
+
+	if (bForward || bBackward || (this.UseAcceleration && this.AcceleratedSpeed != 0))
+	{
+		var moveVect = directionForward.clone();
+
+		if (bBackward || (!(bForward || bBackward) && !this.AccelerationIsForward))
+			moveVect.multiplyThisWithScal(-1.0);
+		
+		var pos = new ZICA.Vect2d(node.x,node.y);
+		pos.addToThis(moveVect);
+		node.x = pos.X;
+		node.y = pos.Y
+		//node.Pos.addToThis(moveVect);
+		
+		bChanged = true;
+		this.WasMovingLastFrame = true;
+	}
+	
+	if (bForward || bBackward)
+	{
+		this.setAnimation(node, bRun ? 3 : 1, bBackward);
+
+		this.WasMovingLastFrame = true;
+		bChanged = true;
+	}
+	else
+	{
+		// no key pressed
+		
+		// stand animation, only if not falling
+
+		var bFalling = false;
+
+		var a = node.getAnimatorOfType('collisionresponse');
+		if (a)
+			bFalling = a.isFalling();
+		
+		if (!bFalling && (this.hasAnimationType(node, 1) || this.hasAnimationType(node, 3) || this.hasAnimationType(node, 2)))
+			this.setAnimation(node, 0, false);
+	}
+
+	// jump
+
+	// For jumping, we find the collision response animator attached to our camera
+	// and if it's not falling, we tell it to jump.
+	if (this.jumpKeyDown)
+	{
+		var b = node.getAnimatorOfType('collisionresponse');
+		if (b && !b.isFalling())
+		{
+			var minJumpTime = 0;
+			if (Game.scene.gravity != 0)
+				minJumpTime = Math.floor((this.JumpSpeed * (1.0 / Game.scene.gravity)) * 2000);
+
+			if (!this.PauseAfterJump ||
+				(this.PauseAfterJump && (timeMs - this.LastJumpTime) > minJumpTime))
+			{
+				b.jump(this.JumpSpeed);
+				this.setAnimation(node, 2, false);
+
+				this.LastJumpTime = timeMs;
+				
+				bChanged = true;
+			}
+		}
+	}
+	
+	return bChanged;
+}
+
+/**
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.getAnimationNameFromType = function(n)
+{
+	switch(n)
+	{
+	case 0: return this.StandAnimation;
+	case 1:  return this.WalkAnimation;
+	case 2:  return this.JumpAnimation;
+	case 3:  return this.RunAnimation;
+	}
+
+	return "";
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.hasAnimationType = function(node, animationType)
+{
+	return this.setAnimation(node, animationType, false, true);
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorKeyboardControlled.prototype.setAnimation = function(node, animationType, breverse, testIfIsSetOnly)
+{
+	if(testIfIsSetOnly){
+		if(node.animation == this.getAnimationNameFromType(animationType));
+		return true;
+	}
+	
+	node.animation = this.getAnimationNameFromType(animationType);
+	return true;
+	
+	if (!node || node.getType() != 'animatedmesh')
+		return false;
+
+	// find mesh and node type
+
+	var animatedMesh = node;
+			
+	var skinnedmesh = animatedMesh.Mesh; // as SkinnedMesh;
+	if (!skinnedmesh)
+		return false;
+
+	// find range for animation
+	
+	var range = skinnedmesh.getNamedAnimationRangeByName(this.getAnimationNameFromType(animationType));
+		
+	if (range)
+	{
+		var wantedFPS = 1.0 * range.FPS;
+		if (breverse)
+			wantedFPS *= -1.0;
+			
+		if (testIfIsSetOnly)
+		{
+			return animatedMesh.EndFrame == range.End &&
+			       animatedMesh.StartFrame == range.Begin;
+		}
+			
+		if (!(animatedMesh.EndFrame == range.End &&
+			 animatedMesh.StartFrame == range.Begin &&
+			 ZICA.equals(animatedMesh.FramesPerSecond, wantedFPS)))
+		{			
+			animatedMesh.setFrameLoop(range.Begin, range.End);
+			if (wantedFPS)
+				animatedMesh.setAnimationSpeed(wantedFPS);
+				
+			animatedMesh.setLoopMode(animationType == 0 || animationType == 1  || animationType == 3);
+		}
+			
+		return false;
+	}
+	else
+	{
+		// note: temporary bug fix. The flash animation player is
+		// not able to stop an animation at (0,0), so we stop at (1,1)
+		if (!testIfIsSetOnly)
+		{
+			animatedMesh.setFrameLoop(1, 1);
+			animatedMesh.setLoopMode(false);
+		}
+	}
+
+	return false;
+}
 /////////////////////////////////////////////////////
 //AnimatorRotation
 /////////////////////////////////////////////////////
@@ -1404,6 +1891,132 @@ ZICA.AnimatorOnProximity.prototype.onCollision = function(event , n)
 	if (this.TheActionHandler)
 		this.TheActionHandler.execute(n);	
 		
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+// AnimatorCollisionResponse
+/////////////////////////////////////////////////////////////////////////////////////////
+
+ZICA.AnimatorCollisionResponse = function(obj)
+{
+	this.AffectedByGravity = obj.AffectedByGravity;
+	this.Node = null;
+	this.LastAnimationTime = null;
+	this.LastPosition = new ZICA.Vect2d(0,0);
+	this.Falling = false;
+	this.FallStartTime = 0;
+	this.JumpForce = 0;
+		
+	this.reset();
+}		
+ZICA.AnimatorCollisionResponse.prototype = new ZICA.Animator();
+
+/** 
+ * Returns the type of the animator.
+ * For the AnimatorCollisionResponse, this will return 'collisionresponse'.
+ * @public
+ */
+ZICA.AnimatorCollisionResponse.prototype.getType = function()
+{
+	return 'collisionresponse';
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorCollisionResponse.prototype.createClone = function()
+{
+	var a = new ZICA.AnimatorCollisionResponse({});
+	a.Radius = this.Radius.clone();
+	a.AffectedByGravity = this.AffectedByGravity;
+	return a;
+}
+
+
+/**
+ * Resets the collision system. Use this for example to make it possible to set a scene node postition
+ * while moving through walls: Simply change the position of the scene node and call reset() to this
+ * animator afterwards.
+ * @public
+ */
+ZICA.AnimatorCollisionResponse.prototype.reset = function()
+{
+	this.Node = null;
+	this.LastAnimationTime = Date.now();//ZICA.CLTimer.getTime();
+}	
+
+/**
+ * Returns if the scene node attached to this animator is currently falling
+ * @public
+ */
+ZICA.AnimatorCollisionResponse.prototype.isFalling = function()
+{
+	return this.Falling;
+}	
+
+/**
+ * Animates the scene node it is attached to and returns true if scene node was modified.
+ * @public
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
+ * @param {Integer} timeMs The time in milliseconds since the start of the scene.
+ */
+ZICA.AnimatorCollisionResponse.prototype.animateNode = function(n, timeMs)
+{
+	var timeMs = Date.now();
+	var difftime = (timeMs-this.LastAnimationTime);
+		
+	if (difftime > 150) difftime = 150;
+	if (difftime == 0)
+		return false;	
+		
+	this.LastAnimationTime = timeMs;
+	
+	if (!(this.Node === n))
+	{
+		this.Node = n;
+		this.LastPosition = new ZICA.Vect2d(n.x,n.y);//n.Pos.clone();
+		return false;
+	}
+	
+	var velY = -Game.scene.gravity;
+	
+	var changed = Math.abs(this.LastPosition.Y - n.y)>0.5;
+	
+	if (this.JumpForce > 0)
+	{
+		n.y -= (this.JumpForce * 0.001 * difftime);
+			
+		this.JumpForce -= difftime;
+		if (this.JumpForce < 0) this.JumpForce = 0;		
+	}
+	
+	n.velY = -velY;
+	
+	if(changed){
+		if (!this.Falling)
+				this.FallStartTime = timeMs;
+		this.Falling = true;
+	}
+	else {
+		
+		this.Falling = false;
+	}
+	
+	this.LastPosition = new ZICA.Vect2d(n.x,n.y);
+	
+	return false;
+}		
+/** 
+ * @private
+ */
+ZICA.AnimatorCollisionResponse.prototype.jump = function(jumpspeed)
+{
+	if (this.JumpForce == 0)
+		this.JumpForce = jumpspeed * 100;
+}
+ZICA.AnimatorCollisionResponse.prototype.onCollision = function(event , n)
+{
+	n.x = n.prevX;
+	n.y = n.prevY;		
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 // AnimatorCollide
@@ -3063,5 +3676,267 @@ ZICA.Action.SetSceneNodeAnimation.prototype.execute = function(currentNode)
 		animatedMesh.animation = this.AnimName;
 		animatedMesh.animLoop = this.Loop;
 
+	}
+}
+
+// ---------------------------------------------------------------------
+// Action ActionPlayMovie
+// ---------------------------------------------------------------------
+
+/**
+ * @private
+ * @constructor
+ * @class
+ */
+ZICA.Action.ActionPlayMovie = function(obj)
+{
+	this.Type = 'ActionPlayMovie';	
+	this.PlayLooped = obj.PlayLooped;
+	this.VideoFileName = obj.VideoFileName;
+	this.AutoPlay = obj.AutoPlay;
+	this.SceneNodeToPlayAt = obj.SceneNodeToPlayAt;
+	if(this.SceneNodeToPlayAt == null)this.PlayAtCurrentSceneNode = true;
+	
+	this.ActionHandlerFinished = obj.ActionOnFinished;
+	this.ActionHandlerFailed = obj.ActionOnFailed;
+}
+
+/**
+ * @private
+ */
+ZICA.Action.ActionPlayMovie.prototype.createClone = function()
+{
+	var a = new ZICA.Action.ActionPlayMovie();
+	a.PlayLooped = this.PlayLooped;
+	a.AutoPlay = this.AutoPlay;
+	a.VideoFileName = this.VideoFileName;
+	a.SceneNodeToPlayAt = this.SceneNodeToPlayAt;
+	a.PlayAtCurrentSceneNode = this.PlayAtCurrentSceneNode;
+	
+	a.ActionHandlerFinished = this.ActionHandlerFinished ? this.ActionHandlerFinished.createClone() : null;
+	a.ActionHandlerFailed = this.ActionHandlerFailed ? this.ActionHandlerFailed.createClone() : null;
+		
+	return a;
+}
+
+/**
+ * @private
+ */
+ZICA.Action.ActionPlayMovie.prototype.execute = function(currentNode, sceneManager)
+{
+	if (!currentNode)
+		return;
+
+	var nodeToHandle = null;
+	if (this.PlayAtCurrentSceneNode)
+		nodeToHandle = currentNode;
+	else
+	if (this.SceneNodeToPlayAt != -1)
+		nodeToHandle = Game.scene.getEntityById(this.SceneNodeToPlayAt);
+	
+	// create video stream
+	
+	 nodeToHandle.stream = new ZICA.VideoStream(this.VideoFileName)
+	
+	if (nodeToHandle.stream != null && this.AutoPlay)
+	{
+		nodeToHandle.stream.play(this.PlayLooped);
+	}
+}
+
+// ---------------------------------------------------------------------
+// Action ActionVideoCommand
+// ---------------------------------------------------------------------
+
+/**
+ * @private
+ * @constructor
+ * @class
+ */
+ZICA.Action.ActionVideoCommand = function(obj)
+{
+	this.Type = 'ActionVideoCommand';	
+	
+	this.SceneNodeToPlayAt = obj.SceneNodeToChange;
+	if(this.SceneNodeToPlayAt == null)this.PlayAtCurrentSceneNode = true;
+	this.Command = ['Play','Pause','Stop','Resume'].indexOf(obj.Command);
+	
+}
+
+/**
+ * @private
+ */
+ZICA.Action.ActionVideoCommand.prototype.createClone = function()
+{
+	var a = new ZICA.Action.ActionPlayMovie({});
+	a.Command = this.Command;
+	a.SceneNodeToPlayAt = this.SceneNodeToPlayAt;
+	a.PlayAtCurrentSceneNode = this.PlayAtCurrentSceneNode;
+	return a;
+}
+
+/**
+ * @private
+ */
+ZICA.Action.ActionVideoCommand.prototype.execute = function(currentNode)
+{
+	if (!currentNode)
+		return;
+	
+	var nodeToHandle = null;
+	if (this.PlayAtCurrentSceneNode)
+		nodeToHandle = currentNode;
+	else
+	if (this.SceneNodeToPlayAt != -1)
+		nodeToHandle = Game.getEntityById(this.SceneNodeToPlayAt);
+	
+		
+	if (nodeToHandle.stream != null)
+	{
+		switch(this.Command)
+		{
+		case 0: // play
+			{
+				nodeToHandle.stream.play(this.PlayLooped);
+			}
+			break;
+		case 1: // pause
+			nodeToHandle.stream.pause();
+			break;
+		case 2: // stop
+			nodeToHandle.stream.stop();
+			break;
+		}	
+	}
+}
+
+// ---------------------------------------------------------------------
+// Playing video stream
+// ---------------------------------------------------------------------
+
+/**
+ * @private
+ * @constructor
+ * @class
+ */
+ZICA.VideoStream = function(filename)
+{
+	this.filename = filename;
+	this.videoElement = null;
+	this.handlerOnVideoEnded = null;
+	this.handlerOnVideoFailed = null;
+	this.readyToShow = false;
+	this.playBackEnded = false;
+	this.stopped = false;
+	this.state = 0; // 0=stopped, 1=loading, 2=playing, 3=paused
+	this.playLooped = false;
+	this.isError = false;
+	
+	this.videoBufferReady = function()
+	{
+		this.state = 2; // playing
+		
+		// start video
+		this.videoElement.play();
+		this.readyToShow = true;
+			
+	}
+	
+	this.videoPlaybackDone = function()
+	{
+		this.state = 0; // 0=stopped, 1=loading, 2=playing, 3=paused
+		this.playBackEnded = true;
+	}
+	
+	this.errorHappened = function()
+	{
+		this.state = 0;
+		this.playBackEnded = true;
+		this.isError = true;
+	}
+		
+	this.play = function(playLooped)
+	{
+		if (this.state == 2 || this.state == 1) // playing or loading
+			return;
+			
+		if (this.videoElement)
+		{
+			if (this.state == 3) // paused
+			{
+				// unpause
+				this.videoElement.play();
+				this.state = 2;
+				this.playBackEnded = false;
+				return;
+			}
+			else
+			if (this.state == 0) // stopped
+			{
+				this.videoElement.currentTime = 0;
+				this.videoElement.play();
+				this.state = 2;
+				this.playBackEnded = false;
+				return;
+			}
+		}
+		
+		var v = document.createElement('video');
+		
+		var me = this;
+		
+		this.videoElement = v;
+		this.playLooped = playLooped;
+		
+		v.addEventListener("canplaythrough", function() { me.videoBufferReady(); }, true);
+		v.addEventListener("ended", function() { me.videoPlaybackDone(); }, true);
+		v.addEventListener("error", function() { me.errorHappened(); }, true);
+		
+		v['preload'] = "auto";
+		v.src = Game.assets[filename]; // works with .ogv and .mp4
+		v.style.display = 'none';
+		
+		if (this.playLooped)			
+			v.loop = true;
+			
+		this.state = 1; // loading
+		
+		// create placeholder texture
+	}
+	
+	this.pause = function()
+	{
+		if (this.state != 2)
+			return;
+			
+		this.videoElement.pause();
+		this.state = 3;
+	}
+	
+	this.stop = function()
+	{
+		if (this.state != 2)
+			return;
+			
+		this.videoElement.pause();
+		this.state = 0;	
+	}
+	
+	this.updateVideoTexture = function()
+	{
+		if (!this.readyToShow)
+			return;
+			
+		if (this.state != 2) // playing
+			return;			
+		
+	}
+	
+	this.hasPlayBackEnded = function()
+	{
+		if (this.state == 0) // 0=stopped, 1=loading, 2=playing, 3=paused
+			return true;
+			
+		return this.playBackEnded;
 	}
 }

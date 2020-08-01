@@ -347,6 +347,25 @@
 			name: 'Exit application',
 			description : 'Exit application',
 			none:['hidden','']
+			},
+			
+			{
+			jsname : 'ActionPlayMovie',
+			name: 'Set Video to stream',
+			description : 'Plays a video, in 2D entity',
+			'VideoFileName': [ 'string' , ''],
+			'SceneNodeToPlayAt': [ 'node' , ''],
+			'PlayLooped': [ 'bool' , false],
+			'AutoPlay' : [ 'bool' , true]
+			
+			},
+			
+			{
+			jsname : 'ActionVideoCommand',
+			name: 'Video Command',
+			description : 'Play, pause or stop video',
+			'SceneNodeToChange': [ 'node' , ''],
+			'Command' : ['combo', 'Play', ['Play','Pause','Stop']]
 			}
 			
 		]
