@@ -16,6 +16,8 @@ define(["require", "exports"], function (require, exports) {
             this.name = "";
 			//IS active 
 			this.active = false;
+			//gravity
+			this.gravity = 10;
 			//camera positon
 			this.x = 0;
 			this.y = 0;
