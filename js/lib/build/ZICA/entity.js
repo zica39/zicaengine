@@ -93,6 +93,8 @@
             this.__image = new Image();
 			//audio buffer
 			this.__audio = new Audio();
+			//video buffer
+			this.stream = null;
 			//element
 			//this.__element = null;
 			//this.tagPrefix = 'ons-';
@@ -281,6 +283,36 @@
 				
 			//}
 			
+			if(this.__video instanceof Image == false) this.__video = new Image();
+				
+				
+				if(this.aspectRatio){
+					
+					if(this.stream){
+						
+						var w = this.__video.naturalWidth;
+						var h = this.__video.naturalHeight;
+						var scale = Math.min(this.width / w, this.height / h);
+						
+						var cx = Game.camera.viewport.left;
+						var cy = Game.camera.viewport.top;
+						
+						drawContext.save();
+						
+						drawContext.setTransform(scale, 0, 0, scale, this.x-cx + (this.width/2),this.y-cy + (this.height/2));
+						drawContext.rotate( this.angle * Math.PI / 180 );
+						drawContext.drawImage(this.stream.videoElement, -w / 2, -h / 2, w, h);
+						drawContext.restore();
+					}
+					//var aspect = this.calculateAspectRatio();
+					//drawContext.drawImage(this.__image, this.x, this.y, aspect.width, aspect.height);
+					
+				}else
+					//drawContext.filter = 'blur(4px)'; 
+					if(this.stream)
+						if(this.stream.videoElement)
+							drawContext.drawImage(this.stream.videoElement, this.x, this.y, this.width, this.height);
+				
 			
 			var now = Date.now();
 		    this.elapsed = Math.abs(now - this.__then);
@@ -434,6 +466,16 @@
 			
 			if(anim)
 			this.animators.push(anim);
+		};
+		
+		// get animator by type
+		Entity.prototype.getAnimatorOfType = function(type)
+		{
+		  if(!this.animators.length)return;
+		  
+		  for(var anim in  this.animators)
+			  if(this.animators[anim].getType() == type)
+				  return this.animators[anim];
 		};
 		
 		Entity.prototype.cloneAnimators = function(){
