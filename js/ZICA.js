@@ -8,6 +8,20 @@ ZICA.boxIntersection = function (a, b) {
     return (a.x < b.x + b.width && a.x + a.width > b.x) && (a.y < b.y + b.height && a.y + a.height > b.y);
 };
 
+/** 
+ * Returns a new value which is clamped between low and high. 
+ */
+ZICA.clamp = function(n, low, high)
+{
+	if (n < low)
+		return low;
+		
+	if (n > high)
+		return high;
+		
+	return n;
+}
+
 ZICA.Keys = ["Left Mouse Button", "Right Mouse Button", "Escape", "Enter", "Tab", "Shift", "Control", "Space", "Left", "Up", "Right", "Down", "Delete", "App Menu Key", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 
@@ -143,6 +157,13 @@ ZICA.Vect2d.prototype.equals = function(other)
 ZICA.Vect2d.prototype.equalsZero = function()
 {
 	return (this.X == 0) && (this.Y == 0);
+}
+ZICA.Vect2d.prototype.getDistanceTo = function(v)
+{
+	var x = v.X - this.X;
+	var y = v.Y - this.Y;
+	
+	return Math.sqrt(x*x + y*y);
 }
 ////////////////////////////////////////////////////////
 ///////ZICA.Animator
@@ -376,7 +397,375 @@ ZICA.AnimatorFlyCircle.prototype.animateNode = function(n, timeMs)
 	}
 	
 	return false;
-}		
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Animator2DJumpNRun
+/////////////////////////////////////////////////////////////////////////////////////////
+
+ZICA.Animator2DJumpNRun = function(obj)
+{
+	this.ForwardKeyDown = false;
+	this.BackKeyDown = false;
+	this.PressedJump = false;
+	this.LastTime = null;
+	this.JumpForce = 0;
+	this.JumpLengthMs = 1000;
+	
+	this.StandAnimation = '';
+	this.WalkLeftAnimation = '';
+	this.WalkRightAnimation = '';
+	//this.JumpAnimation = '';
+	
+	this.Speed = obj.Speed;
+	this.JumpSpeed = obj.JumpSpeed;
+	this.JumpLengthMs = obj.JumpLengthMs;
+	this.PauseAfterJump = obj.PauseAfterJump;
+	
+	this.StandAnimation = obj.StandAnimation;
+	this.WalkLeftAnimation = obj.WalkLeftAnimation;
+	this.WalkRightAnimation = obj.WalkRightAnimation;
+	//this.JumpAnimation = obj.JumpAnimation;
+	
+};
+
+ZICA.Animator2DJumpNRun.prototype = new ZICA.Animator();
+
+/** 
+ * Returns the type of the animator.
+ * For the Animator2DJumpNRun, this will return '2djumpnrun'.
+ * @private
+ */
+ZICA.Animator2DJumpNRun.prototype.getType = function()
+{
+	return '2djumpnrun';
+};
+
+/** 
+ * @private
+ */
+ZICA.Animator2DJumpNRun.prototype.createClone = function()
+{
+	var a = new ZICA.Animator2DJumpNRun({});
+	a.Speed = this.Speed;
+	a.JumpSpeed = this.JumpSpeed;
+	a.JumpLengthMs = this.JumpLengthMs;
+	a.PauseAfterJump = this.PauseAfterJump;
+	
+	a.StandAnimation = this.StandAnimation;
+	a.WalkLeftAnimation = this.WalkLeftAnimation;
+	a.WalkRightAnimation = this.WalkRightAnimation;
+	//a.JumpAnimation = this.JumpAnimation;
+	
+	return a;
+};
+
+ZICA.Animator2DJumpNRun.prototype.animateNode = function(node, timeMs)
+{
+	var timeMs = Date.now();
+	var bFalling = false;
+	// get the time since the last frame
+	
+	if (this.LastTime == null)
+	{
+		this.LastTime = timeMs; // we were never called before, so store the time and cancel
+		this.InitPos = new ZICA.Vect2d(node.x,node.y);//ccbGetSceneNodeProperty(node, 'Position');
+		this.InitRotation = node.angle;//ccbGetSceneNodeProperty(node, 'Rotation');
+		return false;
+	}
+	
+	this.LastNodeUsed = node;
+	
+	var delta = timeMs - this.LastTime;
+	this.LastTime = timeMs;
+	if (delta > 200) delta = 200;
+	
+	// move 
+	
+	var pos = new ZICA.Vect2d(node.x,node.y);//ccbGetSceneNodeProperty(node, 'Position');
+	
+	if (this.ForwardKeyDown)
+	{
+		pos.X += this.Speed * delta;
+		node.animation = this.WalkRightAnimation;
+		//node.angle = this.InitRotation;//ccbSetSceneNodeProperty(node, 'Rotation', this.InitRotation);
+	}
+	else
+	if (this.BackKeyDown)
+	{
+		pos.X -= this.Speed * delta;
+		node.animation = this.WalkLeftAnimation;
+		//node.angle = this.InitRotation - 180;//ccbSetSceneNodeProperty(node, 'Rotation', this.InitRotation.x, this.InitRotation.y - 180, this.InitRotation.z);
+	}
+	else
+	{
+		// not walking, stand
+		node.animation = this.StandAnimation;
+	}
+	
+	var a = node.getAnimatorOfType('collisionresponse');
+	if (a)bFalling = a.isFalling();
+	
+	var flag = true;
+	if(this.PauseAfterJump && bFalling)flag = false
+	
+	// jump if jump was pressed
+	
+	if (this.PressedJump && this.JumpForce == 0 && flag)
+	{
+		this.PressedJump = false;
+		this.JumpForce = this.JumpLengthMs;
+	}
+		
+	if (this.JumpForce > 0)
+	{
+		pos.Y -= this.JumpSpeed * delta;
+		this.JumpForce -= delta;
+		
+		if (this.JumpForce < 0) 
+			this.JumpForce = 0;
+	}
+	
+	
+	// set position
+	node.x = pos.X;
+	node.y = pos.Y;
+	return true;
+};
+
+/**
+ * @private
+ */
+ZICA.Animator2DJumpNRun.prototype.onKeyDown = function(evt)
+{
+	return this.onKeyEvent(evt.keyCode, true);
+};
+
+/**
+ * @private
+ */
+ZICA.Animator2DJumpNRun.prototype.onKeyUp = function(evt)
+{
+	return this.onKeyEvent(evt.keyCode, false);
+};
+
+// parameters: key: key id pressed or left up.  pressed: true if the key was pressed down, false if left up
+ZICA.Animator2DJumpNRun.prototype.onKeyEvent = function(key, pressed)
+{
+	// store which key is down
+	// key codes are this: left=37, up=38, right=39, down=40
+
+	if (key == 37 || key == 40)
+		this.BackKeyDown = pressed;
+	else	
+	if (key == 39 || key == 38)
+		this.ForwardKeyDown = pressed;
+		
+	// jump when space pressed
+	
+	if (key == 32 && pressed)
+		this.PressedJump = true;
+}
+
+
+// mouseEvent: 0=mouse moved, 1=mouse wheel moved, 2=left mouse up,  3=left mouse down, 4=right mouse up, 5=right mouse down
+ZICA.Animator2DJumpNRun.prototype.onMouseEvent = function(mouseEvent, mouseWheelDelta)
+{
+	// we currently don't support move event. But for later use maybe.
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// AnimatorTopDownMovement
+/////////////////////////////////////////////////////////////////////////////////////////
+
+ZICA.AnimatorTopDownMovement = function(obj)
+{
+	this.UpKeyDown = false;
+	this.DownKeyDown = false;
+	this.LeftKeyDown = false;
+	this.RightKeyDown = false;
+	
+	//this.PressedJump = false;
+	this.LastTime = null;
+	//this.JumpForce = 0;
+	//this.JumpLengthMs = 1000;
+	
+	this.StandAnimation = '';
+	this.WalkLeftAnimation = '';
+	this.WalkRightAnimation = '';
+	this.WalkUpAnimation = '';
+	this.WalkDownAnimation = '';
+	//this.JumpAnimation = '';
+	
+	this.Speed = obj.Speed;
+	/* this.JumpSpeed = obj.JumpSpeed;
+	this.JumpLengthMs = obj.JumpLengthMs;
+	this.PauseAfterJump = obj.PauseAfterJump; */
+	
+	this.StandAnimation = obj.StandAnimation;
+	this.WalkLeftAnimation = obj.WalkLeftAnimation;
+	this.WalkRightAnimation = obj.WalkRightAnimation;
+	this.WalkUpAnimation = obj.WalkUpAnimation;
+	this.WalkDownAnimation = obj.WalkDownAnimation;
+	//this.JumpAnimation = obj.JumpAnimation;
+	
+};
+
+ZICA.AnimatorTopDownMovement.prototype = new ZICA.Animator();
+
+/** 
+ * Returns the type of the animator.
+ * For the AnimatorTopDownMovement, this will return 'topdownmovement'.
+ * @private
+ */
+ZICA.AnimatorTopDownMovement.prototype.getType = function()
+{
+	return 'topdownmovement';
+};
+
+/** 
+ * @private
+ */
+ZICA.AnimatorTopDownMovement.prototype.createClone = function()
+{
+	var a = new ZICA.AnimatorTopDownMovement({});
+	a.Speed = this.Speed;
+	/* a.JumpSpeed = this.JumpSpeed;
+	a.JumpLengthMs = this.JumpLengthMs;
+	a.PauseAfterJump = this.PauseAfterJump; */
+	
+	a.StandAnimation = this.StandAnimation;
+	a.WalkLeftAnimation = this.WalkLeftAnimation;
+	a.WalkRightAnimation = this.WalkRightAnimation;
+	a.WalkUpAnimation = this.WalkUpAnimation;
+	a.WalkDownAnimation = this.WalkDownAnimation;
+	//a.JumpAnimation = this.JumpAnimation;
+	
+	return a;
+};
+
+ZICA.AnimatorTopDownMovement.prototype.animateNode = function(node, timeMs)
+{
+	var timeMs = Date.now();
+	var bFalling = false;
+	// get the time since the last frame
+	
+	if (this.LastTime == null)
+	{
+		this.LastTime = timeMs; // we were never called before, so store the time and cancel
+		this.InitPos = new ZICA.Vect2d(node.x,node.y);
+		return false;
+	}
+	
+	this.LastNodeUsed = node;
+	
+	var delta = timeMs - this.LastTime;
+	this.LastTime = timeMs;
+	if (delta > 200) delta = 200;
+	
+	// move 
+	
+	var pos = new ZICA.Vect2d(node.x,node.y);
+	
+	if(this.RightKeyDown || this.LeftKeyDown || this.UpKeyDown || this.DownKeyDown)
+	{	
+		if (this.RightKeyDown)
+		{
+			pos.X += this.Speed * delta;
+			node.animation = this.WalkRightAnimation;
+		}
+		if (this.LeftKeyDown)
+		{
+			pos.X -= this.Speed * delta;
+			node.animation = this.WalkLeftAnimation;
+		}
+		if (this.DownKeyDown)
+		{
+			pos.Y += this.Speed * delta;
+			node.animation = this.WalkDownAnimation;
+		}
+		if (this.UpKeyDown)
+		{
+			pos.Y -= this.Speed * delta;
+			node.animation = this.WalkUpAnimation;
+			
+		}
+	}
+	else
+	{
+		// not walking, stand
+		node.animation = this.StandAnimation;
+	}
+	
+	/* var a = node.getAnimatorOfType('collisionresponse');
+	if (a)bFalling = a.isFalling();
+	
+	var flag = true;
+	if(this.PauseAfterJump && bFalling)flag = false
+	
+	// jump if jump was pressed
+	
+	if (this.PressedJump && this.JumpForce == 0 && flag)
+	{
+		this.PressedJump = false;
+		this.JumpForce = this.JumpLengthMs;
+	}
+		
+	if (this.JumpForce > 0)
+	{
+		pos.Y -= this.JumpSpeed * delta;
+		this.JumpForce -= delta;
+		
+		if (this.JumpForce < 0) 
+			this.JumpForce = 0;
+	} */
+	
+	
+	// set position
+	node.x = pos.X;
+	node.y = pos.Y;
+	return true;
+};
+
+/**
+ * @private
+ */
+ZICA.AnimatorTopDownMovement.prototype.onKeyDown = function(evt)
+{
+	return this.onKeyEvent(evt.keyCode, true);
+};
+
+/**
+ * @private
+ */
+ZICA.AnimatorTopDownMovement.prototype.onKeyUp = function(evt)
+{
+	return this.onKeyEvent(evt.keyCode, false);
+};
+
+// parameters: key: key id pressed or left up.  pressed: true if the key was pressed down, false if left up
+ZICA.AnimatorTopDownMovement.prototype.onKeyEvent = function(key, pressed)
+{
+	// store which key is down
+	// key codes are this: left=37, up=38, right=39, down=40
+	
+	if (key == 37 || key == 65)
+		this.LeftKeyDown = pressed;
+	if (key == 38 || key == 87)
+		this.UpKeyDown = pressed;
+	if (key == 39 || key == 68)
+		this.RightKeyDown = pressed;
+	if (key == 40 || key == 83)
+		this.DownKeyDown = pressed;
+	if (key == 37 || key == 40)
+		this.BackKeyDown = pressed;
+	
+	// jump when space pressed
+	
+	//if (key == 32 && pressed)
+	//	this.PressedJump = true;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard controlled animator
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -845,6 +1234,820 @@ ZICA.AnimatorKeyboardControlled.prototype.setAnimation = function(node, animatio
 
 	return false;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Game AI Animator
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @constructor
+ * @class
+ * @private
+ * @extends ZICA.Animator
+ */
+ZICA.AnimatorGameAI = function(obj)
+{
+	// constants for the commands (from coppercube editor):
+	// private static const EMT_PLAYER:int = 0;
+	// private static const EMT_STAND_STILL:int = 1;
+	// private static const EMT_RANDOMLY_PATROL:int = 2;
+	
+	// private static const EMT_DO_NOTHING:int = 0;
+	// private static const EMT_REACH_POSITION:int = 1;
+	// private static const EMT_ATTACK_ITEM:int = 2;
+	// private static const EMT_DIE_AND_STOP:int = 3;
+	
+	// private static const EAT_STAND:int = 0;
+	// private static const EAT_WALK:int = 1;
+	// private static const EAT_ATTACK:int = 2;
+	// private static const EAT_DIE:int = 3;
+		
+	this.AIType = 0
+	this.MovementSpeed = 0;
+	this.ActivationRadius = 0;
+	this.CanFly = false;
+	this.Health = 100;
+	this.PatrolWaitTimeMs = 3000;
+	this.PathIdToFollow = -1;
+	this.Tags = "";
+	this.AttacksAIWithTags = "";
+	this.PatrolRadius = 100;
+	this.RotationSpeedMs = 0;
+	this.AdditionalRotationForLooking = -90;//new ZICA.Vect3d();
+	this.RotationForLooking = false;
+	this.StandAnimation = "";
+	this.WalkAnimation = "";
+	this.DieAnimation = "";
+	this.AttackAnimation = "";
+	
+	this.ActionHandlerOnAttack = null;
+	this.ActionHandlerOnActivate = null;
+	this.ActionHandlerOnHit = null;
+	this.ActionHandlerOnDie = null;
+	
+	// runtime data
+	
+	this.CurrentCommand = 0;
+
+	this.NextAttackTargetScanTime = 0;
+	this.LastPatrolStartTime = 0;
+
+	this.CurrentCommandTargetPos = null;
+	this.CurrentCommandStartTime = 0;
+	this.CurrentCommandTicksDone = 0;
+	this.CurrentCommandExpectedTickCount = 0;
+	this.BeginPositionWhenStartingCurrentCommand = 0;	
+	this.HandleCurrentCommandTargetNode = null;
+	this.AttackCommandExecuted = false;
+	this.Activated = false;
+	this.CurrentlyShooting = false; // flag to be queried shoot action
+	this.CurrentlyShootingLine = new Object();//ZICA.Line3d(); // data to be queried shoot action
+	this.NextPathPointToGoTo = 0;
+			
+	this.TheObject = null;
+	this.LastTime = 0;
+	this.StartPositionOfActor = new ZICA.Vect2d();
+	
+	this.NearestSceneNodeFromAIAnimator_NodeOut = null;
+	this.NearestSceneNodeFromAIAnimator_maxDistance = 0;
+	
+	this.AIType = ['This is the Player','Stand Still','Randomly Patrol'].indexOf(obj.Mode);
+	
+	this.PatrolRadius = obj.PatrolRadius;
+	this.PatrolWaitTimeMs = obj.PatrolWaitTimeMs;
+	
+	this.PathIdToFollow = obj.PathIdToFollow;
+	
+	this.Health = obj.Health;
+	this.MovementSpeed = obj.MovementSpeed;
+	this.Tags = obj.Tags;
+	this.AttacksAIWithTags = obj.AttacksActorsWithTags;
+	this.CanFly = obj.CanFly;
+	this.ActivationRadius = obj.ActivationRadius;
+	
+	this.StandAnimation = obj.StandAnimation;
+	this.WalkAnimation = obj.WalkAnimation;
+	this.DieAnimation = obj.DieAnimation;
+	this.AttackAnimation = obj.AttackAnimation;
+	
+	this.ActionHandlerOnAttack = obj.ActionOnAttack;
+	this.ActionHandlerOnActivate = obj.ActionOnActivate;
+	this.ActionHandlerOnHit = obj.ActionOnHit;
+	this.ActionHandlerOnDie = obj.ActionOnDie;
+	
+	this.AdditionalRotationForLooking = obj.AdditionalRotationForLooking;
+	this.RotationForLooking = obj.RotationForLooking;
+
+}		
+ZICA.AnimatorGameAI.prototype = new ZICA.Animator();
+
+
+/** 
+ * Returns the type of the animator.
+ * For the AnimatorGameAI, this will return 'gameai'.
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.getType = function()
+{
+	return 'gameai';
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.createClone = function()
+{
+	var a = new ZICA.AnimatorGameAI({});
+	a.AIType = this.AIType;
+	a.MovementSpeed = this.MovementSpeed;
+	a.ActivationRadius = this.ActivationRadius;
+	a.CanFly = this.CanFly;
+	a.Health = this.Health;
+	a.Tags = this.Tags;
+	a.AttacksAIWithTags = this.AttacksAIWithTags;
+	a.PatrolRadius = this.PatrolRadius;
+	a.RotationSpeedMs = this.RotationSpeedMs;
+	a.PathIdToFollow = this.PathIdToFollow;
+	a.PatrolWaitTimeMs = this.PatrolWaitTimeMs;
+	a.AdditionalRotationForLooking = this.AdditionalRotationForLooking;
+	a.RotationForLooking = this.RotationForLooking;
+	a.StandAnimation = this.StandAnimation;
+	a.WalkAnimation = this.WalkAnimation;
+	a.DieAnimation = this.DieAnimation;
+	a.AttackAnimation = this.AttackAnimation;
+	
+	a.ActionHandlerOnAttack = this.ActionHandlerOnAttack ? this.ActionHandlerOnAttack.createClone() : null;
+	a.ActionHandlerOnActivate = this.ActionHandlerOnActivate ? this.ActionHandlerOnActivate.createClone() : null;
+	a.ActionHandlerOnHit = this.ActionHandlerOnHit ? this.ActionHandlerOnHit.createClone() : null;
+	a.ActionHandlerOnDie = this.ActionHandlerOnDie ? this.ActionHandlerOnDie.createClone() : null;
+			
+	return a;
+}
+
+/**
+ * Animates the scene node it is attached to and returns true if scene node was modified.
+ * @private
+ * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {Integer} timeMs The time in milliseconds since the start of the scene.
+ */
+ZICA.AnimatorGameAI.prototype.animateNode = function(node, timeMs)
+{
+	var timeMs = Date.now();
+	
+	if (node == null)
+		return false;
+		
+	var diff = timeMs - this.LastTime;
+	if (diff > 150) diff = 150;
+	this.LastTime = timeMs;
+	
+	var characterSize = 0;			
+	var changedNode = false;
+	
+	if (!(this.TheObject === node))
+	{
+		this.TheObject = node;
+		this.StartPositionOfActor = new ZICA.Vect2d(node.x,node.y);//node.getAbsolutePosition();
+	}
+			
+	var currentPos = new ZICA.Vect2d(node.x,node.y);// node.getAbsolutePosition();
+	
+	if (this.CurrentCommand == 3) //EMT_DIE_AND_STOP)
+	{
+		// do nothing
+	}
+	else
+	if (this.CurrentCommand == 1) //EMT_REACH_POSITION)
+	{
+		// check if we reached the position
+
+		characterSize = this.getCharacterWidth(node);
+		if (this.CurrentCommandTargetPos.substract(currentPos).getLength() < characterSize)
+		{
+			// target reached.
+
+			this.CurrentCommand = 0; //EMT_DO_NOTHING;
+			this.setAnimation(node, 0); //EAT_STAND);
+			changedNode = true;
+		}
+		else
+		{
+			// not reached position yet
+			// check if we possibly hit a wall. This can be done easily by getting the moving speed and 
+			// checking the start position and start time
+
+			var cancelled = false;
+
+			if (this.CurrentCommandTicksDone > 2)
+			{
+				var expectedLengthMoved = this.CurrentCommandTicksDone * (this.MovementSpeed / 1000.0);
+				var lengthMoved = this.BeginPositionWhenStartingCurrentCommand.substract(currentPos).getLength();
+
+				if ( lengthMoved * 1.2 < expectedLengthMoved )
+				{
+					// cancel movement, moved twice as long as we should have already.
+					this.CurrentCommand = 0; //EMT_DO_NOTHING;
+					this.setAnimation(node, 0); //EAT_STAND);
+					cancelled = true;
+				}
+			}	
+
+			if (!cancelled)
+			{
+				// move on to the position
+
+				this.CurrentCommandTicksDone += diff;
+
+				var movementVec = this.CurrentCommandTargetPos.substract(currentPos);
+				movementVec.setLength((this.MovementSpeed / 1000.0) * diff);
+				
+				if (!this.CanFly)
+					movementVec.Y = 0;
+
+				//node.Pos.addToThis(movementVec); 
+				
+				node.x += movementVec.X;
+				node.y += movementVec.Y;
+			}
+
+			// additionally, animate looking direction
+
+			changedNode = this.animateRotation(node, (timeMs - this.CurrentCommandStartTime), 
+				this.CurrentCommandTargetPos.substract(currentPos), this.RotationSpeedMs);
+		}
+	}
+	else
+	if (this.CurrentCommand == 2) //EMT_ATTACK_ITEM)
+	{
+		// attack enemy in the middle of the animation
+
+		this.CurrentCommandTicksDone += diff;
+
+		if (!this.AttackCommandExecuted && 
+			this.CurrentCommandTicksDone > (this.CurrentCommandExpectedTickCount / 2))
+		{
+			// execute attack action
+
+			this.CurrentlyShooting = true;
+			
+			if (this.ActionHandlerOnAttack)
+				this.ActionHandlerOnAttack.execute(node);
+
+			this.CurrentlyShooting = false;
+			this.AttackCommandExecuted = true;
+			changedNode = true;
+		}
+
+		if (this.CurrentCommandTicksDone > this.CurrentCommandExpectedTickCount)
+		{
+			// finished
+			this.CurrentCommand = 0; //EMT_DO_NOTHING;
+		}
+		else
+		{
+			// rotate to attack target
+			changedNode = this.animateRotation(node, (timeMs - this.CurrentCommandStartTime), 
+				this.CurrentCommandTargetPos.substract(currentPos), 
+				Math.min(this.RotationSpeedMs, this.CurrentCommandExpectedTickCount));
+		}
+	}
+	else
+	if (this.CurrentCommand == 0) //EMT_DO_NOTHING)
+	{
+		// see if we can check for the target
+
+		// now do high level ai calculation here
+		
+		if (this.AIType == 1 || //EMT_STAND_STILL ||
+			this.AIType == 2 ||  //EMT_RANDOMLY_PATROL) 
+			this.AIType == 3 )
+		{							
+			var attackTargetNode = this.scanForAttackTargetIfNeeded(timeMs, currentPos);
+			
+			
+			if (attackTargetNode != null)
+			{	
+				// found an attack target
+				var weaponDistance = this.getAttackDistanceFromWeapon();
+
+				if (!this.Activated && this.ActionHandlerOnActivate)
+					this.ActionHandlerOnActivate.execute(node);
+				this.Activated = true;
+				changedNode = true;
+				
+				var pos = new ZICA.Vect2d(attackTargetNode.x,attackTargetNode.y);
+				if (pos.getDistanceTo(currentPos) < weaponDistance)
+				{
+					// attack target is in distance to be attacked by our weapon. Attack now, but
+					// first check if there is a wall between us.
+					if (this.isNodeVisibleFromNode(attackTargetNode, node))
+					{
+						// attack target is visible, attack now
+						this.CurrentlyShootingLine.Start = new ZICA.Vect2d(node.getCenter().x,node.getCenter().y);
+						this.CurrentlyShootingLine.End = new ZICA.Vect2d(attackTargetNode.getCenter().x,attackTargetNode.getCenter().y);
+						
+						this.attackTarget( node, attackTargetNode, new ZICA.Vect2d(attackTargetNode.x,attackTargetNode.y), currentPos, timeMs );
+					}
+					else
+					{
+						// attack target is not visible. move to it.
+						this.moveToTarget( node, new ZICA.Vect2d(attackTargetNode.x,attackTargetNode.y), currentPos, timeMs );
+					}
+				}
+				else
+				{
+					// attack target is not in distance to be attacked by the weapon. move to it.
+					this.moveToTarget( node, new ZICA.Vect2d(attackTargetNode.x,attackTargetNode.y), currentPos, timeMs );
+				}
+			}
+			else
+			{
+				// no attack target found. Do something idle, maybe patrol a bit.
+				if ( this.AIType == 2 || this.AIType == 3) //EMT_RANDOMLY_PATROL or EMT_FOLLOW_PATH_ROUTE)
+				{
+					if (!this.LastPatrolStartTime || timeMs > this.LastPatrolStartTime + this.PatrolWaitTimeMs)
+					{
+						characterSize = this.getCharacterWidth(node);
+						var newPos = null;
+						
+						if (this.AIType == 3)
+						{
+							// find next path point to go to
+							/* var path = null;
+							
+							if (this.PathIdToFollow != -1 && this.TheSceneManager != null)
+								path = this.TheSceneManager.getSceneNodeFromId(this.PathIdToFollow);
+								
+							if (path != null && path.getType() == 'path')
+							{
+								if (this.NextPathPointToGoTo >= path.getPathNodeCount())
+									this.NextPathPointToGoTo = 0;
+								
+								newPos = path.getPathNodePosition(this.NextPathPointToGoTo);
+							}
+							
+							++this.NextPathPointToGoTo; */
+						}
+						else
+						{						
+							// find random position to patrol to
+
+							var walklen = this.PatrolRadius;
+							this.LastPatrolStartTime = timeMs;
+							newPos = new ZICA.Vect2d((Math.random() - 0.5) * walklen,(Math.random() - 0.5)* walklen);
+							
+							newPos.addToThis(this.StartPositionOfActor);
+
+							if (!this.CanFly)
+								newPos.Y = this.StartPositionOfActor.Y;
+							
+						}
+
+						if (!(newPos.substract(currentPos).getLength() < characterSize))
+						{
+							// move to patrol target
+							this.moveToTarget( node, newPos, currentPos, timeMs );
+							changedNode = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return changedNode;
+}
+
+
+
+/** 
+ * returns if rotation changed, returns true/false
+ * @private
+ */ 
+ZICA.AnimatorGameAI.prototype.animateRotation = function(node, timeSinceStartRotation, 
+								 lookvector, rotationSpeedMs)
+{
+	if(!this.RotationForLooking)return false;
+	
+	if(node.type == 'entity'){
+			
+			//var interpol = Math.min(timeSinceStartRotation, rotationSpeedMs) / rotationSpeedMs;
+			//interpol = ZICA.clamp(interpol, 0.0, 1.0);
+			
+			node.angle = (Math.atan2(lookvector.X, -lookvector.Y)*180/Math.PI);
+			node.angle += this.AdditionalRotationForLooking;
+	}
+		
+	return false;
+	
+	if (!node)
+		return false;
+
+	var isCamera = (node.getType() == 'camera');
+	if (isCamera)
+		return false;
+
+	if (!this.CanFly)
+		lookvector.Y = 0;
+		
+	var matrot = new ZICA.Matrix4();
+	matrot.setRotationDegrees(lookvector.getHorizontalAngle());
+	var matrot2 = new ZICA.Matrix4();
+	matrot2.setRotationDegrees(this.AdditionalRotationForLooking);
+	matrot = matrot.multiply(matrot2);
+
+	// matrot now is the wanted rotation, now interpolate with the current rotation
+	var wantedRot = matrot.getRotationDegrees();
+	var currentRot = node.Rot.clone();					
+
+	var interpol = Math.min(timeSinceStartRotation, rotationSpeedMs) / rotationSpeedMs;
+	interpol = ZICA.clamp(interpol, 0.0, 1.0);
+
+	//node->setRotation(wantedRot.getInterpolated(currentRot, interpol));
+
+	wantedRot.multiplyThisWithScal( ZICA.DEGTORAD);
+	currentRot.multiplyThisWithScal( ZICA.DEGTORAD);
+	
+	var q1 = new ZICA.Quaternion();
+	q1.setFromEuler(wantedRot.X, wantedRot.Y, wantedRot.Z);
+	
+	var q2 = new ZICA.Quaternion();
+	q2.setFromEuler(currentRot.X, currentRot.Y, currentRot.Z);
+	
+	q2.slerp(q2, q1, interpol);
+	q2.toEuler(wantedRot);
+
+	wantedRot.multiplyThisWithScal( ZICA.RADTODEG);
+	
+	if (node.Rot.equals(wantedRot))
+		return false;
+		
+	node.Rot = wantedRot;
+	return true;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.moveToTarget = function(node, target, currentPos, now)
+{	
+	this.CurrentCommand = 1; //EMT_REACH_POSITION;
+	this.CurrentCommandTargetPos = target;
+	this.CurrentCommandStartTime = now;
+	this.BeginPositionWhenStartingCurrentCommand = currentPos;
+	this.CurrentCommandTicksDone = 0;
+	this.CurrentCommandExpectedTickCount = 0; // invalid for this command
+	this.setAnimation(node, 1); //EAT_WALK);
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.attackTarget = function(node, targetnode, target, currentPos, now)
+{
+	this.CurrentCommand = 2; //EMT_ATTACK_ITEM;
+	this.CurrentCommandTargetPos = target;
+	this.CurrentCommandStartTime = now;
+	this.HandleCurrentCommandTargetNode = targetnode;
+	this.BeginPositionWhenStartingCurrentCommand = currentPos;
+	this.CurrentCommandTicksDone = 0;
+	this.CurrentCommandExpectedTickCount = 500; // seems to be a nice default value
+	this.AttackCommandExecuted = false;
+
+	var animDuration = this.setAnimation(node, 2);//EAT_ATTACK);
+
+	if (animDuration != 0)
+	{
+		this.CurrentCommandExpectedTickCount = animDuration;
+	}
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.aiCommandCancel = function(node)
+{
+	this.CurrentCommand = 0; //EMT_DO_NOTHING;
+	this.setAnimation(node, 0); //EAT_STAND);
+}
+
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.die = function(node, currentPos, now)
+{
+	this.CurrentCommand = 3; //EMT_DIE_AND_STOP;
+	this.CurrentCommandStartTime = now;
+	this.BeginPositionWhenStartingCurrentCommand = currentPos;
+	this.CurrentCommandTicksDone = 0;
+	this.CurrentCommandExpectedTickCount = 500; // seems to be a nice default value
+
+	var animDuration = this.setAnimation(node, 3); //EAT_DIE);
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.isNodeVisibleFromNode = function(node1, node2)
+{
+	if (!node1 || !node2)
+		return false;
+
+	// instead of checking the positions of the nodes, we use the centers of the boxes of the nodes
+	
+	var pos1 = node1.getCenter();
+	var pos2 = node2.getCenter();
+	
+	// if this is a node with collision box enabled, move the test start position outside of the collision box (otherwise the test would collide with itself)
+
+	if (this.TheObject == node2)
+	{
+		if (node2.type == 'entity')
+		{
+			if (node2.DoesCollision)
+			{
+				var extendLen = node2.width * 0.5;
+				var vect = pos2.substract(pos1);
+				vect.normalize();
+				vect.multiplyThisWithScal( extendLen + (extendLen * 0.02));
+				pos1.addToThis(vect);
+			}
+		}
+	}
+
+	return this.isPositionVisibleFromPosition(pos1, pos2);
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.isPositionVisibleFromPosition = function(pos1, pos2)
+{
+	//odje traba sudarnu tacku nac!!!
+	/* if (this.World.getCollisionPointWithLine(pos1, pos2, true, null, true) != null)
+	{
+		return false;
+	} */
+
+	return true;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.getNearestSceneNodeFromAIAnimatorAndDistance = function(node, 
+															  currentpos,
+															  tag)
+{
+	if(node.type == 'scene')node.visible = true;//... 
+	
+	if (!node || !node.visible)
+		return;
+	
+	// check if the node is in the max distance
+
+	var isMatching = false;
+	var dist = currentpos.getDistanceTo(new ZICA.Vect2d(node.x,node.y));	
+
+	if (dist < this.NearestSceneNodeFromAIAnimator_maxDistance && node.type != 'scene')
+	{
+		// find ai animator in the node
+	
+		var ainode = node.getAnimatorOfType('gameai');
+
+		if (ainode && tag != "" &&
+			!(ainode === this) &&
+			ainode.isAlive() )
+		{
+			// check if animator tags are the ones we need
+			isMatching = ainode.Tags.indexOf(tag) != -1;
+		}
+	}
+
+	if (isMatching)
+	{
+		this.NearestSceneNodeFromAIAnimator_maxDistance = dist;
+		this.NearestSceneNodeFromAIAnimator_NodeOut = node;
+	}
+
+	// search children of the node
+	if(node.children)
+	for (var i = 0; i<node.children.length; ++i)
+	{				
+		var child = node.children[i];
+		this.getNearestSceneNodeFromAIAnimatorAndDistance(child, currentpos, tag);
+	}
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.scanForAttackTargetIfNeeded = function(timems, currentpos)
+{
+	if (this.ActivationRadius <= 0 || !this.TheObject || this.AttacksAIWithTags.length == 0)
+		return null;
+
+	if (!this.NextAttackTargetScanTime || timems > this.NextAttackTargetScanTime)
+	{	
+		
+		this.NearestSceneNodeFromAIAnimator_maxDistance = this.ActivationRadius;
+		this.NearestSceneNodeFromAIAnimator_NodeOut = null;
+		
+		this.getNearestSceneNodeFromAIAnimatorAndDistance(Game.scene,
+													 currentpos, this.AttacksAIWithTags );
+
+		this.NextAttackTargetScanTime = timems + 500 + (Math.random() * 1000);
+
+		return this.NearestSceneNodeFromAIAnimator_NodeOut;	
+	}
+
+	return null;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.getAttackDistanceFromWeapon = function()
+{
+	var ret = 1000;
+
+	if (this.ActionHandlerOnAttack)
+	{
+		var action = this.ActionHandlerOnAttack.findAction('Shoot');
+		if (action)
+			ret = action.WeaponRange;
+	}
+
+	return ret;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.getCharacterWidth = function(node)
+{
+	
+	if (node != null)
+		return 10;
+
+	return node.width;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.getAnimationNameFromType = function(t)
+{
+	switch(t)
+	{
+	case 0: return this.StandAnimation;
+	case 1: return this.WalkAnimation;
+	case 2: return this.AttackAnimation;
+	case 3: return this.DieAnimation;
+	}
+
+	return "";
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.setAnimation = function(node, animationType)
+{
+	if(node.animations)
+	node.animation = this.getAnimationNameFromType(animationType);
+	
+	return true;
+	
+	if (!node || node.getType() != 'animatedmesh')
+		return 0;
+
+	// find mesh and node type
+
+	var animatedMesh = node;
+			
+	var skinnedmesh = animatedMesh.Mesh; // as SkinnedMesh;
+	if (!skinnedmesh)
+		return 0;
+
+	// find range for animation
+	
+	var range = skinnedmesh.getNamedAnimationRangeByName(this.getAnimationNameFromType(animationType));
+		
+	if (range)
+	{
+		animatedMesh.setFrameLoop(range.Begin, range.End);
+		if (range.FPS != 0)
+			animatedMesh.setAnimationSpeed(range.FPS);
+		animatedMesh.setLoopMode(animationType == 1 || animationType == 0); //animationType == EAT_WALK || animationType == EAT_STAND);
+		
+		return (range.End - range.Begin) * range.FPS * 1000;
+	}
+	else
+	{
+		// note: temporary bug fix. The flash animation player is
+		// not able to stop an animation at (0,0), so we stop at (1,1)
+		animatedMesh.setFrameLoop(1, 1);
+		animatedMesh.setLoopMode(false);
+	}
+
+	return 0;
+}
+	
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.isCurrentlyShooting = function()
+{
+	return this.CurrentlyShooting;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.getCurrentlyShootingLine = function()
+{
+	return this.CurrentlyShootingLine;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.isAlive = function()
+{
+	return this.Health > 0;
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.OnHit = function(damage, node)
+{
+	if (!node)
+		return;
+
+	if (this.Health == 0)
+		return; // already dead
+
+	this.Health -= damage;
+	if (this.Health < 0)
+		this.Health = 0;
+
+	if (this.Health == 0)
+	{
+		if (this.ActionHandlerOnDie != null) 
+			this.ActionHandlerOnDie.execute(node);
+
+		this.die(node, new ZICA.Vect2d(node.x,node.y), 0);
+	}
+	else
+	{
+		if (this.ActionHandlerOnHit != null)
+			this.ActionHandlerOnHit.execute(node);
+	}
+}		
+
+
+
+/**
+ * @private
+ */
+ZICA.AnimatorGameAI.prototype.findActionByType = function(type)
+{
+	var ret = null;
+	
+	if (this.ActionHandlerOnAttack)
+	{
+		ret = this.ActionHandlerOnAttack.findAction(type);
+		if (ret)
+			return ret;
+	}
+	
+	if (this.ActionHandlerOnActivate)
+	{
+		ret = this.ActionHandlerOnActivate.findAction(type);
+		if (ret)
+			return ret;
+	}
+	
+	if (this.ActionHandlerOnHit)
+	{
+		ret = this.ActionHandlerOnHit.findAction(type);
+		if (ret)
+			return ret;
+	}
+	
+	if (this.ActionHandlerOnDie)
+	{
+		ret = this.ActionHandlerOnDie.findAction(type);
+		if (ret)
+			return ret;
+	}
+	
+	return null;
+}
+
 /////////////////////////////////////////////////////
 //AnimatorRotation
 /////////////////////////////////////////////////////
@@ -950,11 +2153,248 @@ ZICA.AnimatorRotation.prototype.setRotateToTargetAndStop = function(targetRot, b
 	this.Rotation = targetRot;
 	this.BeginRotation = beginRot;
 	this.RotateToTargetEndTime = this.StartTime + timeForMovement;
+}	
+//////////////////////////////////////////////////////
+//+ AnimatorFollowPath
+//////////////////////////////////////////////////////	
+/**
+ * Scene node animator making {@link ZICA.Entity}s move along a path.
+ * Uses {@link ZICA.Entity} to define the path.
+ * @constructor
+ * @public
+ * @extends ZICA.Animator
+ * @class  Scene node animator making {@link ZICA.Entity}s move along a path, uses {@link ZICA.PathSceneNode} to define the path.
+ * @param scene The scene the animator is in
+ */
+ZICA.AnimatorFollowPath = function(obj)
+{
+	this.TimeNeeded = 5000;
+	this.LookIntoMovementDirection = false;
+	this.OnlyMoveWhenCameraActive = true;
+	this.TimeDisplacement = 0;
+	this.EndMode = 0; //ZICA.AnimatorFollowPath.EFPFEM_START_AGAIN;
+	
+	this.StartTime = 0;
+	this.LastObject = null;
+
+	this.PathToFollow = null; // string!
+	this.AdditionalRotation = null; 	
+	
+	this.LastPercentageDoneActionFired = 0;
+	this.bActionFired = false;
+	
+	this.PathToFollow = obj.PathToFollow;
+	if(this.PathToFollow)
+		if(this.PathToFollow.length)
+			this.PathToFollow.forEach(function(item, index, arr){
+				var array = item.split(',');
+				arr[index] = new ZICA.Vect2d(Number(array[0]),Number(array[1]));	
+			});
+		
+	this.TimeNeeded = obj.TimeNeeded;
+	this.LookIntoMovementDirection = obj.LookIntoMovementDirection;
+	this.AdditionalRotation = obj.AdditionalRotation;
+	this.TimeDisplacement = obj.TimeDisplacement;
+	this.EndMode = (obj.EndMode == 'Start Again')?0:1;
+}		
+ZICA.AnimatorFollowPath.prototype = new ZICA.Animator();
+
+/** 
+ * Constant for {@link AnimatorFollowPath.EndMode}, specifying to start the movement again when the end of the path has been reached.
+ * @const 
+ * @public
+ */
+ZICA.AnimatorFollowPath.EFPFEM_START_AGAIN = 0;
+
+/** 
+ * Constant for {@link AnimatorFollowPath.EndMode}, specifying to start the movement again when the end of the path has been reached.
+ * @const 
+ * @public
+ */
+ZICA.AnimatorFollowPath.EFPFEM_STOP = 1;
+
+/** 
+ * Constant for {@link AnimatorFollowPath.EndMode}, specifying to start the movement again when the end of the path has been reached.
+ * @const 
+ * @private
+ */
+ZICA.AnimatorFollowPath.EFPFEM_SWITCH_TO_CAMERA = 2;
+
+
+/** 
+ * Returns the type of the animator.
+ * For the AnimatorFollowPath, this will return 'followpath'.
+ * @public
+ */
+ZICA.AnimatorFollowPath.prototype.getType = function()
+{
+	return 'followpath';
+}
+
+
+/** 
+ * @private
+ */
+ZICA.AnimatorFollowPath.prototype.createClone = function()
+{
+	var a = new ZICA.AnimatorFollowPath({});
+	a.TimeNeeded = this.TimeNeeded;
+	a.LookIntoMovementDirection = this.LookIntoMovementDirection;
+	a.OnlyMoveWhenCameraActive = this.OnlyMoveWhenCameraActive;
+	a.PathToFollow = this.PathToFollow.slice();
+	a.TimeDisplacement = this.TimeDisplacement;
+	a.AdditionalRotation = this.AdditionalRotation;
+	a.EndMode = this.EndMode;
+	a.CameraToSwitchTo = this.CameraToSwitchTo;
+	a.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+	return a;
+}
+
+/**
+ * Sets the options for animating the node along the path
+ * @public
+ * @param endmode {Number} Mode specifying what should happen when the end of the path has been reached.
+ * Can be {@link ZICA.AnimatorFollowPath.EFPFEM_START_AGAIN} or {@link ZICA.AnimatorFollowPath.EFPFEM_STOP} 
+ * @param timeNeeded {Number} Time in milliseconds needed for following the whole path, for example 10000 for 10 seconds.
+ * @param lookIntoMovementDirection {Boolean} true if the node should look into the movement direction or false 
+ * if not.
+ * 
+ */
+ZICA.AnimatorFollowPath.prototype.setOptions = function(endmode, timeNeeded, lookIntoMovementDirection)
+{
+	this.EndMode = endmode;
+	this.LookIntoMovementDirection = lookIntoMovementDirection;
+	this.TimeNeeded = timeNeeded;
+}
+
+/**
+ * Animates the scene node it is attached to and returns true if scene node was modified.
+ * @public
+ * @param {ZICA.SceneNode} n The Scene node which needs to be animated this frame.
+ * @param {Integer} timeMs The time in milliseconds since the start of the scene.
+ */
+ZICA.AnimatorFollowPath.prototype.animateNode = function(n, timeMs)
+{
+	var timeMs = Date.now();
+	
+	if (n == null || !this.TimeNeeded)
+		return false;
+
+	if (!(n === this.LastObject))
+	{
+		this.setNode(n);
+		return false;
+	}
+
+	//this.linkWithPath();
+		
+	var changed = false;
+	var cam = null;
+
+	if (!this.StartTime)
+	{
+		// use start time of scene
+		this.StartTime = Date.now();//this.Manager.getStartTime();
+	}	
+
+	var percentageDone = (timeMs - this.StartTime + this.TimeDisplacement) / this.TimeNeeded;
+
+	// when path finished, do what set in settings
+	if (percentageDone > 1.0)
+	{
+		switch(this.EndMode)
+		{
+		case ZICA.AnimatorFollowPath.EFPFEM_START_AGAIN:
+			percentageDone = percentageDone % 1.0;
+			break;
+		case ZICA.AnimatorFollowPath.EFPFEM_STOP:
+			percentageDone = 1.0;
+			break;
+		case ZICA.AnimatorFollowPath.EFPFEM_SWITCH_TO_CAMERA:
+			percentageDone = 1.0;
+			if (!this.SwitchedToNextCamera)
+			{
+				this.switchToNextCamera();
+				this.SwitchedToNextCamera = true;
+			}
+			break;
+		case 3: // EFPFEM_START_AGAIN_AND_DO_ACTION
+			if (percentageDone > this.LastPercentageDoneActionFired + 1.0 && this.TheActionHandler != null)
+			{
+				this.TheActionHandler.execute(n);
+				this.LastPercentageDoneActionFired = percentageDone;
+			}
+			percentageDone = percentageDone % 1.0;
+			break;
+		case 4: // EFPFEM_STOP_AND_DO_ACTION
+			percentageDone = 1.0;
+			if (!this.bActionFired && this.TheActionHandler != null)
+			{
+				this.TheActionHandler.execute(n);
+				this.bActionFired = true;
+			}
+			break;
+		}
+	}
+	else
+		this.SwitchedToNextCamera = false;
+	
+	// advance node on path
+	var q = percentageDone*(this.PathToFollow.length-1);
+	
+	var a = Math.floor(q);
+	var b = Math.ceil(q);
+	var percentage = q-a;
+	
+	var posA = this.PathToFollow[a];
+	var posB = this.PathToFollow[b];
+	
+	var dir = posB.substract(posA);
+	dir.multiplyThisWithScal(percentage);
+	
+	var pos = posA.add(dir);
+	changed = !pos.equals(new ZICA.Vect2d(n.x,n.y));
+	
+	n.x = pos.X;
+	n.y = pos.Y;
+	
+	if (this.LookIntoMovementDirection && this.PathToFollow.length)
+	{
+		// set lookat target of moving object
+		dir.normalize();
+		
+		if(n.type == 'entity'){
+			n.angle = Math.atan2(dir.X, -dir.Y)*180/Math.PI;
+			n.angle += this.AdditionalRotation;
+		}
+				
+	}			
+	
+	return changed;
 }		
 
+/**
+* @private
+*/
+ZICA.AnimatorFollowPath.prototype.setNode = function(n)
+{
+	this.LastObject = n;
+
+}
+
+/**
+ * @private
+ */
+ZICA.AnimatorFollowPath.prototype.findActionByType = function(type)
+{
+	if (this.TheActionHandler)
+		return this.TheActionHandler.findAction(type);
+	
+	return null;
+}
 //////////////////////////////////////////////////////
 //+ AnimatorFlyStraight
-/////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 /**
  * Scene node animator making {@link ZICA.Entity}s move along straight line between two points.
@@ -1926,7 +3366,7 @@ ZICA.AnimatorCollisionResponse.prototype.getType = function()
 ZICA.AnimatorCollisionResponse.prototype.createClone = function()
 {
 	var a = new ZICA.AnimatorCollisionResponse({});
-	a.Radius = this.Radius.clone();
+	//a.Radius = this.Radius.clone();
 	a.AffectedByGravity = this.AffectedByGravity;
 	return a;
 }
@@ -1977,7 +3417,7 @@ ZICA.AnimatorCollisionResponse.prototype.animateNode = function(n, timeMs)
 		return false;
 	}
 	
-	var velY = -Game.scene.gravity;
+	//var velY = -Game.scene.gravity;
 	
 	var changed = Math.abs(this.LastPosition.Y - n.y)>0.5;
 	
@@ -1989,7 +3429,12 @@ ZICA.AnimatorCollisionResponse.prototype.animateNode = function(n, timeMs)
 		if (this.JumpForce < 0) this.JumpForce = 0;		
 	}
 	
-	n.velY = -velY;
+	if(this.AffectedByGravity)
+		n.physicType = 'dynamic';
+	else
+		n.physicType = 'kinematic';
+	
+	//n.velY = -velY;
 	
 	if(changed){
 		if (!this.Falling)
@@ -2015,8 +3460,10 @@ ZICA.AnimatorCollisionResponse.prototype.jump = function(jumpspeed)
 }
 ZICA.AnimatorCollisionResponse.prototype.onCollision = function(event , n)
 {
-	n.x = n.prevX;
-	n.y = n.prevY;		
+	//0up 1down 2left 3right
+	
+	Game.resolveElastic(n,event.other);
+	
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 // AnimatorCollide
@@ -2073,6 +3520,102 @@ ZICA.AnimatorCollide.prototype.onCollision = function(event , n)
 	n.y = n.prevY;		
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// AnimatorPhysicsEngine
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @constructor
+ * @class
+ * @private
+ * @extends ZICA.Animator
+ */
+ZICA.AnimatorPhysicsEngine = function(obj)
+{
+	this.shape = obj.Shape;
+	this.mass = obj.Mass;
+	this.position = obj.Position;
+	this.size = obj.Size;
+	this.autoSize = obj.autoSize;
+	this.radius = obj.Radius;
+	this.length = obj.length;
+	
+}		
+ZICA.AnimatorPhysicsEngine.prototype = new ZICA.Animator();
+
+
+/** 
+ * Returns the type of the animator.
+ * For the AnimatorPhysicsEngine, this will return 'physicsengine'.
+ * @private
+ */
+ZICA.AnimatorPhysicsEngine.prototype.getType = function()
+{
+	return 'physicsengine';
+}
+
+/** 
+ * @private
+ */
+ZICA.AnimatorPhysicsEngine.prototype.createClone = function()
+{
+	var a = new ZICA.AnimatorPhysicsEngine({});
+	a.shape = this.shape;
+	a.mass = this.mass;
+	a.position = this.position;
+	a.size = this.size;
+	a.autoSize = this.autoSize;
+	a.radius = this.radius;
+	a.length = this.length;
+	return a;
+}
+
+
+/**
+ * Animates the scene node it is attached to and returns true if scene node was modified.
+ * @private
+ * @param {ZICA.Entity} n The Scene node which needs to be animated this frame.
+ * @param {Integer} timeMs The time in milliseconds since the start of the scene.
+ */
+ZICA.AnimatorPhysicsEngine.prototype.animateNode = function(n, event)
+{
+	if(!n.body){
+		
+		if(this.autoSize){
+			this.size = new ZICA.Vect2d(n.width,n.height);
+			this.radius = Math.min(n.width,n.height);
+			this.length = Math.max(n.width,n.height);	
+		}
+		
+		n.body = new p2.Body({
+		mass: this.mass,
+		position: [n.x + this.position.X  , n.y + this.position.Y],
+		angle: n.angle*Math.PI/180
+		});	
+		
+		var shape;
+		
+		if(this.shape ==  "Circle")
+			shape = new p2.Circle({ radius: this.radius });
+		if(this.shape ==  "Box")
+			shape = new p2.Box({ width: this.size.X, height: this.size.Y });
+		if(this.shape ==  "Capsule")
+			shape = new p2.Capsule({ radius: this.radius, length: this.length });
+
+		if(shape)n.body.addShape(shape);
+		
+		Game.scene.world.addBody(n.body);
+		
+		
+	}else{
+		
+		n.x = n.body.position[0];
+		n.y = n.body.position[1];
+		
+		n.angle = n.body.angle*180/Math.PI;
+	}
+	
+}
 
 ///////////////////////////////////////////////////////
 // AnimatorAnimateTexture
@@ -2594,6 +4137,11 @@ ZICA.Action.ChangeSceneNodePosition = function(obj)
 		//this.SceneNodeToChangePosition = obj.SceneNodeToChangePosition;
 	}
 	
+	if(obj.PositionChangeType == 6){
+		this.PositionChangeType = 6;
+		this.Vector = obj.Vector;
+		//this.SceneNodeToChangePosition = obj.SceneNodeToChangePosition;
+	}
 
 	this.Type = 'ChangeSceneNodePosition';	
 }
@@ -2682,6 +4230,12 @@ ZICA.Action.ChangeSceneNodePosition.prototype.execute = function(currentNode)
 		case 5: //EIT_RELATIVE_TO_LAST_BULLET_IMPACT:
 			{	
 				finalpos = new ZICA.Vect2d(Game.controls.mouse.x,Game.controls.mouse.y);
+			}
+			break;
+		case 6: //EIT_RELATIVE_TO_LAST_BULLET_IMPACT:
+			{	
+				if(Game.scene.lastBulletImpact)
+				finalpos = new ZICA.Vect2d(Game.scene.lastBulletImpact.X + this.Vector.X,Game.scene.lastBulletImpact.Y + this.Vector.Y);
 			}
 			break;
 		}
@@ -3939,4 +5493,256 @@ ZICA.VideoStream = function(filename)
 			
 		return this.playBackEnded;
 	}
+}
+
+// ---------------------------------------------------------------------
+// Action Shoot
+// ---------------------------------------------------------------------
+
+/**
+ * @private
+ * @constructor
+ * @class
+ */
+ZICA.Action.Shoot = function(obj)
+{
+	this.ShootType = 0;
+	this.Damage = 0;
+	this.BulletSpeed = 0.0;
+	this.SceneNodeToUseAsBullet = -1;
+	this.WeaponRange = 100.0;
+	this.Type = 'Shoot';	
+	this.SceneNodeToShootFrom = -1;
+	this.SceneNodeToShootTo = -1; 
+	this.ShootToCameraTarget = false;
+	this.AdditionalDirectionRotation = null;
+	this.ActionHandlerOnImpact = null;
+	this.ShootDisplacement = new ZICA.Vect2d();
+	
+	this.ShootType = (obj.ShootType == 'Direcly hit, no bullet')?0:1;
+	this.Damage = obj.Damage;
+	this.SceneNodeToUseAsBullet = obj.SceneNodeToUseAsBullet;
+	this.BulletSpeed = obj.BulletSpeed;
+	this.WeaponRange = obj.WeaponRange;
+	this.ActionHandlerOnImpact = obj.ActionOnImpact;
+	this.SceneNodeToShootFrom = obj.SceneNodeToShootFrom;
+	this.AdditionalDirectionRotation = obj.AdditionalDirectionRotation;
+	this.ShootDisplacement = obj.ShootDisplacement;
+	
+	this.ShootTo = ['DirectionRotation','CameraTarget','SceneNode'].indexOf(obj.ShootTo);
+	
+	if(this.ShootTo == 1)
+		this.ShootToCameraTarget = true;
+	if(this.ShootTo == 2)
+		this.SceneNodeToShootTo = obj.SceneNodeToShootTo;
+		
+}
+
+/**
+ * @private
+ */
+ZICA.Action.Shoot.prototype.createClone = function()
+{
+	var a = new ZICA.Action.Shoot({});
+	a.ShootType = this.ShootType;
+	a.Damage = this.Damage;
+	a.BulletSpeed = this.BulletSpeed;
+	a.SceneNodeToUseAsBullet = this.SceneNodeToUseAsBullet;
+	a.WeaponRange = this.WeaponRange;
+	a.SceneNodeToShootFrom = this.SceneNodeToShootFrom;
+	a.SceneNodeToShootTo = this.SceneNodeToShootTo;
+	a.ShootToCameraTarget = this.ShootToCameraTarget;
+	a.ShootTo = this.ShootTo;
+	a.AdditionalDirectionRotation = this.AdditionalDirectionRotation;
+	a.ActionHandlerOnImpact = this.ActionHandlerOnImpact ? this.ActionHandlerOnImpact.createClone(): null;
+	a.ShootDisplacement = this.ShootDisplacement.clone();
+		
+	return a;
+}
+
+/**
+ * @private
+ */
+ZICA.Action.Shoot.prototype.execute = function(currentNode)
+{
+	if (!currentNode)
+		return;
+	
+	// calculate ray, depending on how we were shot: If shot by an AI, use its target.
+	// it not, use the active camera and shoot into the center of the screen.
+
+	var ray = new Object();
+	var rayFound = false;
+	var shooterNode = null;
+	var cam = null; // temp variable, used multiple times below
+	
+	if (this.SceneNodeToShootFrom != null)
+	{
+		var userSpecifiedNode = Game.getEntityById(this.SceneNodeToShootFrom);
+		
+		if (userSpecifiedNode != null)
+		{
+			rayFound = true;
+			shooterNode = userSpecifiedNode;
+			
+			// ray.Start = userSpecifiedNode.getTransformedBoundingBox().getCenter();
+			
+			ray.Start = new ZICA.Vect2d(userSpecifiedNode.x,userSpecifiedNode.y);
+			ray.Start.addToThis(this.ShootDisplacement);
+		}
+	}
+	else{
+		shooterNode = currentNode;
+		
+		ray.Start = new ZICA.Vect2d(shooterNode.x,shooterNode.y);
+		ray.Start.addToThis(this.ShootDisplacement);
+	}
+	
+	if (this.ShootTo == 1)
+	{
+		// in order to shoot to the camera target, we need to collide the camera with the world and
+		// all AIs to test were to shoot at
+		var camVect = new ZICA.Vect2d(Game.scene.x,Game.scene.y);
+		camVect = camVect.substract(ray.Start);
+		camVect.normalize();
+		ray.End = camVect;
+	}
+	if(this.ShootTo == 0)
+	{
+		if (typeof this.AdditionalDirectionRotation == 'number')
+		{
+			ray.End = new ZICA.Vect2d(Math.cos(this.AdditionalDirectionRotation*Math.PI/180),Math.sin(this.AdditionalDirectionRotation*Math.PI/180));
+		}
+
+	}
+	if(this.ShootTo == 2)
+	{
+		var nodeTo = null;
+		if(this.SceneNodeToShootTo != -1)
+			nodeTo = Game.getEntityById(this.SceneNodeToShootTo);
+		
+		if(nodeTo){
+			var dirVect = new ZICA.Vect2d(nodeTo.getCenter().x,nodeTo.getCenter().y);
+			dirVect = dirVect.substract(ray.Start);
+			dirVect.normalize();
+			ray.End = dirVect;
+		}
+	}
+
+	//console.log(ray);
+	// decide if we do a bullet or direct shot
+
+	if (this.ShootType == 1) //ESIT_BULLET)
+	{
+		var bulletTemplate = null;
+
+		if (this.SceneNodeToUseAsBullet != -1)
+			bulletTemplate = Game.getEntityById(this.SceneNodeToUseAsBullet);
+		else 
+			bulletTemplate = currentNode;
+		
+		if (bulletTemplate)
+		{
+			// create bullet now
+
+			var cloned = bulletTemplate.clone();
+		
+			if (cloned != null)
+			{
+				cloned.x = ray.Start.X;
+				cloned.y = ray.Start.Y;
+				cloned.position = 'absoulte';
+				cloned.visible = true;
+				cloned.isBullet = true;
+				cloned.name = "";
+				
+				cloned.ray = ray;
+				cloned.WeaponRange = this.WeaponRange;
+				cloned.Damage = this.Damage;
+				cloned.shooterNode = shooterNode;
+				cloned.bulletTemplate = bulletTemplate;
+				cloned.ActionHandlerOnImpact = this.ActionHandlerOnImpact;
+				// rotate to target
+				//cloned.angle = this.AdditionalDirectionRotation;
+
+				// move to target
+
+				var speed = this.BulletSpeed;
+				if (speed == 0) speed = 1.0;
+				
+				cloned.velX = ray.End.X * speed;
+				cloned.velY = ray.End.Y * speed;
+				
+				Game.scene.addEntity(cloned);
+				
+				cloned.__onUpdate = function(event){
+					
+					var a = new ZICA.Vect2d(this.x,this.y);
+					var b = this.ray.Start.clone();
+					var vect = a.substract(b);
+					var length = vect.getLength();
+					
+					if(length >= this.WeaponRange)
+						this.__removeFlag = true;
+					
+				}
+				
+				
+				cloned.__onCollision = function(event){
+					var other = event.other;
+					
+					if((!other.isBullet) && (other != this.shooterNode) && (other != this.bulletTemplate)){
+						
+						Game.scene.lastBulletImpact = new ZICA.Vect2d(this.x,this.y);
+						this.__removeFlag = true;
+						
+						if (this.ActionHandlerOnImpact)
+							this.ActionHandlerOnImpact.execute(other);	
+						
+						var targetanimAi = other.getAnimatorOfType('gameai');
+						if (targetanimAi)
+						targetanimAi.OnHit(this.Damage, other);
+					}
+				}
+				
+			}
+		}
+	}
+	else
+	if (this.ShootType == 0) //EST_DIRECT)
+	{
+		for(var i = 0; i<= this.WeaponRange; i++){
+			
+			var end = ray.End.clone();
+			end.multiplyThisWithScal(i)
+			var point = ray.Start.add(end);
+			point.x = point.X;
+			point.y = point.Y;
+			
+			for(var ii = 0; ii<= Game.scene.children.length-1;ii++){
+				var node = Game.scene.children[ii];
+			
+				if(Game.pointInBox(point,node)){
+					
+					if((!node.isBullet) && (node != shooterNode)){
+						
+						Game.scene.lastBulletImpact = new ZICA.Vect2d(point.X,point.Y);
+						
+						if (this.ActionHandlerOnImpact)
+							this.ActionHandlerOnImpact.execute(node);
+						
+						var targetanimAi = other.getAnimatorOfType('gameai');
+						if (targetanimAi)
+						targetanimAi.OnHit(this.Damage, node);
+						
+						i = Infinity;
+						break;
+					}
+				}
+					
+			}
+				
+		}
+
+	} // end direct shot
 }

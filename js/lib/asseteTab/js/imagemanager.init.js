@@ -126,3 +126,4 @@ $(document).ready(function() {
 // public aliases
 window.DelImg = ImageManager.HTMLBuilder.RemoveImage;
 window.FavImg = ImageManager.HTMLBuilder.ToggleFavorite;
+

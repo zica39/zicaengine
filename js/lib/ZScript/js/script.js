@@ -43,6 +43,17 @@
 			'Loop': [ 'bool' , false]
 		},
 		{
+			name: 'Follow a path',
+			jsname : 'AnimatorFollowPath',
+			description : 'Scene node animator making entity s move along a path.',
+			'TimeNeeded': [ 'int' , '5000'],
+			'PathToFollow': [ 'array' , []],
+			'LookIntoMovementDirection': [ 'bool' , false],
+			'AdditionalRotation': [ 'int' , '-90'],
+			'TimeDisplacement': [ 'int' , '0'],
+			'EndMode':['combo','Start Again',['Start Again','Stop']]
+		},
+		{
 			name: 'Collide When Moved',
 			jsname : 'AnimatorCollisionResponse',
 			description : "This behavior makes it possible to move 2D objects within a 2D world without letting them go through walls. ",
@@ -64,7 +75,7 @@
 			'NoClickWhenOccluded': [ 'bool' , false]
 		}, */
 		{
-			name: 'Every frame do something',
+			name: 'Every Frame do something',
 			jsname : 'AnimatorOnEveryFrame',
 			description : "This behavior detect every frame",
 			'Action': [ 'action' , []]
@@ -121,6 +132,29 @@
 		'Game Behaviours',
 		
 		{
+			name: 'Top-Down Player',
+			jsname : 'AnimatorTopDownMovement',
+			description : 'Simple 2D Top-Down Movement Player',
+			'Speed': [ 'float' , '0.2'],
+			'StandAnimation': [ 'animation' , ''],
+			'WalkLeftAnimation': [ 'animation' , ''],
+			'WalkRightAnimation': [ 'animation' , ''],
+			'WalkUpAnimation': [ 'animation' , ''],
+			'WalkDownAnimation': [ 'animation' , '']
+		},
+		{
+			name: '2D Jump "n" Run Player',
+			jsname : 'Animator2DJumpNRun',
+			description : 'Simple 2D Jump "n" Run Player',
+			'Speed': [ 'float' , '0.2'],
+			'JumpSpeed': [ 'float' , '0.2'],
+			'JumpLengthMs': [ 'int' , '200'],
+			'PauseAfterJump': [ 'bool' , false],
+			'StandAnimation': [ 'animation' , ''],
+			'WalkLeftAnimation': [ 'animation' , ''],
+			'WalkRightAnimation': [ 'animation' , ''],
+		},
+		{
 			name: 'Object controlled by keyboard',
 			jsname : 'AnimatorKeyboardControlled',
 			description : 'A behavior which makes it possible to control a 2d object by the keyboard input, and also trigger animations, if wanted.',
@@ -128,18 +162,54 @@
 			'RotateSpeed': [ 'float' , '45'],
 			'JumpSpeed': [ 'float' , '0.2'],
 			'RunSpeed': [ 'float' , '0.2'],
-			'StandAnimation': [ 'string' , ''],
-			'WalkAnimation': [ 'string' , ''],
-			'RunAnimation': [ 'string' , ''],
-			'JumpAnimation': [ 'string' , ''],
+			'StandAnimation': [ 'animation' , ''],
+			'WalkAnimation': [ 'animation' , ''],
+			'RunAnimation': [ 'animation' , ''],
+			'JumpAnimation': [ 'animation' , ''],
 			'AdditionalRotationForLooking': [ 'float' , '-90'],
 			'UseAcceleration': [ 'bool' , false],
 			'AccelerationSpeed': [ 'float' , '0.1'],
 			'DecelerationSpeed': [ 'float' , '0.1'],
 			'JumpSpeed': [ 'float' , '0.2'],
 			'PauseAfterJump': [ 'bool' , false]
-		}
+		},
 		
+		{
+			name: 'Game actor whit Health(Player, Bots AI, ect)',
+			jsname : 'AnimatorGameAI',
+			description : 'Makes it possible to create controlled ingame actors, like Monsters, Soldiers etc, walking around in the environment.',
+			'Mode':['combo','This is the Player',['This is the Player','Stand Still','Randomly Patrol']],
+			'PatrolRadius': [ 'float' , '150'],
+			'PatrolWaitTimeMs': [ 'int' , '4000'],
+			'Health': [ 'float' , '100'],
+			'MovementSpeed': [ 'float' , '50'],
+			'Tags':['string','anyactor'],
+			'AttacksActorsWithTags':['string','anyactor'],
+			'CanFly': [ 'bool' , true],
+			'ActivationRadius': [ 'float' , '200'],
+			'StandAnimation': [ 'animation' , ''],
+			'WalkAnimation': [ 'animation' , ''],
+			'DieAnimation': [ 'animation' , ''],
+			'AttackAnimation': [ 'animation' , ''],
+			'ActionOnAttack': [ 'action' , []],
+			'ActionOnActivate': [ 'action' , []],
+			'ActionOnHit': [ 'action' , []],
+			'ActionOnDie': [ 'action' , []],
+			'RotationForLooking':['bool',false],
+			'AdditionalRotationForLooking': [ 'float' , '0.0']
+		},
+		{
+			name: 'Object moved by physics engine',
+			jsname : 'AnimatorPhysicsEngine',
+			description : 'A behavior which moves an object based on the rules of a simulated "real" world. ',
+			'Shape': [ 'combo' , 'Box', ['Box','Circle']],
+			'Mass' : ['float', '5.0'],
+			'Position': [ 'vect2d' , '[0.0, 0.0]'],
+			'Size': [ 'vect2d' , '[50.0, 50.0]'],
+			'AutoSize':[ 'bool', false],
+			'Radius' : ['float' ,'25.0'],
+			'length' : ['float' ,'2.0']
+		}
 		
 		]
 		/* {
@@ -329,7 +399,7 @@
 								
 								case 'array':
 								
-								widgets.addArray(i, selected.data[i][1] ,{data_type: 'String'});
+								widgets.addArray(i, selected.data[i][1] ,{data_type: 'String',callback: function(v){saveToEditor();}});
 						
 								break;
 								
@@ -583,6 +653,33 @@
 								e.querySelector('input').placeholder = 'Current Node';
 								if(err)e.querySelector('input').style.border = '1px solid red';
 								break;
+								
+								case 'animation':									
+									
+									var anim = selected.data[i][1];
+									
+									var animations = [];
+									
+									animations.push('');
+									
+									for(var _i in top.Editor.selected.animations){
+	
+											animations.push(_i);
+									}
+								
+									/* if(audios.indexOf(aud)){
+										err = true;
+										audios.push(aud);
+									} */
+										
+									
+									var e = widgets.addCombo(i,anim,{values:animations,callback: function(v){
+										selected.data[this.name][1] = v;
+										saveToEditor();
+										//this.querySelector('select').style.border = 'none';
+									}});
+									//if(err)e.querySelector('select').style.border = '1px solid red';
+									break;
 								
 								case 'hidden':
 								dataCount--;
@@ -918,12 +1015,11 @@
 		
 		function saveToEditor(){
 			
-			var sel = window.parent.Editor.selected;
-			if(!sel) sel = window.parent.Editor.scene;
+			var sel = window.top.Editor.selected;
+			if(!sel) sel = window.top.Editor.scene;
 			
 			var behs = parseBehaviors();
 			sel.animators = JSON.stringify(behs);
-			
 			
 		}
 		

@@ -233,3 +233,4 @@ function resize(){
 
 window.onload = resize;
 window.onresize = resize;
+window.oncontextmenu = function(e){e.preventDefault();};

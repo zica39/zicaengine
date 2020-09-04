@@ -26,6 +26,7 @@
   margin: 0;
   background-color: #ccc;
   box-shadow: 0 0 5px #333;
+  font-size:10px;
 }
 
 .cm_container li{
@@ -102,4 +103,16 @@
 
 .cm_container li[disabled=""]:hover{
   background-color: inherit;
+}
+
+::-webkit-scrollbar {
+    height: 12px !important;
+	width: 10px !important;
+	background: #222 !important;
+}
+::-webkit-scrollbar-thumb {
+    background: #aaa !important;
+}
+::-webkit-scrollbar-corner {
+    background: #666 !important;
 }

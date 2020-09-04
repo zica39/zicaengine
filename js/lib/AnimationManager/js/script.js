@@ -311,19 +311,25 @@ function render()
 				
 				selected.parentElement.removeChild(selected);
 				
-				var sel = parent.Editor.propertiesGui.domElement.querySelectorAll('select')[1];
+				var sel = parent.Editor.propertiesGui.domElement.querySelectorAll('select')[2];
 				for(var i = 0;i<=sel.options.length-1;i++)
 					if(sel.options.item(i).innerHTML == selected.innerText)
 					{sel.removeChild(sel.options.item(i));break;}
 				
 				var sel = parent.Editor.selected || parent.Editor.scene;
+				var anim = selected.innerText;
+				
+				if(sel.animation == anim)
 				sel.animation = '';
+				delete sel.animations[anim];
+				
+				//parent.Editor.propertiesGui.updateDisplay();
+				
 				parent.Editor.update();
-				//main_panel.header.textContent = 'Behaviour';
 				main_panel.content.innerHTML = '';
 				selected = null;
 				
-				saveToEditor();
+				//saveToEditor();
 				
 				if(prev){
 					prev.click();

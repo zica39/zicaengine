@@ -150,6 +150,17 @@
 			'SceneNodeToChangePosition': [ 'node' , ''],
 			'UseAnimatedMovement': [ 'bool' , false],
 			'TimeNeededForMovementMs': [ 'int' , '1000']	
+		},
+		
+		{
+			jsname : 'ChangeSceneNodePosition', 
+			name: 'Set relative to last bullet impact',
+			description : 'Lets a 2D scene node change its position.',
+			'PositionChangeType': ['hidden', '6' ],
+			'SceneNodeToChangePosition': [ 'node' , ''],
+			'Vector': [ 'vect2d' , '[0.0, 0.0]'] ,
+			'UseAnimatedMovement': [ 'bool' , false],
+			'TimeNeededForMovementMs': [ 'int' , '1000']	
 		}
 		
 		
@@ -239,7 +250,37 @@
 		
 		[
 			'Game and Sound',
-			
+		{	
+			name: 'Shoot',
+			jsname : 'Shoot',
+			description : 'This action is usually used together with the "game AI" behavior. It shoots an object at another object. It is possible to specify a 2d object to be used as "bullet" for this shot, or to use no bullet at all.',
+			'ShootType': [ 'combo' , 'Direcly hit, no bullet',['Direcly hit, no bullet','Use a scene node clone as bullet']],
+			'SceneNodeToUseAsBullet': [ 'node' , ''],
+			'BulletSpeed': [ 'float' , '1'],
+			'Damage': [ 'float' , '10'],
+			'WeaponRange': [ 'float' , '100'],
+			'ActionOnImpact': [ 'action' , []],
+			'SceneNodeToShootFrom': [ 'node' , ''],
+			'ShootTo':['combo', 'DirectionRotation', ['DirectionRotation','CameraTarget','SceneNode']],
+			'SceneNodeToShootTo':['node',''],
+			'AdditionalDirectionRotation':['float','0.0'],
+			'ShootDisplacement':['vect2d','[0.0, 0.0]']
+		},
+		/* {	
+			name: 'Shoot',
+			jsname : 'Shoot',
+			description : 'This action is usually used together with the "game AI" behavior. It shoots an object at another object. It is possible to specify a 2d object to be used as "bullet" for this shot, or to use no bullet at all.',
+			'ShootType': [ 'combo' , 'Direcly hit, no bullet',['Direcly hit, no bullet','Use a scene node clone as bullet']],
+			'SceneNodeToUseAsBullet': [ 'node' , ''],
+			'BulletSpeed': [ 'float' , '1'],
+			'Damage': [ 'float' , '10'],
+			'WeaponRange': [ 'float' , '100'],
+			'ActionOnImpact': [ 'action' , []],
+			'SceneNodeToShootFrom': [ 'node' , ''],
+			'ShootToCameraTarget':['bool',false],
+			'AdditionalDirectionRotation':['float','0.0'],
+			'ShootDisplacement':['vect2d','[0.0, 0.0]']
+		}, */	
 		{	
 			name: 'Play or Stop Sound',
 			jsname : 'ActionPlaySound',

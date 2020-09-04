@@ -1610,6 +1610,9 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			f1.add(obj, 'fontSize',0);
 			f1.add(obj, 'fontBold');
 			f1.add(obj, 'fontItalic');
+			f1.add(obj, 'textAlign',['left','center','right','justify']);
+			f1.add(obj, 'verticalAlign',['top','center','bottom']);
+			f1.add(obj, 'lineHeight');
 			//f1.add(obj, 'fontUnderline');
 			f1.addColor(obj, 'fontColor');
 			

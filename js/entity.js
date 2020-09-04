@@ -20,6 +20,8 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
             this.name = "";
 			//type
 			this.type = 'entity';
+			// Type represents the collision detector's handling
+			this.physicType = 'kinematic'; //'kinematic','dynamic'
 			this.isEntity = true;
 			//attachmen;
 			this.attachTo = null;
@@ -34,6 +36,9 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
             //size
             this.width = 50;
             this.height = 50;
+			// Store a half size for quicker calculations
+			this.halfWidth = this.width * .5;
+			this.halfHeight = this.height * .5;
 			//rotate
 			this.angle = 0;
 			//visible
@@ -72,15 +77,22 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 			//draw text 
 			this.text = "";
             this.font = "Arial";
-			this.fontSize =  12; //"12pt";
+			this.fontSize =  15; //"12pt";
 			this.fontBold = false;
 			this.fontItalic = false;
 			//this.fontUnderline = false;
-			this.fontColor = "rgba(0,0,0,1)";
-			//this.textAlign = 'center';
+			this.fontColor = "rgba(255,0,0,1)";
+			this.textAlign = 'center';
+			this.verticalAlign = 'top';
+			this.lineHeight = 15;
             //velocity
             this.velX = 0;
             this.velY = 0;
+			// Acceleration
+			this.ax = 0;
+			this.ay = 0;
+			//Restitution
+			this.restitution = .2;
 			//opacity
 			this.opacity = 1;
 			//draw color 
@@ -118,7 +130,11 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 			this.__removeFlag = false;
             this.__guid = this.__generateGUID();
             this.__collisionBounds = { type: enums_1.CollisionType.rectangle };
-        }
+			
+			// Update the bounds of the object to recalculate
+			// the half sizes and any other pieces
+			this.updateBounds();
+		}
         /**
          * Sets an entity's remove flag. Will be removed before or after the entity updates next
          **/
@@ -200,7 +216,7 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 				var min = Math.min(this.width,this.height);
 				drawContext.setLineDash([max/10,min/10]);
 			}
-			drawContext.strokeRect(this.x, this.y, this.width, this.height);
+			drawContext.strokeRect(this.x+this.borderWidth/2, this.y + this.borderWidth/2, this.width - this.borderWidth, this.height - this.borderWidth);
 			}
 			
 			
@@ -344,10 +360,14 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 		   
 			//drawContext.stroke();
 			drawContext.fillStyle = this.fontColor;
-			drawContext.font = this.fontSize +'pt '+ this.font + (this.fontBold?' bold ':' ') + (this.fontItalic?'italic':'');
-			drawContext.textAlign = 'center';
-			drawContext.textBaseline = 'middle'; 
-            drawContext.fillText(this.text, this.x + (this.width/2), this.y+ (this.height/2));
+			var font = (this.fontItalic?'italic ':'') + (this.fontBold?' bold ':'') + this.fontSize +'px '+ this.font;
+			font = font.trim();
+			font = font.replace('  ',' ');
+			drawContext.font = font;
+			drawContext.mlFillText(this.text, this.x, this.y, this.width, this.height, this.verticalAlign, this.textAlign, this.lineHeight);
+			//drawContext.textAlign = 'center';
+			//drawContext.textBaseline = 'middle'; 
+            //drawContext.fillText(this.text, this.x + (this.width/2), this.y+ (this.height/2));
 			
 			drawContext.restore();
 			
@@ -457,7 +477,39 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 			var x = this.x + this.width/2;
 			var y = this.y + this.height/2
 			return {x:x ,y:y};
-		}
+		};
+		
+		// Update bounds includes the rect's
+		// boundary updates
+		Entity.prototype.updateBounds = function(){
+			this.halfWidth = this.width * .5;
+			this.halfHeight = this.height * .5;
+		};
+
+		// Getters for the mid point of the rect
+		Entity.prototype.getMidX = function(){
+			return this.halfWidth + this.x;
+		};
+
+		Entity.prototype.getMidY = function(){
+			return this.halfHeight + this.y;
+		};
+
+		// Getters for the top, left, right, and bottom
+		// of the rectangle
+		Entity.prototype.getTop = function(){
+			return this.y;
+		};
+		Entity.prototype.getLeft = function(){
+			return this.x;
+		};
+		Entity.prototype.getRight = function(){
+			return this.x + this.width;
+		};
+		Entity.prototype.getBottom = function(){
+			return this.y + this.height;
+		};
+	
         Entity.prototype.__getCollisionBounds = function () { return this.__collisionBounds; };
         /**
          * Generate a pseudo GUID randomly (not guaranteed to be unique). Thanks guid.us!
@@ -484,7 +536,7 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
 			this.animators.push(anim);
 		};
 		
-		// get animation by type
+		// get animator by type
 		Entity.prototype.getAnimatorOfType = function(type)
 		{
 		  if(!this.animators.length)return;

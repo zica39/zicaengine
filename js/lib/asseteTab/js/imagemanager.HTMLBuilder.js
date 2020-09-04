@@ -365,3 +365,4 @@ ImageManager.HTMLBuilder = {
         }
     }
 };
+

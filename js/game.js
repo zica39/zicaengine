@@ -1,4 +1,4 @@
-define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./camera", "./ZICA"], function (require, exports, collision_1, keys_1, scene_1, enums_1) {
+define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./camera", "./ZICA", "./p2"], function (require, exports, collision_1, keys_1, scene_1, enums_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var State;
@@ -117,6 +117,9 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
 			this.tryUserFunc(function () { Game.__global(null); });
 			
 			var scene = this.scene;
+			
+			scene.world = new p2.World({gravity:[0, scene.gravity]});
+			
 			this.tryUserFunc(function () { scene.__onGameStart(null); });
 			
             var _loop_1 = function (ent) {
@@ -425,7 +428,13 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
 			var event = this.updateTimer();
 			this.tryUserFunc(function () { scene.__onUpdate(event); });
 			this.tryUserFunc(function () { _this.updateAnimators(scene,event); });
-			 
+			
+			var fixedTimeStep = 1 / 60; // seconds
+			var maxSubSteps = 10; // Max sub steps 
+			var deltaTime = event.deltaTime;
+			
+			scene.world.step(fixedTimeStep, deltaTime, maxSubSteps);
+			
 			 }
 			 
 		   //if we aren't paused, update, move, and collide all entities
@@ -830,76 +839,222 @@ define(["require", "exports", "./collision", "./keys", "./scene", "./enums","./c
          * Entities with collides=false will not be checked for collision.
          **/
         GameRunner.prototype.moveAndCollideEntities = function () {
-            var loopVar = [{ comp: "x", velComp: "velX", prevComp: "prevX", sizeComp: "width", dirs: [enums_1.Direction.left, enums_1.Direction.right] },
-                { comp: "y", velComp: "velY", prevComp: "prevY", sizeComp: "height", dirs: [enums_1.Direction.up, enums_1.Direction.down] }];
-            for (var _i = 0, _a = this.entityList; _i < _a.length; _i++) {
-                var ent = _a[_i];
-                /* ent.blockedUp = false;
-                ent.blockedDown = false;
-                ent.blockedLeft = false;
-                ent.blockedRight = false; */
-            }
-            //for generality's sake, do x collisions then y collisions by looping
-            for (var z = 0; z < loopVar.length; z++) {
-                var comp = loopVar[z].comp;
-                var prevComp = loopVar[z].prevComp;
-                var velComp = loopVar[z].velComp;
-                var sizeComp = loopVar[z].sizeComp;
-                var dirs = loopVar[z].dirs;
-                for (var _b = 0, _c = this.entityList; _b < _c.length; _b++) {
-                    var ent = _c[_b];
-                    ent[prevComp] = ent[comp];
-                    ent[comp] += ent[velComp] / 60 * 10;
-                    ent.__recalculateCollisionBounds(loopVar[z]);
-                }
-                for (var a = 0; a < this.entityList.length; a++) {
-                    var entA = this.entityList[a];
-                    if (!entA.collides)
-                        continue;
-                    for (var b = a + 1; b < this.entityList.length; b++) {
-                        var entB = this.entityList[b];
-                        if (!entB.collides)
-                            continue;
-                        if (collision_1.Collision.testCollision(entA.__getCollisionBounds(), entB.__getCollisionBounds())) {
-                            var entAEvent = {
-                                other: entB,
-                                direction: dirs[0]
-                            };
-                            var entBEvent = {
-                                other: entA,
-                                direction: dirs[1]
-                            };
-                            //switch direction of collision based on velocity difference
-                            if (entA[velComp] - entB[velComp] >= 0) {
-                                entAEvent.direction = dirs[1];
-                                entBEvent.direction = dirs[0];
-                            }
-							
-							if(entA.collision){
-								
-								//entA.x = entA.prevX;
-								//entA.y = entA.prevY;
-								
-							}
-							
-                            this.tryUserFunc(function () { entA.__onCollision(entAEvent); });
-                            this.tryUserFunc(function () { entB.__onCollision(entBEvent); });
-							
-							var event = entAEvent;
-							event.name = 'onCollision';
-							Game.handleEvent(entA,event);
-							
-							var event = entBEvent;
-							event.name = 'onCollision';
-							Game.handleEvent(entB,event);
-							
-                            entA.__recalculateCollisionBounds(loopVar[z]);
-                            entB.__recalculateCollisionBounds(loopVar[z]);
-                        }
-                    }
-                }
-            }
+           
+			this.step(0.05);
+			this.CollideEntities();
+			
         };
+
+		// Rect collision tests the edges of each rect to
+		// test whether the objects are overlapping the other
+		GameRunner.prototype.collideRect = function(collider, collidee) {
+
+			// Store the collider and collidee edges
+			var l1 = collider.getLeft();
+			var t1 = collider.getTop();
+			var r1 = collider.getRight();
+			var b1 = collider.getBottom();
+			
+			var l2 = collidee.getLeft();
+			var t2 = collidee.getTop();
+			var r2 = collidee.getRight();
+			var b2 = collidee.getBottom();
+			
+			// If the any of the edges are beyond any of the
+			// others, then we know that the box cannot be
+			// colliding
+			if (b1 < t2 || t1 > b2 || r1 < l2 || l1 > r2) {
+				return false;
+			}
+			
+			// If the algorithm made it here, it had to collide
+			return true;
+		};
+
+
+
+		GameRunner.prototype.resolveElastic =  function(player, entity) {
+			// Find the mid points of the entity and player
+			var pMidX = player.getMidX();
+			var pMidY = player.getMidY();
+			var aMidX = entity.getMidX();
+			var aMidY = entity.getMidY();
+			
+			var STICKY_THRESHOLD = .0004;
+			// To find the side of entry calculate based on
+			// the normalized sides
+			var dx = (aMidX - pMidX) / entity.halfWidth;
+			var dy = (aMidY - pMidY) / entity.halfHeight;
+			
+			// Calculate the absolute change in x and y
+			var absDX = Math.abs(dx);
+			var absDY = Math.abs(dy);
+			
+			// If the distance between the normalized x and y
+			// position is less than a small threshold (.1 in this case)
+			// then this object is approaching from a corner
+			if (Math.abs(absDX - absDY) < .1) {
+
+				// If the player is approaching from positive X
+				if (dx < 0) {
+
+					// Set the player x to the right side
+					player.x = entity.getRight();
+
+				// If the player is approaching from negative X
+				} else {
+
+					// Set the player x to the left side
+					player.x = entity.getLeft() - player.width;
+				}
+
+				// If the player is approaching from positive Y
+				if (dy < 0) {
+
+					// Set the player y to the bottom
+					player.y = entity.getBottom();
+
+				// If the player is approaching from negative Y
+				} else {
+
+					// Set the player y to the top
+					player.y = entity.getTop() - player.height;
+				}
+				
+				// Randomly select a x/y direction to reflect velocity on
+				if (Math.random() < .5) {
+
+					// Reflect the velocity at a reduced rate
+					player.velX = -player.velX * entity.restitution;
+
+					// If the object’s velocity is nearing 0, set it to 0
+					// STICKY_THRESHOLD is set to .0004
+					if (Math.abs(player.velX) < STICKY_THRESHOLD) {
+						player.velX = 0;
+					}
+				} else {
+
+					player.velY = -player.velY * entity.restitution;
+					if (Math.abs(player.velY) < STICKY_THRESHOLD) {
+						player.velY = 0;
+					}
+				}
+
+			// If the object is approaching from the sides
+			} else if (absDX > absDY) {
+
+				// If the player is approaching from positive X
+				if (dx < 0) {
+					player.x = entity.getRight();
+
+				} else {
+				// If the player is approaching from negative X
+					player.x = entity.getLeft() - player.width;
+				}
+				
+				// Velocity component
+				player.velX = -player.velX * entity.restitution;
+
+				if (Math.abs(player.velX) < STICKY_THRESHOLD) {
+					player.velX = 0;
+				}
+
+			// If this collision is coming from the top or bottom more
+			} else {
+
+				// If the player is approaching from positive Y
+				if (dy < 0) {
+					player.y = entity.getBottom();
+
+				} else {
+				// If the player is approaching from negative Y
+					player.y = entity.getTop() - player.height;
+				}
+				
+				// Velocity component
+				player.velY = -player.velY * entity.restitution;
+				if (Math.abs(player.velY) < STICKY_THRESHOLD) {
+					player.velY = 0;
+				}
+			}
+		};
+
+
+		GameRunner.prototype.step = function(elapsed) {
+			
+			var gx = 0;//GRAVITY_X * elapsed;
+			var gy = this.scene.gravity * elapsed;
+			var entity;
+			var entities = this.entityList;
+			
+			var KINEMATIC = 'kinematic';
+			var DYNAMIC   = 'dynamic';
+			//var DISPLACE = 'displace';
+			//var ELASTIC = 'elastic';
+			
+			for (var i = 0, length = entities.length; i < length; i++) {
+				entity = entities[i];
+				
+				switch (entity.physicType) {
+					case DYNAMIC:
+						entity.velX += entity.ax * elapsed + gx;
+						entity.velY += entity.ay * elapsed + gy;
+						entity.x  += entity.velX * elapsed;
+						entity.y  += entity.velY * elapsed;
+						break;
+					case KINEMATIC:
+						entity.velX += entity.ax * elapsed;
+						entity.velY += entity.ay * elapsed;
+						entity.x  += entity.velX * elapsed;
+						entity.y  += entity.velY * elapsed;
+						break;
+				}
+				entity.updateBounds();
+			}
+		};
+
+		GameRunner.prototype.CollideEntities = function(){
+			
+			for (var a = 0; a < this.entityList.length; a++) {
+				var entA = this.entityList[a];
+				if (!entA.collides)
+					continue;
+				for (var b = a + 1; b < this.entityList.length; b++) {
+					var entB = this.entityList[b];
+					if (!entB.collides)
+						continue;
+					if (this.collideRect(entA, entB)) {
+						var entAEvent = {
+							other: entB,
+							//direction: dirs[0]
+						};
+						var entBEvent = {
+							other: entA,
+						   // direction: dirs[1]
+						};
+						
+						if(entA.collision){
+							
+							//this.resolveElastic(entA,entB);
+							
+						}
+						
+						this.tryUserFunc(function () { entA.__onCollision(entAEvent); });
+						this.tryUserFunc(function () { entB.__onCollision(entBEvent); });
+						
+						var event = entAEvent;
+						event.name = 'onCollision';
+						Game.handleEvent(entA,event);
+						
+						var event = entBEvent;
+						event.name = 'onCollision';
+						Game.handleEvent(entB,event);
+						
+					}
+				}
+			}
+			
+		};
         /**
          * Attemps to call a user-defined hook in a safe manner,
          * stopping the game if an exception is thrown.
@@ -1368,3 +1523,185 @@ var touchToMouse = function(event) {
 //document.ontouchstart = touchToMouse;
 //document.ontouchmove = touchToMouse;
 //document.ontouchend = touchToMouse;
+
+// Go to the end of the file to see the example
+
+/// START OF THE mltext.js LIBRARY
+// Library: mllib.js
+// Desciption: Extends the CanvasRenderingContext2D that adds two functions: mlFillText and mlStrokeText.
+//
+// The prototypes are:
+//
+// function mlFillText(text,x,y,w,h,vAlign,hAlign,lineheight);
+// function mlStrokeText(text,x,y,w,h,vAlign,hAlign,lineheight);
+//
+// Where vAlign can be: "top", "center" or "button"
+// And hAlign can be: "left", "center", "right" or "justify"
+// Author: Jordi Baylina. (baylina at uniclau.com)
+// License: GPL
+// Date: 2013-02-21
+
+function mlFunction(text, x, y, w, h, hAlign, vAlign, lineheight, fn) {
+
+    // The objective of this part of the code is to generate an array of words. 
+    // There will be a special word called '\n' that indicates a separation of paragraphs.
+    text = String(text);
+	text = text.replace(/\r/g, '');
+    var words = [];
+    var inLines = text.split('\n');
+    var i;
+    for (i=0; i < inLines.length; i++)
+    {
+    	if (i) words.push('\n');
+    	words = words.concat( inLines[i].split(' ') );
+    }
+    // words now contains the array.
+
+
+    // Next objective is generate an array of lines where each line has a property 
+    // called Words with all the words that fits in the line. Each word contains 2 fields:
+    // .word for the actual word and .l for the length o the word.
+    // If the line is the last line of a paragraps, the property EndOfParagraph will be true
+    var sp = this.measureText(' ').width;
+    var lines = [];
+    var actualline = 0;
+    var actualsize = 0;
+    var wo;
+    lines[actualline] = {};
+    lines[actualline].Words = [];
+    i = 0;
+    while (i < words.length) {
+        var word = words[i];
+        if (word == "\n") {
+            lines[actualline].EndParagraph = true;
+            actualline++;
+            actualsize = 0;
+            lines[actualline] = {};
+            lines[actualline].Words = [];
+            i++;
+        } else {
+            wo = {};
+            wo.l = this.measureText(word).width;
+            if (actualsize === 0) {
+
+                // If the word does not fit in one line, we split the word
+                while (wo.l > w) {
+                    word = word.slice(0, word.length - 1);
+                    wo.l = this.measureText(word).width;
+                }
+
+                wo.word = word;
+                lines[actualline].Words.push(wo);
+                actualsize = wo.l;
+                if (word != words[i]) {
+                    // if a single letter does not fit in one line, just return without painting nothing.
+                    if (word === "") return;
+                    words[i] = words[i].slice(word.length, words[i].length);
+                } else {
+                    i++;
+                }
+            } else {
+                if (actualsize + sp + wo.l > w) {
+                    lines[actualline].EndParagraph = false;
+                    actualline++;
+                    actualsize = 0;
+                    lines[actualline] = {};
+                    lines[actualline].Words = [];
+                } else {
+                    wo.word = word;
+                    lines[actualline].Words.push(wo);
+                    actualsize += sp + wo.l;
+                    i++;
+                }
+            }
+        }
+    }
+    if (actualsize === 0) lines.pop(); // We remove the last line if we have not added any thing here.
+
+    // The last line will be allways the last line of a paragraph even if it does not end with a  /n
+    if(lines[actualline])
+	lines[actualline].EndParagraph = true;
+
+
+    // Now we remove any line that does not fit in the heigth.
+    var totalH = lineheight * lines.length;
+    while (totalH > h) {
+        lines.pop();
+        totalH = lineheight * lines.length;
+    }
+
+    // Now we calculete where we start draw the text.
+    var yy;
+    if (vAlign == "bottom") {
+        yy = y + h - totalH + lineheight;
+    } else if (vAlign == "center") {
+        yy = y + h / 2 - totalH / 2 + lineheight;
+    } else {
+        yy = y + lineheight;
+    }
+
+    var oldTextAlign = this.textAlign;
+    this.textAlign = "left"; // we will draw word by word.
+
+	var maxWidth = 0;
+    for (var li in lines) {
+    	if (!lines.hasOwnProperty(li)) continue;
+        var totallen = 0;
+        var xx, usp;
+
+
+        for (wo in lines[li].Words) {
+            if (!lines[li].Words.hasOwnProperty(wo)) continue;
+            totallen += lines[li].Words[wo].l;
+        }
+        // Here we calculate the x position and the distance betwen words in pixels 
+        if (hAlign == "center") {
+            usp = sp;
+            xx = x + w / 2 - (totallen + sp * (lines[li].Words.length - 1)) / 2;
+        } else if ((hAlign == "justify") && (!lines[li].EndParagraph)) {
+            xx = x;
+            usp = (w - totallen) / (lines[li].Words.length - 1);
+        } else if (hAlign == "right") {
+            xx = x + w - (totallen + sp * (lines[li].Words.length - 1));
+            usp = sp;
+        } else { // left
+            xx = x;
+            usp = sp;
+        }
+        for (wo in lines[li].Words) {
+	    	if (!lines[li].Words.hasOwnProperty(wo)) continue;
+            if (fn == "strokeText" || fn=="fillStrokeText") {
+                this.strokeText(lines[li].Words[wo].word, xx, yy);
+            }
+            if (fn == "fillText" || fn=="fillStrokeText") {
+                this.fillText(lines[li].Words[wo].word, xx, yy);
+            }
+            xx += lines[li].Words[wo].l + usp;
+        }
+        maxWidth = Math.max(maxWidth, xx);
+        yy += lineheight;
+    }
+    this.textAlign = oldTextAlign;
+
+    return {
+    	width: maxWidth,
+    	height: totalH,
+    };
+}
+
+(function mlInit() {
+    CanvasRenderingContext2D.prototype.mlFunction = mlFunction;
+
+    CanvasRenderingContext2D.prototype.mlFillText = function (text, x, y, w, h, vAlign, hAlign, lineheight) {
+        return this.mlFunction(text, x, y, w, h, hAlign, vAlign, lineheight, "fillText");
+    };
+
+    CanvasRenderingContext2D.prototype.mlStrokeText = function (text, x, y, w, h, vAlign, hAlign, lineheight) {
+        return this.mlFunction(text, x, y, w, h, hAlign, vAlign, lineheight, "strokeText");
+    };
+
+    CanvasRenderingContext2D.prototype.mlFillStrokeText = function (text, x, y, w, h, vAlign, hAlign, lineheight) {
+        return this.mlFunction(text, x, y, w, h, hAlign, vAlign, lineheight, "fillStrokeText");
+    };
+
+})();
