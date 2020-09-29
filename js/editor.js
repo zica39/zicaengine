@@ -2245,17 +2245,8 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			zip.folder("bin/assets/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
 			zip.folder("bin/assets/css").file("logo.gif", logo, {base64: true});
 			
-			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-			zip.folder("bin/assets/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
-			zip.folder("bin/assets/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
-			zip.folder("bin/assets/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
-			zip.folder("bin/assets/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
-			zip.folder("bin/assets/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
-			
-			zip.folder("bin/assets/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
-			zip.folder("bin/assets/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
-			zip.folder("bin/assets/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
-			
+			zip.folder("bin/assets/js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));
+		
 			/*   // Your Web Application
 			  zip.folder("app/").load(webAppZipBinary);
 			  
@@ -2346,17 +2337,8 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			appName.folder("app/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
 			appName.folder("app/css").file("logo.gif", logo, {base64: true});
 			
-			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-			appName.folder("app/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
-			appName.folder("app/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
-			appName.folder("app/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
-			appName.folder("app/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
-			appName.folder("app/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
+			appName.folder("app/js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));			
 			
-			appName.folder("app/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
-			appName.folder("app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
-			appName.folder("app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
-
 			// Your Logo
 			appName.file("app/icons/16.png", icon,{base64: true});
 			appName.file("app/icons/32.png", icon,{base64: true});
@@ -2426,19 +2408,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			zip.folder("content/app/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
 			zip.folder("content/app/css").file("logo.gif", logo, {base64: true});
 			
-			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-			zip.folder("content/app/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
-			zip.folder("content/app/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
-			zip.folder("content/app/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
-			zip.folder("content/app/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
-			zip.folder("content/app/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
-			
-			zip.folder("content/app/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
-			zip.folder("content/app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
-			zip.folder("content/app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
-			
-			  // Your Web Application
-			  //zip.folder("app/").load(webAppZipBinary);
+			zip.folder("content/app/js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));
 
 			  // Your Logo
 			zip.file("content/app/icons/16.png", icon,{base64: true});
@@ -2510,16 +2480,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			zip.folder("package.nw/app/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
 			zip.folder("package.nw/app/css").file("logo.gif", logo, {base64: true});
 			
-			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-			zip.folder("package.nw/app/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
-			zip.folder("package.nw/app/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
-			zip.folder("package.nw/app/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
-			zip.folder("package.nw/app/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
-			zip.folder("package.nw/app/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
-			
-			zip.folder("package.nw/app/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
-			zip.folder("package.nw/app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
-			zip.folder("package.nw/app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
+			zip.folder("package.nw/app/js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));
 			
 			//zip.file(out.name+ ".exe", FileSystem.readFile("js/lib/build/nw.exe"),{binary:true});
 			
@@ -2611,16 +2572,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 				zip.folder("html/app/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
 				zip.folder("html/app/css").file("logo.gif", logo, {base64: true});
 				
-				//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-				zip.folder("html/app/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
-				zip.folder("html/app/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
-				zip.folder("html/app/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
-				zip.folder("html/app/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
-				zip.folder("html/app/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
-				
-				zip.folder("html/app/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
-				zip.folder("html/app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
-				zip.folder("html/app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
+				zip.folder("html/app/js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));
 				
 				var audioCapture, videoCapture, storagePerm, setOffline, listPermissions;
 				
@@ -2670,17 +2622,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 				zip.folder("app/css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
 				zip.folder("app/css").file("logo.gif", logo, {base64: true});
 				
-				//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-				zip.folder("app/js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
-				zip.folder("app/js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
-				zip.folder("app/js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
-				zip.folder("app/js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
-				zip.folder("app/js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
-				
-				zip.folder("app/js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
-				zip.folder("app/js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
-				zip.folder("app/js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
-				
+				zip.folder("app/js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));
 				
                   // For Chrome Extension
                   zip.file("background.js", "/**\n * Listens for the app launching, then creates the window.\n *\n * @see http://developer.chrome.com/apps/app.runtime.html\n * @see http://developer.chrome.com/apps/app.window.html\n */\nchrome.app.runtime.onLaunched.addListener(function(launchData) {\n  chrome.app.window.create(\n    'index.html',\n    {\n      id: 'mainWindow',\n      innerBounds: {\n        'width': 800,\n        'height': 600\n      }\n    }\n  );\n});");
@@ -2738,30 +2680,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			
 			zip.folder("js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));
 			
-			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-			/* zip.folder("js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
-			zip.folder("js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
-			zip.folder("js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
-			zip.folder("js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
-			zip.folder("js").file("entity.js", FileSystem.readFile("js/lib/build/ZICA/entity.js"));
-			
-			zip.folder("js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
-			zip.folder("js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
-			zip.folder("js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
-			 */
-			//zip.folder("js").file("require-config.js", FileSystem.readFile("js/lib/build/require-config.js"));
-			//zip.folder("js").folder("lib").file("knockout-3.4.2.js", FileSystem.readFile("js/lib/knockout-3.4.2.js"));
-			//zip.folder("js").folder("lib").file("require.js", FileSystem.readFile("js/lib/require.js"));
-			//zip.file("nunu.min.js", FileSystem.readFile("nunu.min.js"));
-			
-			/* var pson = new dcodeIO.PSON.StaticPair();
-			var data = pson.toArrayBuffer(Editor.program.toJSON());
-
-			zip.file("app.nsp", Base64Utils.fromArraybuffer(data), {base64: true});
-			zip.file("logo.png", FileSystem.readFileBase64(Editor.RUNTIME_PATH + "logo.png"), {base64: true});
-			zip.file("fullscreen.png", FileSystem.readFileBase64(Editor.RUNTIME_PATH + "fullscreen.png"), {base64: true});
-			zip.file("vr.png", FileSystem.readFileBase64(Editor.RUNTIME_PATH + "vr.png"), {base64: true}); */
-			
+		
 			var content = zip.generate({type:"blob"});
 			   
 			   var virtualLink = document.createElement("a");
