@@ -1,4 +1,4 @@
-define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./keys", "./event","./camera"], function (require, exports, entity_1, game_1, enums_1, scene_1, keys_1, event_1) {
+define(["require", "exports", "./event", "./ZICA"], function (require, exports, event_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ko = require("knockout");
@@ -7,7 +7,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
         function EditorViewModel() {
             var _this = this;
 			//scene 
-			this.scene = new scene_1.Scene();
+			this.scene = new ZICA.Scene();
 			//set to tree
 			this.scene.name = 'Scene';
 			this.scene.active = true;
@@ -102,7 +102,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			window.sceneTab.content.appendChild(container);
 			this.updateSceneGUI();
 			
-			//this.scene1 = new scene_1.Scene();
+			//this.scene1 = new ZICA.Scene();
             //this.propertiesViewModel = new properties_1.PropertiesViewModel();
             this.eventViewModel = new event_1.EventViewModel();
 			
@@ -221,18 +221,18 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			};
 			
             this.drawContext = this.canvas.getContext("2d");
-            this.game = new game_1.GameRunner(this.canvas);
+            this.game = new ZICA.GameRunner(this.canvas);
 			this.game.addScene(this.scene);
 			
 			this.game.name = 'Game';
 			this.game.version = '0.0.1';
 			
-			this.canvas.width = this.game.width;
-			this.canvas.height = this.game.height;
+			this.canvas.width = 400;//this.game.width;
+			this.canvas.height = 400;//this.game.height;
 			
 			this.scene.x = this.canvas.width/2;
 			this.scene.y = this.canvas.height/2;
-			this.camera = new Camera(this.drawContext);
+			this.camera = new ZICA.Camera(this.drawContext);
 			this.game.camera = this.camera;
 			
 			//app gui 
@@ -246,7 +246,6 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
             this.fileDialog.multiple = false;
 			
 			window.Game = this.game;
-            window.Direction = enums_1.Direction;
             window.Editor = this;
             window.addEventListener("beforeunload", function (e) { _this.onWindowUnload(e); });
             window.addEventListener("keydown", function (e) { _this.onWindowKeyDown(e); });
@@ -1482,7 +1481,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		
 		EditorViewModel.prototype.addScene = function(){
 			
-			this.scene = new scene_1.Scene();
+			this.scene = new ZICA.Scene();
 			this.scene.name = 'Scene';
 			this.scene.color = 'rgba(255,255,255,1)';
 			this.updateSceneGUI();
@@ -1954,10 +1953,10 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				/* openPlayTab();
 				var win = play_tab.content.firstChild.contentWindow;
 				var canvas = win.document.body.firstChild;
-				win.Game = new game_1.GameRunner(canvas);
+				win.Game = new ZICA.GameRunner(canvas);
 				
-				var data = game_1.GameRunner.constructApp(this.game);
-				game_1.GameRunner.constructApp(data,win.Game);
+				var data = ZICA.GameRunner.constructApp(this.game);
+				ZICA.GameRunner.constructApp(data,win.Game);
 				canvas.redraw();
 				win.Game.startApp();	
 				this.gameRunningState(2);
@@ -1966,7 +1965,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				//this.appGui.close();
 				this.appGui.domElement.style.pointerEvents = 'none';
 				
-				var game = game_1.GameRunner.constructApp(this.game);
+				var game = ZICA.GameRunner.constructApp(this.game);
 				
 				this.oldGame = game; 
 				
@@ -1974,7 +1973,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				
 				this.game.scenes = [];
 				for(var i = 0 ; i<= this.scenes.length-1; i++){
-					this.game.scenes[i] = scene_1.Scene.constructScene(this.scenes[i]);
+					this.game.scenes[i] = ZICA.Scene.constructScene(this.scenes[i]);
 					if(this.scenes[i].active)this.game.scene = this.game.scenes[i]; //this.scene.constructScene();
 				}
                 //this.game.firstFrame = true;
@@ -1984,7 +1983,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
                 //that way, we can restore the original states before starting the game
                 for (var _i = 0, _a = this.entityList; _i < _a.length; _i++) {
                     var ent = _a[_i];
-                    newEntityList.push(entity_1.Entity.constructEntity(ent));
+                    newEntityList.push(ZICA.Entity.constructEntity(ent));
                 }
                 this.game.start(newEntityList); */
 				
@@ -2015,7 +2014,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			//this.stopAllSounds();
 			this.canvas.style.cursor = '';
 			
-			this.game = game_1.GameRunner.constructApp(this.oldGame , this.game);
+			this.game = ZICA.GameRunner.constructApp(this.oldGame , this.game);
 			this.game.scenes = this.scenes; 
 			this.oldGame = null;
 			this.scenes = null;
@@ -2046,13 +2045,13 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			Editor.canvas.parentElement.scrollLeft = p.x
 		};
 		EditorViewModel.prototype.createEntity = function(){
-			return new entity_1.Entity();
+			return new ZICA.Entity();
 		};
 		EditorViewModel.prototype.copyEntity = function(){
 			
 			if (!this.selected)return;
            
-		   var newEnt = entity_1.Entity.constructEntity(this.selected);
+		   var newEnt = ZICA.Entity.constructEntity(this.selected);
 			this.clipboard = newEnt;
 			
 		};
@@ -2061,7 +2060,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			
 			if (!this.selected)return;
            
-		   var newEnt = entity_1.Entity.constructEntity(this.selected);
+		   var newEnt = ZICA.Entity.constructEntity(this.selected);
 		   this.clipboard = newEnt;
 		   
 		   this.removeSelectedEntity();
@@ -2072,7 +2071,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			
 			if (!this.clipboard) return;
            
-		   var newEnt = entity_1.Entity.constructEntity(this.clipboard);
+		   var newEnt = ZICA.Entity.constructEntity(this.clipboard);
             newEnt.__guid = newEnt.__generateGUID();
 			this.entityList.push(newEnt);
 			
@@ -2092,7 +2091,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
         EditorViewModel.prototype.spawnEntity = function () {
             if (!this.game.isStopped())
                 return;
-            var newOne = new entity_1.Entity();
+            var newOne = new ZICA.Entity();
 			//newOne.parent = this.scene;
 			newOne.name = 'Entity' + this.entityIndex++;
             this.centerEntity(newOne);
@@ -2123,7 +2122,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
         EditorViewModel.prototype.duplicateSelectedEntity = function () {
             if (!this.selected)
                 return;
-            var newEnt = entity_1.Entity.constructEntity(this.selected);
+            var newEnt = ZICA.Entity.constructEntity(this.selected);
             newEnt.__guid = newEnt.__generateGUID();
 			this.entityList.push(newEnt);
 			
@@ -2156,7 +2155,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		//Get game data
 		EditorViewModel.prototype.getGameData = function(){
 			
-			var out = game_1.GameRunner.constructApp(this.game);
+			var out = ZICA.GameRunner.constructApp(this.game);
 			out = JSON.stringify(out);
 			out = JSON.parse(out);
 			return out;
@@ -2180,21 +2179,23 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 	<title>`+out.name+`</title>
 	
 	<link rel="stylesheet" type="text/css" href="css/style.css">
-	
-	<script  src="js/collision.js"></script>
-	<script  src="js/keys.js"></script>
-	<script  src="js/enums.js"></script>
 	<script  src="js/ZICA.js"></script>
-	<script  src="js/camera.js"></script>
-	<script  src="js/scene.js"></script>
-	<script  src="js/entity.js"></script>
-	<script  src="js/game.js"></script>
 	
   </head>
 
   <body ontouchstart="" onload="GameRunner.runGame();">
 	  <canvas id="field" tabindex="1" ></canvas>`+
 (out.showProgress?'\n	  <div id = "progress" class="progress-line"></div>':'')+`	
+  <script>
+  var canvas = document.getElementById("field");
+  var progress = document.getElementById('progress');
+            
+  const Game = new ZICA.GameRunner(canvas);
+  const p2 = null;
+  
+  Game.progress = progress;
+  Game.startFromFile('Game.game');	
+  </script>
   </body>
 </html>`;
 			return html;
@@ -2215,7 +2216,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			  var zip = new JSZip();
 			  zip.load(data);
 			
-			var out = game_1.GameRunner.constructApp(Editor.game);
+			var out = ZICA.GameRunner.constructApp(Editor.game);
 			var data = JSON.stringify(out,null,'\n');
 			
 			var logo,icon;
@@ -2318,7 +2319,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 
 			  var zip = new JSZip();
 			
-			var out = game_1.GameRunner.constructApp(Editor.game);
+			var out = ZICA.GameRunner.constructApp(Editor.game);
 			var data = JSON.stringify(out,null,'\n');
 			
 			var logo,icon;
@@ -2400,7 +2401,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			  var zip = new JSZip();
 			  zip.load(data);
 			
-			var out = game_1.GameRunner.constructApp(Editor.game);
+			var out = ZICA.GameRunner.constructApp(Editor.game);
 			var data = JSON.stringify(out,null,'\n');
 			
 			var logo,icon;
@@ -2484,7 +2485,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			  var zip = new JSZip();
 			  zip.load(data);
 			
-			var out = game_1.GameRunner.constructApp(Editor.game);
+			var out = ZICA.GameRunner.constructApp(Editor.game);
 			var data = JSON.stringify(out,null,'\n');
 			
 			var logo,icon;
@@ -2573,7 +2574,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			e.previousElementSibling.src = Editor.asset.loading;
 			Editor.log('Building chrome app...');
 			
-			var out = game_1.GameRunner.constructApp(this.game);
+			var out = ZICA.GameRunner.constructApp(this.game);
 			var data = JSON.stringify(out,null,'\n');
 			
 			var logo,icon;
@@ -2710,7 +2711,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			e.previousElementSibling.src = Editor.asset.loading;
 			Editor.log('Building web app...');
 			
-			var out = game_1.GameRunner.constructApp(this.game);
+			var out = ZICA.GameRunner.constructApp(this.game);
 			var data = JSON.stringify(out,null,'\n');
 			
 			var logo,icon;
@@ -2735,8 +2736,10 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			zip.folder("css").file("style.css", FileSystem.readFile("js/lib/build/style.css"));
 			zip.folder("css").file("logo.gif", logo, {base64: true});
 			
+			zip.folder("js").file("ZICA.js", FileSystem.readFile("js/ZICA.js"));
+			
 			//zip.folder("js").file("editor.js", FileSystem.readFile("js/lib/build/editor.js"));
-			zip.folder("js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
+			/* zip.folder("js").file("game.js", FileSystem.readFile("js/lib/build/ZICA/game.js"));
 			zip.folder("js").file("ZICA.js", FileSystem.readFile("js/lib/build/ZICA/ZICA.js"));
 			zip.folder("js").file("scene.js", FileSystem.readFile("js/lib/build/ZICA/scene.js"));
 			zip.folder("js").file("camera.js", FileSystem.readFile("js/lib/build/ZICA/camera.js"));
@@ -2745,7 +2748,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			zip.folder("js").file("collision.js", FileSystem.readFile("js/lib/build/ZICA/collision.js"));
 			zip.folder("js").file("enums.js", FileSystem.readFile("js/lib/build/ZICA/enums.js"));
 			zip.folder("js").file("keys.js", FileSystem.readFile("js/lib/build/ZICA/keys.js"));
-			
+			 */
 			//zip.folder("js").file("require-config.js", FileSystem.readFile("js/lib/build/require-config.js"));
 			//zip.folder("js").folder("lib").file("knockout-3.4.2.js", FileSystem.readFile("js/lib/knockout-3.4.2.js"));
 			//zip.folder("js").folder("lib").file("require.js", FileSystem.readFile("js/lib/require.js"));
@@ -2799,7 +2802,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				}
 			}
 			
-			var out = game_1.GameRunner.constructApp(this.game);
+			var out = ZICA.GameRunner.constructApp(this.game);
 			//var data = new Blob([JSON.stringify(out,null,'\n')], { type: "application/json" });
 			var data = JSON.stringify(out,null,'\n');
 			
@@ -2832,7 +2835,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				}
 			}
 			
-			var out = game_1.GameRunner.constructApp(this.game);
+			var out = ZICA.GameRunner.constructApp(this.game);
 			//var data = new Blob([JSON.stringify(out,null,'\n')], { type: "application/json" });
 			var data = JSON.stringify(out,null,'\n');
 			
@@ -2892,13 +2895,13 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				if(tab == 'Scene Editor')tabs.tabs[tab].click();
 			}
 			
-			this.scene = new scene_1.Scene();
+			this.scene = new ZICA.Scene();
 			this.scene.name = 'Scene';
 			this.scene.active = true;
 			this.scene.color = 'rgba(255,255,255,1)';
 			this.updateSceneGUI();
 			
-			this.game = new game_1.GameRunner(this.canvas); 
+			this.game = new ZICA.GameRunner(this.canvas); 
 			Game = this.game;
 			this.canvas.width = this.game.width;
 			this.canvas.height = this.game.height;
@@ -2912,7 +2915,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			
 			this.scene.x = this.canvas.width/2;
 			this.scene.y = this.canvas.height/2;
-			this.camera = new Camera(this.drawContext);
+			this.camera = new ZICA.Camera(this.drawContext);
 			this.game.camera = this.camera;
 			
             this.entityList = this.scene.children;//[];
@@ -2941,7 +2944,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		EditorViewModel.prototype.importPrefabs = function(data){
 			
 			if(data.isEntity){
-			var newEnt = entity_1.Entity.constructEntity(data);
+			var newEnt = ZICA.Entity.constructEntity(data);
 			newEnt.__guid = newEnt.__generateGUID();
 			
 			if(Editor.dropMouse){
@@ -2988,7 +2991,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 		}
 		if(data.isScene){
 			
-			var scene = scene_1.Scene.constructScene(data);
+			var scene = ZICA.Scene.constructScene(data);
 			Editor.game.addScene(scene);
 			for(var i in scene.assets){
 				if(i in Game.assets){
@@ -3030,13 +3033,13 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
             /* var out = { entityList: [] };
             //copy each entity so that we can remove their GUIDs
             for (var i = 0; i < this.entityList.length; i++) {
-                var copied = entity_1.Entity.constructEntity(this.entityList[i]);
+                var copied = ZICA.Entity.constructEntity(this.entityList[i]);
                 delete copied.__guid;
                 out.entityList.push(copied);
             } */
 			// !!! EXPORT SCENE
 			//var out = Scene.constructScene(Editor.scene);
-            var out = game_1.GameRunner.constructApp(this.game);
+            var out = ZICA.GameRunner.constructApp(this.game);
 			//out.asset = Editor.getAsset();
 			
 			var data = new Blob([JSON.stringify(out,null,'\n')], { type: "application/json" });
@@ -3051,7 +3054,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var out,type;
 			
 			if(this.selected == null){
-				out = scene_1.Scene.constructScene(Editor.scene);
+				out = ZICA.Scene.constructScene(Editor.scene);
 				out.active = false;
 				out.assets = {};
 				if(out.image)out.assets[out.image] = Game.assets[out.image];
@@ -3063,7 +3066,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				type = '.scene';
 			}
 			else{
-				out = entity_1.Entity.constructEntity(this.selected);
+				out = ZICA.Entity.constructEntity(this.selected);
 				if(out.image) out.imageData = Game.assets[out.image];
 				if(out.audio) out.audioData = Game.assets[out.audio];
 				type = '.entity';
@@ -3080,7 +3083,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 			var out,type;
 			
 			if(this.selected == null){
-				out = scene_1.Scene.constructScene(Editor.scene);
+				out = ZICA.Scene.constructScene(Editor.scene);
 				out.active = false;
 				out.assets = {};
 				if(out.image)out.assets[out.image] = Game.assets[out.image];
@@ -3092,7 +3095,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 				type = '.scene';
 			}
 			else{
-				out = entity_1.Entity.constructEntity(this.selected);
+				out = ZICA.Entity.constructEntity(this.selected);
 				if(out.image) out.imageData = Game.assets[out.image];
 				if(out.audio) out.audioData = Game.assets[out.audio];
 				type = '.entity';
@@ -3134,7 +3137,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 						if(tab == 'Scene Editor')tabs.tabs[tab].click();
 					}	
 					
-					game_1.GameRunner.constructApp(data,_this.game);
+					ZICA.GameRunner.constructApp(data,_this.game);
 					_this.scene = _this.game.scene;
 					var scene = _this.scene;
 				
@@ -3153,7 +3156,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
 					//for every entity, compile its functions and make sure they're BaseEntities;
                     /* for (var _i = 0, _a = data.entityList; _i < _a.length; _i++) {
                         var ent = _a[_i];
-						ent = entity_1.Entity.constructEntity(ent);
+						ent = ZICA.Entity.constructEntity(ent);
                         _this.entityList.push(ent);
 						mytree.children.push({id:ent.__guid ,content:ent.name,obj:ent});
 				   } */
@@ -3264,7 +3267,7 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
             this.lastMouse = mouse; */
         };
         EditorViewModel.prototype.onCanvasKeyDown = function (event) {
-            if (this.game.isStopped() && event.which == keys_1.Keys.delete) {
+            if (this.game.isStopped() && event.which == ZICA.Keys.delete) {
                 event.preventDefault();
                 this.removeSelectedEntity();
             }
@@ -3273,15 +3276,15 @@ define(["require", "exports", "./entity", "./game", "./enums", "./scene", "./key
          * Intercept application-wide keyboard shortcut events
          **/
         EditorViewModel.prototype.onWindowKeyDown = function (event) {
-            if (event.which == keys_1.Keys.s && event.ctrlKey) {
+            if (event.which == ZICA.Keys.s && event.ctrlKey) {
                 event.preventDefault();
                 this.saveProject();
             }
-            else if (event.which == keys_1.Keys.o && event.ctrlKey) {
+            else if (event.which == ZICA.Keys.o && event.ctrlKey) {
                 event.preventDefault();
                 this.openProject();
             }
-            else if (event.which == keys_1.Keys.d && event.ctrlKey) {
+            else if (event.which == ZICA.Keys.d && event.ctrlKey) {
                 event.preventDefault();
                 this.duplicateSelectedEntity();
             }

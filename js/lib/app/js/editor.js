@@ -1,4 +1,4 @@
-define(["require", "exports", "../../../entity", "../../../game", "../../../enums", "../../../scene", "../../../keys"], function (require, exports, entity_1, game_1, enums_1, properties_1, keys_1) {
+define(["require", "exports", "../../../ZICA", ], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ko = require("knockout");
@@ -10,8 +10,9 @@ define(["require", "exports", "../../../entity", "../../../game", "../../../enum
 			this.progress = document.getElementById('progress');
 			//this.splash = ...
             
-            this.game = new game_1.GameRunner(this.canvas);
+            this.game = new ZICA.GameRunner(this.canvas);
 			window.Game = this.game;
+			window.p2 = null;
 			
 			this.game.progress = this.progress;
 			if(window.gameData)
