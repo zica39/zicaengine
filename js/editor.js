@@ -220,15 +220,15 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 				
 			};
 			
+			this.canvas.width = 400;
+			this.canvas.height = 400;
+			
             this.drawContext = this.canvas.getContext("2d");
             this.game = new ZICA.GameRunner(this.canvas);
 			this.game.addScene(this.scene);
 			
 			this.game.name = 'Game';
 			this.game.version = '0.0.1';
-			
-			this.game.width = 400;//this.canvas.width = 400;//this.game.width;
-			this.game.height = 400;//this.canvas.height = 400;//this.game.height;
 			
 			this.scene.x = this.canvas.width/2;
 			this.scene.y = this.canvas.height/2;
