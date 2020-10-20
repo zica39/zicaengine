@@ -5,9 +5,9 @@ Homepage: https://zica39.github.io/zicaengine/
 
 [![ZICA Engine logo](docs/images/product.png)](https://zica39.github.io/zicaengine/)
 
-#### 2D cross-platform game engine
+#### 2D cross-platform game editor
 
-ZICA Engine is a simple web HTML5 cross-platform game engine to create 2D games & apps without programming. It provides a comprehensive set of common
+ZICA Engine is a simple web HTML5 cross-platform game editor (based on [ZICA.js](https://github.com/zica39/ZICA.js)) to create 2D games & apps without programming. It provides a comprehensive set of common
 tools, so that users can focus on making games easy (with just a few clicks).
 But also supports scripting for advanced users. Games can be exported in one click to a number of platforms, including
 desktop platforms (Linux, Mac OSX, Windows), mobile
@@ -32,7 +32,7 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 - [ ] Demos
 - [ ] Docs & tutorials
 - [ ] Undo/Redo
-- [ ] Serialization
+- [ ] Binary serialization
 - [ ] GUI components
 - [ ] Timeline editor
 - [ ] More actions and behaviours
@@ -42,5 +42,5 @@ desktop platforms (Linux, Mac OSX, Windows), mobile
 
 ### License
 - [MIT](https://opensource.org/licenses/MIT) © [Zeljko Ivanovic](https://github.com/zica39)
-- The project  build on top of open source libraries: [monaco-editor](https://microsoft.github.io/monaco-editor/), [dat.gui](https://github.com/dataarts/dat.gui), [litegui.js](https://github.com/jagenjo/litegui.js), [javascript-sandbox-console](http://openexchangerates.github.io/javascript-sandbox-console/),
+- The project  build on top of open source libraries: [ZICA.js](https://github.com/zica39/ZICA.js), [monaco-editor](https://microsoft.github.io/monaco-editor/), [dat.gui](https://github.com/dataarts/dat.gui), [litegui.js](https://github.com/jagenjo/litegui.js), [javascript-sandbox-console](http://openexchangerates.github.io/javascript-sandbox-console/),
 [nwjs.io](https://nwjs.io), [copperlicht](https://github.com/Sebmaster/copperlicht), [literallycanvas](https://github.com/literallycanvas/literallycanvas), [rpg-map-factory](https://github.com/rvhuang/rpg-map-factory), [p2.js](https://github.com/schteppe/p2.js/)
