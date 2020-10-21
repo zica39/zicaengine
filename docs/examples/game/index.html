@@ -1,0 +1,34 @@
+<!doctype html>
+<html class="no-js" lang="">
+  <head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="application-name" content="Kill coronavirus">
+	<meta name="author" content="">
+	<meta name="version" content="0.0.1">
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+
+	<title>Kill coronavirus</title>
+	
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script  src="js/ZICA.min.js"></script>
+	
+  </head>
+
+  <body ontouchstart="" onload="GameRunner.runGame();">
+	  <canvas id="field" tabindex="1" ></canvas>
+	  <div id = "progress" class="progress-line"></div>	
+  <script>
+  var canvas = document.getElementById("field");
+  var progress = document.getElementById('progress');
+            
+  const Game = new ZICA.GameRunner(canvas);
+  const p2 = null;
+  
+  Game.progress = progress;
+  Game.startFromFile('Game.game');	
+  </script>
+  </body>
+</html>
