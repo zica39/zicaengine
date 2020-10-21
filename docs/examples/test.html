@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ZICA ENGINE</title>
+<script src = 'ZICA.min.js'></script>
+</head>
+<body>
+
+<canvas id="myCanvas" width="400" height="400" style="border:1px solid #d3d3d3;"></canvas>
+<script>
+var canvas = document.getElementById("myCanvas");
+const Game = new ZICA.GameRunner(canvas);
+
+//var p2 = null;
+var scene = new ZICA.Scene();
+
+var box  = new ZICA.Entity();
+box.text = 'Box';
+box.textColor = 'yellow';
+box.color = 'white';
+box.drawBorder = true;
+box.addAnimator(new ZICA.AnimatorTopDownMovement({Speed:0.2}));
+box.addAnimator(new ZICA.AnimatorRotation({Speed:0.2}));
+
+scene.addEntity(box);
+Game.addScene(scene);
+Game.setActiveScene(scene);
+Game.startApp();
+
+</script>
+
+</body>
+</html>
