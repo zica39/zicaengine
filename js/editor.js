@@ -256,6 +256,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			
 			document.getElementById('asseteAddButton').style.display = '';
 			document.getElementById('loading').style.display = 'none';
+			document.body.style.overflow = 'auto';
         }
 		
 		EditorViewModel.prototype.defaultSettings = function(){
@@ -1484,8 +1485,11 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 		
 		EditorViewModel.prototype.addScene = function(){
 			
+			var name = prompt('Insert scene name','Scene');
+			if(!name)return;
+			
 			this.scene = new ZICA.Scene();
-			this.scene.name = 'Scene';
+			this.scene.name = name;
 			this.scene.color = 'rgba(255,255,255,1)';
 			this.updateSceneGUI();
 				
