@@ -5,12 +5,17 @@
  * */
 
 window.ImageManager = window.ImageManager || {};
+var Size = '100px';
 
+if(window.parent.settings)
+		if(window.parent.settings.Assete)
+			var Size = window.parent.settings.Assete.iconSize + 'px';
+		
 ImageManager.HTMLBuilder = {
     config:{
         ImageContainerId:"images",
         ImagePrefix : "image",
-		Size : window.parent.settings.Assete.iconSize + 'px' //'100px'
+		Size : Size
     },
 
     getContainerObj:function () {

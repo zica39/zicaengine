@@ -97,12 +97,12 @@ function render()
 		LiteGUI.init();
 
 		//create a main container and split it in two
-		var mainarea = new LiteGUI.Area("mainarea",{content_id:"canvasarea", autoresize: true, inmediateResize: true});
+		var mainarea = new LiteGUI.Area({id:"mainarea",content_id:"canvasarea", autoresize: true, inmediateResize: true});
 		mainarea.split("horizontal",[200,null], true);
 		LiteGUI.add( mainarea );
 
 		//create a left panel
-		var side_panel = new LiteGUI.Panel("sidepanel",{title:"Animations Manager", width: 200});
+		var side_panel = new LiteGUI.Panel({id:"sidepanel",title:"Animations Manager", width: 200});
 		mainarea.getSection(0).add( side_panel );
 
 

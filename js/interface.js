@@ -51,7 +51,7 @@
 		//var mainarea = new LiteGUI.Area({content_id:"workarea", height: "30px", autoresize: true, inmediateResize: true, minSplitSize: 200 });
 		//LiteGUI.add( mainarea );
 		//create a main container and split it in two
-		var mainarea = new LiteGUI.Area("mainarea",{content_id:"canvasarea",height: "calc(100% - 30px)", autoresize: true, inmediateResize: true});
+		var mainarea = new LiteGUI.Area({id:"mainarea",content_id:"canvasarea",height: "calc(100% - 30px)", autoresize: true, inmediateResize: true});
 		mainarea.split("horizontal",[250,null], true);
 		mainarea.root.style.overflow = 'hidden';
 		LiteGUI.add( mainarea );
@@ -253,7 +253,7 @@
 		
 		/////////////////////////////////////
 		
-		var mainarea1 = new LiteGUI.Area("mainarea1",{content_id:"canvasarea",height: "calc(100% - 30px)", autoresize: true, inmediateResize: true});
+		var mainarea1 = new LiteGUI.Area({id:"mainarea1", content_id:"canvasarea",height: "calc(100% - 30px)", autoresize: true, inmediateResize: true});
 		
 		if(settings.Editor.split == 'vertical')
 		mainarea1.split("vertical",['70%',null], true);
@@ -268,7 +268,7 @@
 		var main_panel = new LiteGUI.Panel("mainpanel");
 		mainarea1.getSection(0).add(main_panel);
 		//create some tabs
-		var tabs = new LiteGUI.Tabs("tabs",{ size: "full" });
+		var tabs = new LiteGUI.Tabs({id:"tabs", size: "full" });
 		
 		var scene_tab = tabs.addTab("Scene Editor", { height: "95%" });
 		addIconToTab(scene_tab,'edit',null);
@@ -795,7 +795,7 @@
 		mainarea1.getSection(1).add(main_panel1);
 		main_panel1.root.style.backgroundColor = '#000';
 		//create some tabs
-		var tabs1 = new LiteGUI.Tabs("tabs1",{ size: "full" });
+		var tabs1 = new LiteGUI.Tabs({id:"tabs1", size: "full" });
 		
 		var console_tab = tabs1.addTab("Console", { size: "full" });
 			
