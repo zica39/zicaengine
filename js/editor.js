@@ -624,7 +624,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			div.style.border = 'white 1px solid';
 			div.obj = obj;
 			
-			var mapEditorButton = this.addButton('pencil');
+			/* var mapEditorButton = this.addButton('pencil');
 			mapEditorButton.onclick = function(){
 				openMapEditorTab();
 			};
@@ -632,7 +632,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			mapEditorButton.style.position = 'absolute';
 			mapEditorButton.style.right = '7px';
 			mapEditorButton.style.border = '';
-			div.appendChild(mapEditorButton);
+			div.appendChild(mapEditorButton); */
 			
 			div.onclick = function(e){
 
@@ -726,12 +726,14 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			iconDelete.img = img;
 			iconDelete.onclick = function(){
 				this.obj.map = '';
-				this.obj.mapData = null;
+				
+				//this.obj.mapData = null;
 				
 				//this.obj.__image.data = null;
 				this.img.alt = '';
 				this.img.src = '';
-				this.img.style.border = '1px solid white';
+				//this.img.style.border = '1px solid white';
+				this.img.style.textIndent = '-10000px';
 				
 				var par = this.parentElement;
 				this.parentElement.innerHTML = 'none';
@@ -849,6 +851,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 				//this.obj.__image.data = null;
 				this.img.alt = '';
 				this.img.src = '';
+				this.img.style.textIndent = '-10000px';
 				//this.img.style.border = '1px solid white';
 				
 				var par = this.parentElement;
@@ -1997,42 +2000,15 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
         };
         EditorViewModel.prototype.stopGame = function () {
 			
-			/* var game = play_tab.content.firstChild.contentWindow.Game;
-			game.stop();
-            this.gameRunningState(1);
-			//this.stopAllSounds();
-			openPlayTab();
+			if(run_tab.content.firstChild.contentWindow.Game){
+				try{
+				run_tab.content.firstChild.contentWindow.Game.stop();
+				}catch(e){};
+			}
 			
-			return; */
-			
-            //this.game.stop();
-			run_tab.content.firstChild.contentWindow.Game.stop();
             openRunTab();
 			this.gameRunningState(1);
 			
-			return;
-			//this.stopAllSounds();
-			this.canvas.style.cursor = '';
-			
-			this.game = ZICA.GameRunner.constructApp(this.oldGame , this.game);
-			this.game.scenes = this.scenes; 
-			this.oldGame = null;
-			this.scenes = null;
-			
-			this.stopAllSounds();
-			
-			//this.updateAppGUI();
-			//this.appGui.open();
-			this.appGui.domElement.style.pointerEvents = '';
-			
-			/* Editor.selected = Editor.lastSelected;
-			
-			Editor.eventViewModel.selectEntity(Editor.selected);
-            Editor.propertiesGui.open();
-			//Editor.propertiesViewModel.selectEntity(Editor.selected);
-            Editor.eventViewModel.updateEventEditor();
-			Editor.selectEntity(this.selected); */
-			setTimeout(function(){Editor.update()},100);
         };
 		EditorViewModel.prototype.centerEntity = function(newOne){
 			var pos = this.camera.viewport;
