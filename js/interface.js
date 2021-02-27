@@ -170,6 +170,7 @@
 	
 		var div2 = document.createElement('div');
 		div2.className = 'sidebar-controls';
+		div2.id = 'treetool';
 		var color = '#1a1a1a';
 		
 		var button = document.getElementById('up-button');
@@ -273,44 +274,59 @@
 		var scene_tab = tabs.addTab("Scene Editor", { height: "95%" });
 		addIconToTab(scene_tab,'edit',null);
 		scene_tab.content.style.display = 'flex';
+		scene_tab.content.style.flexDirection = 'column';
 		scene_tab.content.style.overflow = 'hidden';
 		
 		var toolbar = document.createElement('div');
+		toolbar.id = 'scene_toolbar';
 		toolbar.style.overflow = 'hidden';
 		toolbar.style.background = '#aaa';
 		toolbar.style.outline = '1px solid black';
 		toolbar.style.outlineOffset = '-1px';
-		toolbar.style.width = '83px';
-		toolbar.style.height = '100%';
-		
-		var div2 = document.createElement('div');
-		div2.className = 'sidebar-controls';
-		div2.style.border = '1px solid black';
-		div2.style.marginTop = '1px';
+		toolbar.style.width = '100%';
+		toolbar.style.display = 'flex';
 		
 		
-		var button = document.getElementById('add-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('duplicate-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('remove-sprite-button');
-		div2.appendChild(button);
+		var tdiv = document.getElementById('sce_toolbar');
+		tdiv.style.width = '100%';
+		//tdiv.style.fontSize = '10px';
+		tdiv.style.overflow = 'hidden';
+		toolbar.appendChild(tdiv);
 		
-		toolbar.appendChild(div2);
+		var snapbar = document.getElementById('snapbar');
+		snapbar.style.position = 'absolute';
+		snapbar.style.width = 'auto';
+		snapbar.style.right = '4px';
+		snapbar.style.bottom = '0px';
 		
-		var div2 = document.createElement('div');
-		div2.className = 'sidebar-controls';
-		div2.style.border = '1px solid black';
-		div2.style.marginTop = '1px';
+		snapbar.querySelector('#grid-show-button').showGrid = settings.Editor.showGrid;
+		snapbar.querySelector('#grid-show-button').style.backgroundColor = settings.Editor.showGrid?'black':'';
 		
-		var button = document.getElementById('copy-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('cut-sprite-button');
-		div2.appendChild(button);
-		var button = document.getElementById('paste-sprite-button');
-		div2.appendChild(button);
+		snapbar.querySelector('#grid-show-button').onclick = function(){
+		this.showGrid = !this.showGrid;
 		
-		toolbar.appendChild(div2);
+		Editor.settings.Editor.showGrid = this.showGrid;
+		this.style.backgroundColor = settings.Editor.showGrid?'black':'';
+		
+		if(settingsTab)
+		settingsTab.settingsGui.updateDisplay();
+
+		Editor.update();
+		
+		}
+		
+		snapbar.querySelector('#snap-button').snapToGrid = false;
+		snapbar.querySelector('#snap-button').onclick = function(){
+		this.snapToGrid = !this.snapToGrid;
+		Editor.snapToGrid = this.snapToGrid;
+		this.style.backgroundColor = Editor.snapToGrid?'black':'';
+		}
+		
+		snapbar.querySelector('#focus-button').onclick = function(){
+		if(!Editor.selected)return;
+		Editor.focus(Editor.selected);
+		}
+		
 		
 		var snap_controls = document.getElementById('snap-controls');
 		snap_controls.removeAttribute('hidden');
@@ -318,6 +334,10 @@
 		snap_controls.style.border = '1px solid black';
 		snap_controls.style.margin = '4px';
 		snap_controls.style.background = '#72728f';
+		snap_controls.style.position = 'absolute';
+		snap_controls.style.width = 'auto';
+		snap_controls.style.right = '0px';
+		snap_controls.style.bottom = '23px';
 		
 		snap_controls.children[0].onclick = function(){
 		if(!Editor.selected) return;
@@ -394,49 +414,21 @@
 		Editor.propertiesGui.updateDisplay();
 		}
 
-		toolbar.appendChild(snap_controls);
+		//toolbar.appendChild(snap_controls);
 		
-		var snapbar = document.getElementById('snapbar');
-		snapbar.removeAttribute('hidden');
-		snapbar.style.border = '1px solid black';
-		//snapbar.style.background = '#666681';
 		
-		snapbar.children[0].showGrid = settings.Editor.showGrid;
-		snapbar.children[0].style.backgroundColor = settings.Editor.showGrid?'black':'';
-		
-		snapbar.children[0].onclick = function(){
-		this.showGrid = !this.showGrid;
-		
-		Editor.settings.Editor.showGrid = this.showGrid;
-		this.style.backgroundColor = settings.Editor.showGrid?'black':'';
-		
-		if(settingsTab)
-		settingsTab.settingsGui.updateDisplay();
-
-		Editor.update();
-		
-		}
-		
-		snapbar.children[1].snapToGrid = false;
-		snapbar.children[1].onclick = function(){
-		this.snapToGrid = !this.snapToGrid;
-		Editor.snapToGrid = this.snapToGrid;
-		this.style.backgroundColor = Editor.snapToGrid?'black':'';
-		}
-		
-		snapbar.children[2].onclick = function(){
-		if(!Editor.selected)return;
-		Editor.focus(Editor.selected);
-		}
-		toolbar.appendChild(snapbar);
 		
 		var canvasDiv = document.createElement('div');
 		canvasDiv.style.overflow = 'auto';
-		canvasDiv.style.width = 'calc(100% - 83px)';
+		//canvasDiv.style.width = 'calc(100% - 83px)';
 		canvasDiv.style.height = '100%';
 		
 		var canvas = document.getElementById('field');
 		canvasDiv.appendChild(canvas);
+		
+		
+		canvasDiv.appendChild(snap_controls);
+		canvasDiv.appendChild(snapbar);
 		
 		scene_tab.content.appendChild(toolbar);
 		scene_tab.content.appendChild(canvasDiv);
@@ -1011,6 +1003,5 @@
 			Editor.canvas.redraw();
 			//if(run_tab)run_tab.content.firstChild.contentDocument.body.firstChild.redraw();
 			};
+			
 		});
-	
-		

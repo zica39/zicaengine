@@ -31,7 +31,7 @@
 			name: 'Rotate',
 			jsname : 'AnimatorRotation',
 			description : 'Lets a 2D scene node rotate around itself.',
-			'Speed': [ 'float' , '45']
+			'Speed': [ 'float' , '1.0']
 		},
 		{
 			name: 'Fly along a line',
@@ -399,8 +399,27 @@
 								
 								case 'array':
 								
-								widgets.addArray(i, selected.data[i][1] ,{data_type: 'String',callback: function(v){saveToEditor();}});
-						
+								var arr = widgets.addArray(i, selected.data[i][1] ,{data_type: 'String',callback: function(v){saveToEditor();}});
+								
+								arr.previousElementSibling.previousElementSibling.lastElementChild.querySelector('input').style.width = '25px';
+								
+								var addB = arr.previousElementSibling.firstElementChild.firstElementChild;
+								var removeB = arr.previousElementSibling.firstElementChild.lastElementChild;
+								
+								var placeholder = '';
+								if( i == 'PathToFollow') placeholder = 'x,y';
+								
+								addB.onclick = function(){
+									arr.querySelectorAll('.array-row input').forEach(e => {e.setAttribute('placeholder',placeholder)})
+								}
+								
+								removeB.onclick = function(){
+									arr.querySelectorAll('.array-row input').forEach(e => {e.setAttribute('placeholder',placeholder)})
+								}
+								
+								arr.querySelectorAll('.array-row input').forEach(e => {e.setAttribute('placeholder',placeholder)});
+								//arr.querySelectorAll('.litebutton.single.row-trash').forEach(e => {e.style.display = 'none'});
+								
 								break;
 								
 								case 'int':
@@ -795,7 +814,7 @@
 				main_panel.content.innerHTML = '';
 				selected = null;
 				
-				saveToEditor();
+				setTimeout(() => saveToEditor(),0);
 				
 				if(prev){
 					prev.click();
@@ -1017,9 +1036,9 @@
 			
 			var sel = window.top.Editor.selected;
 			if(!sel) sel = window.top.Editor.scene;
-			
 			var behs = parseBehaviors();
-			sel.animators = JSON.stringify(behs);
+			var txt = JSON.stringify(behs);
+			sel.animators = txt;
 			
 		}
 		

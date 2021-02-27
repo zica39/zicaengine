@@ -429,7 +429,7 @@
 		LiteGUI.init();
 
 		//create a main container and split it in two
-		var mainarea = new LiteGUI.Area("mainarea",{content_id:"canvasarea", autoresize: true, inmediateResize: true});
+		var mainarea = new LiteGUI.Area({id:"mainarea", content_id:"canvasarea", autoresize: true, inmediateResize: true});
 		mainarea.split("horizontal",[200,null], true);
 		LiteGUI.add( mainarea );
 
@@ -1059,7 +1059,8 @@
 		div1.style.marginBottom = '5px';
 		//div1.style.width = '10%';
 		div1.style.display = 'flex';
-		div1.style.justifyContent = 'space-around';
+		div1.style.flexDirection = 'column';
+		//div1.style.justifyContent = 'space-around';
 		//div1.style.justifyContent = 'flex-start';
 		//div1.style.flexDirection = 'column';
 		
@@ -1177,8 +1178,17 @@
 		div2.style.height = '100%';
 		div2.style.width = '100%';
 		
-		div.appendChild(div1); 
-		div.appendChild(div2);
+		var div3 = document.createElement('div');
+		div3.style.display = 'flex';
+		div3.style.flexDirection = 'row';
+		div3.style.height = 'calc( 100% - 25px )';
+		
+		div3.appendChild(div1); 
+		div3.appendChild(div2);
+		div.appendChild(div3);
+		
+		//div.appendChild(div1); 
+		//div.appendChild(div2);
 		
 		var widgets = new LiteGUI.Inspector();
 		//widgets.addSeparator();
@@ -1216,7 +1226,7 @@
 			
 		}});
 		div.appendChild(widgets.root);
-		
+		widgets.root.style.paddingLeft = '25px';
 		
 
 		//create right panel

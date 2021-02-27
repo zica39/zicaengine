@@ -1,8 +1,4 @@
-define(["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var ko = require("knockout");
-    var EventViewModel = (function () {
+
         function EventViewModel() {
             this.eventEditor = null;
             this.selected = null;
@@ -246,7 +242,4 @@ define(["require", "exports"], function (require, exports) {
                 this.eventEditor.setValue(this.selected[this.chosenEvent() + "String"]);
             } */
         };
-        return EventViewModel;
-    }());
-    exports.EventViewModel = EventViewModel;
-});
+    

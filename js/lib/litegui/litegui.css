@@ -2212,3 +2212,8 @@ table.litetable  tr:nth-child(even)
 .liteconsole .foot input:focus{
     outline: none;
 }
+
+.dg .cr.number, .dg .cr.string, .dg .cr.boolean, .dg .cr.color{
+	/* border-left:none; */
+	border-left: 3px solid #999!important;
+}

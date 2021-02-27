@@ -359,6 +359,22 @@ audio::-webkit-media-controls-volume-slider {
     transform:rotate(-45deg);
 }
 
+#EventEditor button{
+	color: #eee;
+    background: #333;
+    border: 1px solid black;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+#EventEditor button:hover{
+    background: #444;
+   
+}
+
+#treetool button{
+	height:35px!important;
+}
+
 #loading {
   display: block;
   position: absolute;

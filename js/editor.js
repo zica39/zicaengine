@@ -1,10 +1,5 @@
-define(["require", "exports", "./event", "./ZICA"], function (require, exports, event_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var ko = require("knockout");
-    var EditorViewModel = (function () {
-        /****************************************************/
-        function EditorViewModel() {
+	   
+	   function EditorViewModel() {
             var _this = this;
 			//scene 
 			this.scene = new ZICA.Scene();
@@ -104,11 +99,19 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			
 			//this.scene1 = new ZICA.Scene();
             //this.propertiesViewModel = new properties_1.PropertiesViewModel();
-            this.eventViewModel = new event_1.EventViewModel();
+            this.eventViewModel = new EventViewModel();
 			
             //whether or not the game is paused - used for updating the play/pause button icon
-            this.gameRunningState = ko.observable(1);
+            this.gameRunningState = 1;//ko.observable(1);
             this.canvas = document.getElementById("field");
+			
+			this.canvas.addEventListener('mousedown',e => this.onCanvasMouseDown(e));
+			this.canvas.addEventListener('mouseup',e => this.onCanvasMouseUp(e));
+			this.canvas.addEventListener('mousemove',e => this.onCanvasMouseMove(e));
+			
+			this.canvas.addEventListener('keydown',e => this.onCanvasKeyDown(e));
+			
+			
 			this.canvas.oncontextmenu = function(e){e.preventDefault()};
 			
 			this.canvas.addEventListener('mousedown', function(){this.focus()});
@@ -613,6 +616,25 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 				
 				this.pausedSongs[i].playAudio();
 			}
+			
+		};
+		
+		EditorViewModel.prototype.addRules = function(){
+			this.ruler = new ruler({
+			container: this.canvas.parentElement,// reference to DOM element to apply rulers on
+			rulerHeight: 15, // thickness of ruler
+			fontFamily: 'arial',// font for points
+			fontSize: '7px', 
+			strokeStyle: 'black',
+			lineWidth: 1,
+			enableMouseTracking: true,
+			enableToolTip: true
+			});
+			
+			this.canvas.style.position = 'absolute';
+			this.canvas.style.marginTop = '17px'
+			this.canvas.style.marginLeft = '17px';
+			this.canvas.parentElement.style.background = 'aliceblue';
 			
 		};
 		
@@ -1570,7 +1592,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			this.propertiesGui.add(obj,'angle',0,360);
 			this.propertiesGui.add(obj,'visible');
 			this.propertiesGui.add(obj,'collides');
-			//this.propertiesGui.add(obj,'collision');
+			this.propertiesGui.add(obj,'disabled');
 			
 			this.propertiesGui.add(obj,'priority').min(0).step(1);
 			this.propertiesGui.add(obj,'velX');
@@ -1611,6 +1633,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			var f1 = this.propertiesGui.addFolder('Text');
 			f1.open();
 			f1.add(obj, 'text');
+			f1.add(obj, 'drawText');
 			//f1.add(obj, 'font');
 			this.addList(f1,obj);
 			f1.add(obj, 'fontSize',0);
@@ -1622,6 +1645,169 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			//f1.add(obj, 'fontUnderline');
 			f1.addColor(obj, 'fontColor');
 			
+			//UI
+			var f1 = this.propertiesGui.addFolder('UI');
+			f1.open();
+			f1.add(obj, 'element',['','button','buttongroup','slider','checkbox','radio','radiogroup','textfield','progressbar','spinner',
+			'starrating','htmlview','link', 'scrollbarvertical','scrollbarhorizontal','select']);
+			
+			if(obj.element == 'slider'){
+				
+				f1.add(obj, 'value',obj.min,obj.max)
+				f1.add(obj, 'min').min(0);
+				f1.add(obj, 'max').min(0);
+				
+			}else if(obj.element == 'checkbox'){
+				
+				f1.add(obj, 'checked');
+				
+			}else if(obj.element == 'radio'){
+				
+				f1.add(obj, 'value');
+				
+			}else if(obj.element == 'radiogroup'){
+				
+				f1.add(obj, 'selected');
+				
+			}else if(obj.element == 'button'){
+				
+				f1.addColor(obj, 'hoverColor');
+				f1.add(obj, 'toggle');
+				if(obj.toggle)f1.add(obj, 'value');
+				if(obj.toggle)f1.add(obj, 'checked');
+				
+				
+			}else if(obj.element == 'buttongroup'){
+				
+				f1.add(obj, 'selected');
+				
+				
+			}else if(obj.element == 'textfield'){
+				
+				f1.add(obj, 'placeholder');
+				f1.add(obj, 'readOnly');
+				
+			}else if(obj.element == 'progressbar'){
+				
+				f1.add(obj, 'value',0,100);
+				f1.addColor(obj, 'barColor');
+				f1.add(obj, 'animated');
+				
+			}else if(obj.element == 'spinner'){
+				
+				//f1.add(obj, 'value',0,100);
+				
+			}else if(obj.element == 'starrating'){
+				f1.add(obj, 'rate',0,5);
+			}else if(obj.element == 'htmlview'){
+				f1.add(obj, 'html');
+			}else if(obj.element == 'link'){
+				f1.addColor(obj, 'linkColor');
+				f1.addColor(obj, 'activeColor');
+				f1.addColor(obj, 'visitedColor');
+				f1.add(obj, 'linkURL');
+				f1.add(obj, 'linkTarget');
+				
+			}else if(obj.element == 'scrollbarhorizontal'){
+				
+				f1.add(obj, 'value',obj.min,obj.max)
+				f1.add(obj, 'min').min(0);
+				f1.add(obj, 'max').min(obj.min);
+				f1.add(obj, 'size').min(0);
+				f1.add(obj, 'seekSpeed',['slow','medium','fast']);
+				
+			}else if(obj.element == 'scrollbarvertical'){
+				
+				f1.add(obj, 'value',obj.min,obj.max)
+				f1.add(obj, 'min').min(0);
+				f1.add(obj, 'max').min(obj.min);
+				f1.add(obj, 'size').min(0);
+				f1.add(obj, 'seekSpeed',['slow','medium','fast']);
+				
+			}else if(obj.element == 'select'){
+				
+				var select = document.createElement('select');
+				select.onchange = function(e){
+					
+					Editor.selected.selected = Editor.selected.options[e.target.selectedIndex-1];
+					Editor.update();
+					
+				}
+				
+				var options = Editor.selected.options;
+				var opt = document.createElement('option');
+				opt.value = '';
+				opt.label = '';
+				select.appendChild(opt);
+				
+				for(var i = 0 ; i<= options.length-1; i++){
+					var opt = document.createElement('option');
+					opt.label = options[i];
+					opt.value = options.indexOf( options[i] );
+					if( options[i] == Editor.selected.selected)opt.selected = 'selected';
+					select.appendChild(opt);
+				}
+				
+				var a = f1.add({a:5},'a');
+				var b = a.domElement.parentElement.parentElement;
+				a.domElement.parentElement.innerHTML = '';
+				var c = document.createElement('span');
+				c.className = 'property-name';
+				c.innerHTML = 'options';
+				b.appendChild(c);
+				
+				var addButton = document.createElement('button');
+				addButton.style.background = 'black';
+				addButton.style.border = '1px white solid';
+				addButton.onclick =  function(e){
+					var newOpt = prompt('Insert option name');
+					if(newOpt){
+						Editor.selected.options.push(newOpt);
+						Editor.selected.selected = newOpt;
+						Editor.updatePropertiesGui();
+						Editor.updateTree();
+						Editor.update();
+					}
+				}
+				var icon = document.createElement('a');
+				icon.className = 'fa fa-plus'
+				icon.setAttribute('aria-hidden',"true");
+				addButton.appendChild(icon);
+				
+				
+				var removeButton = document.createElement('button');
+				removeButton.style.background = 'black';
+				removeButton.style.border = '1px white solid';
+				removeButton.onclick = function(){
+					var sel = Editor.selected.selected;
+					if(sel){
+						Editor.selected.options.splice(Editor.selected.options.indexOf(sel),1);
+						Editor.selected.selected = '';
+						select.firstElementChild.setAttribute('selected','selected');
+						Editor.updatePropertiesGui();
+						Editor.updateTree();
+						Editor.update();
+					}
+				}
+				var icon = document.createElement('a');
+				icon.className = 'fa fa-trash'
+				icon.setAttribute('aria-hidden',"true");
+				removeButton.appendChild(icon);
+				//b.appendChild(removeButton);
+				
+				var div = document.createElement('div');
+				div.className = 'c';
+				select.style.width = 'calc(100% - 50px)';
+				div.appendChild(select);
+				div.appendChild(addButton);
+				div.appendChild(removeButton);
+				b.appendChild(div);
+			
+				f1.add(obj, 'placeholder');
+				
+			}
+			
+			//audio
 			var f1 = this.propertiesGui.addFolder('Audio');
 			f1.open();
 			//f1.add(obj, 'audio');
@@ -1704,6 +1890,8 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			
 			f1.add(obj, 'autoplay');
 			f1.add(obj, 'loop');
+			f1.add(obj, 'audio2d');
+			f1.add(obj, 'distance');
 			f1.add(obj, 'volume',0,1);
 			f1.add(obj, 'muted');
 			
@@ -1723,6 +1911,9 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			}};
 			
 			f1.add(a, 'eventTextEditor') */
+			
+			
+			//empty folder
 			var f1 = this.propertiesGui.addFolder('');
 			f1.domElement.querySelector('li.title').style.background = 'black';
 		
@@ -1747,9 +1938,15 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 				for (var i1 in this.propertiesGui.__folders[i].__controllers) {
 					
 					this.propertiesGui.__folders[i].__controllers[i1].onChange(function(e){
-					Editor.pupdate();
-				
-			}); 
+						Editor.pupdate();
+						
+						if(this.property == 'element' || this.property == 'toggle' || this.property == 'min' || this.property == 'max'){
+						Editor.updatePropertiesGui();
+						Editor.updateTree();//error must be fixse;
+						return;
+					};
+					
+					}); 
 					
 				}
 					
@@ -1930,13 +2127,19 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 		   if (game.isRunning()) {
                 //this.game.pause();
 				game.pause();
-                this.gameRunningState(3);
+                this.gameRunningState = 3;
+				document.getElementById('play-pause-button').firstElementChild.classList.add('fa-play');
+				document.getElementById('play-pause-button').firstElementChild.classList.remove('fa-pause');
+				document.getElementById('play-pause-button').lastElementChild.innerHTML = ' Resume';
 				//this.pauseAllSounds();
             }
             else if (game.isPaused()) {
                 //this.game.unpause();
 				game.unpause();
-                this.gameRunningState(2);
+                this.gameRunningState = 2;
+				document.getElementById('play-pause-button').firstElementChild.classList.add('fa-pause');
+				document.getElementById('play-pause-button').firstElementChild.classList.remove('fa-play');
+				document.getElementById('play-pause-button').lastElementChild.innerHTML = ' Pause';
 				//this.resumeAllSounds();
             }
             else {
@@ -1954,7 +2157,11 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 				//var asset = Editor.getAsset();
 				
 				openRunTab();
-				this.gameRunningState(2);
+				this.gameRunningState = 2;
+				document.getElementById('play-pause-button').firstElementChild.classList.add('fa-pause');
+				document.getElementById('play-pause-button').firstElementChild.classList.remove('fa-play');
+				document.getElementById('stop-button').removeAttribute('hidden');
+				document.getElementById('play-pause-button').lastElementChild.innerHTML = ' Pause';
 				return;
 				
 				/* openPlayTab();
@@ -1999,7 +2206,7 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
                 //this.game.recalcPriority();
 				//this.game.asset = asset;
 				this.game.startApp();
-                this.gameRunningState(2);
+                this.gameRunningState = 2;
             }
         };
         EditorViewModel.prototype.stopGame = function () {
@@ -2011,7 +2218,11 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			}
 			
             openRunTab();
-			this.gameRunningState(1);
+			this.gameRunningState = 1;
+			document.getElementById('stop-button').setAttribute('hidden','hidden');
+			document.getElementById('play-pause-button').firstElementChild.classList.add('fa-play');
+			document.getElementById('play-pause-button').firstElementChild.classList.remove('fa-pause');
+			document.getElementById('play-pause-button').lastElementChild.innerHTML = ' Play';
 			
         };
 		EditorViewModel.prototype.centerEntity = function(newOne){
@@ -3205,8 +3416,4 @@ define(["require", "exports", "./event", "./ZICA"], function (require, exports, 
 			
 			event.returnValue = "Any unsaved progress will be lost. Are you sure you want to leave?";
             return event.returnValue;
-        };
-        return EditorViewModel;
-    }());
-    exports.EditorViewModel = EditorViewModel;
-});
+        };    

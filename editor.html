@@ -18,20 +18,25 @@
 	<script type="text/javascript" src="js/lib/litegui/litegui.js"></script>
 	
 	 <!-- <script src="asseteTab/js/jquery-1.9.1.min.js" type="text/javascript"></script> -->
+	 <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 	 
 	<link href="js/lib/console/sandbox.css" rel="stylesheet" />
     <script src="js/lib/console/libs/jquery.min.js"></script>
+	
+	<link href="js/lib/ruler/ruler.min.css" rel="stylesheet" />
+    <script src="js/lib/ruler/ruler.min.js"></script>
 	
 	<script src="js/lib/build/FileSystem.js"></script>
 	<script src="js/lib/build/jszip.min_old.js"></script>
 	<script src="js/lib/build/jszip-utils.js"></script>
 	
-	<!-- <link rel="stylesheet" href="js/lib/onsenui/css/onsenui.css">
-	<link rel="stylesheet" href="js/lib/onsenui/css/onsen-css-components.min.css">
-	<script src="js/lib/onsenui/js/onsenui.min.js"></script>
-	-->
+	<!-- <link rel="stylesheet" href="js/lib/emoji-picker/emojionearea.min.css">
+	<script type="text/javascript" src="js/lib/emoji-picker/emojionearea.min.js"></script> -->
+
+	<script src = "js/ZICA.js"></script>
+	<script src = "js/event.js"></script>
+	<!-- <script src = "js/editor.js"></script> -->
 	
-    <script data-main="js/require-config" src="js/lib/require.js"></script>
   </head>
 
 
@@ -129,105 +134,114 @@
 	<div style="height:25px">
 	
       <div class="sidebar-controls">
-        <input id="file-dialog" type="file" style="display: none;" data-bind="boundEvent: { change: onFileDialogClose }">
+        <input id="file-dialog" type="file" style="display: none;" onchange="Editor.onFileDialogClose()">
 
-        <button id="file-new-button" title = 'New' data-bind="click: newProject">
-          <i class="fa fa-file-o" aria-hidden="true"></i>
+        <button id="file-new-button" title = 'New' onclick ="Editor.newProject()">
+          <i class="fa fa-file-o" aria-hidden="true"></i> New
         </button>
 
-        <button id="file-open-button" title = 'Open' data-bind="click: openProject">
-          <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+        <button id="file-open-button" title = 'Open' onclick ="Editor.openProject()">
+          <i class="fa fa-folder-open-o" aria-hidden="true"></i> Open
         </button>
 
-        <button id="file-save-button" title = 'Save' data-bind="click: saveProject">
-          <i class="fa fa-floppy-o" aria-hidden="true"></i>
+        <button id="file-save-button" title = 'Save' onclick="Editor.saveProject();">
+          <i class="fa fa-floppy-o" aria-hidden="true"></i> Save
         </button>
 		
 		<button  id="file-import-button" title = 'Import' onclick = "Editor.import();">
-          <i class="fas fa-file-import" aria-hidden="true"></i>
+          <i class="fas fa-file-import" aria-hidden="true"></i> Import
         </button>
 		
-        <button id="file-export-button" title = 'Export' data-bind="click: exportProject">
-          <i class="fas fa-file-export" aria-hidden="true"></i>
+        <button id="file-export-button" title = 'Export' onclick="Editor.exportProject()">
+          <i class="fas fa-file-export" aria-hidden="true"></i> Export
         </button>
 		
 		<button id="file-share-button" title = 'Create Prefab' onclick='Editor.shareToPrefabs();'>
-          <i class="fa fa-share-square-o" aria-hidden="true"></i>
+          <i class="fa fa-share-square-o" aria-hidden="true"></i> Create Prefab
         </button>
 		
-		<button id="play-pause-button" title = 'Play/Pause' data-bind="click: togglePlayPauseGame">
-          <i class="fa" data-bind="css: { 'fa-play': gameRunningState() != 2, 'fa-pause': gameRunningState() == 2 }" aria-hidden="true"></i>
+		<button id="play-pause-button" title = 'Play/Pause' onclick = 'Editor.togglePlayPauseGame()' >
+          <i class="fa fa-play" aria-hidden="true"></i> <span> Play</span>
         </button>
 
-        <button id="stop-button" title = 'Stop' data-bind="click: stopGame, style: { flex: gameRunningState() == 1 ? 0 : 1 }, css: { 'no-padding': gameRunningState() == 1 }">
-          <i class="fa" aria-hidden="true" data-bind="css: { 'fa-stop': gameRunningState() != 1 }"></i>
+        <button id="stop-button" hidden title = 'Stop' onclick = 'Editor.stopGame();' >
+          <i class="fa fa-stop" aria-hidden="true"></i> <span> Stop</span>
         </button>
-		
-		
-		<!-- <button id="file-sistem-button"  onclick="Editor.openEditor('filemanager')">
-          <i class="fa fa-folder" aria-hidden="true"></i>
-        </button>
-		
-		<button id="scene-button" onclick="Editor.closeAllEditors()">
-          <i class="fa fa-edit" aria-hidden="true"></i>
-        </button>
-		
-		<button id="event-button" onclick="Editor.openEditor('EventEditor');Editor.eventViewModel.initEditor();">
-          <i class="fa fa-puzzle-piece" aria-hidden="true"></i>
-        </button>-->
 		
 		<button id="build-button" title = 'Build' onclick = "openBuildTab();">
-           <i class="fa fa-android" aria-hidden="true"></i>
+           <i class="fa fa-android" aria-hidden="true"></i> Build
         </button>
 		
 		<button id="up-button" title = 'Send to Back'>
-           <i class="fa fa-arrow-up" aria-hidden="true"></i>
+           <i class="fa fa-arrow-up" aria-hidden="true"></i> Move Up
         </button>
 		
 		<button id="down-button" title = 'Bring to Front'>
-           <i class="fa fa-arrow-down"  aria-hidden="true"></i>
-        </button>
-		
-		<button id="add-sprite-button" title = 'Add Entity' data-bind="click: spawnEntity">
-           <i class="fa fa-plus-circle" aria-hidden="true"></i>
-        </button>
-        
-        <button id="duplicate-sprite-button" title = 'Duplicate Entity' data-bind="click: duplicateSelectedEntity">
-           <i class="fa fa-clone" aria-hidden="true"></i>
-        </button>
-        
-        <button id="remove-sprite-button" title = 'Remove Entity' data-bind="click: removeSelectedEntity">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </button>
-		
-		<button id="copy-sprite-button" title = 'Copy' onclick = 'Editor.copyEntity();'>
-          <i class="fa fa-copy" aria-hidden="true"></i>
-        </button>
-		
-		<button id="paste-sprite-button" title = 'Paste' onclick = 'Editor.pasteEntity();'>
-          <i class="fa fa-paste" aria-hidden="true"></i>
-        </button>
-		
-		<button id="cut-sprite-button" title = 'Cut' onclick = 'Editor.cutEntity();'>
-          <i class="fa fa-cut" aria-hidden="true"></i>
+           <i class="fa fa-arrow-down"  aria-hidden="true"></i> Move Down
         </button>
 		
 		<button id="settings" title = 'Settings' onclick = "openSettingTab();">
-          <i class="fa fa-cog" aria-hidden="true"></i>
+          <i class="fa fa-cog" aria-hidden="true"></i> Settings
         </button>
 		
 		<button id="about-button" title = 'About' onclick = "openAboutTab();">
-          <i class="fa fa-info-circle" aria-hidden="true"></i>
+          <i class="fa fa-info-circle" aria-hidden="true"></i> About
         </button>
 		
 		<button id="fullscreen-button" title = 'FullScreen' onclick = "Editor.toggleFullScreen();">
-          <i id = 'fsicon' class="fa fa-expand" aria-hidden="true"></i>
+          <i id = 'fsicon' class="fa fa-expand" aria-hidden="true"></i> FullScreen
         </button>
 		
       </div>
 	  
+	  <div id = 'sce_toolbar' class="sidebar-controls">
+		
+		<button id="add-sprite-button" title = 'Add Entity' onclick ="Editor.spawnEntity()">
+           <i class="fa fa-plus-circle" aria-hidden="true"></i> Add Entity
+        </button>
+        
+        <button id="duplicate-sprite-button" title = 'Duplicate Entity' onclick ="Editor.duplicateSelectedEntity()">
+           <i class="fa fa-clone" aria-hidden="true"></i> Clone
+        </button>
+        
+        <button id="remove-sprite-button" title = 'Remove Entity' onclick ="Editor.removeSelectedEntity()">
+          <i class="fa fa-trash" aria-hidden="true"></i> Remove
+        </button>
+		
+		<button id="copy-sprite-button" title = 'Copy' onclick = 'Editor.copyEntity();' style = 'margin-left:2px'>
+          <i class="fa fa-copy" aria-hidden="true"></i> Copy
+        </button>
+		
+		<button id="paste-sprite-button" title = 'Paste' onclick = 'Editor.pasteEntity();'>
+          <i class="fa fa-paste" aria-hidden="true"></i> Paste
+        </button>
+		
+		<button id="cut-sprite-button" title = 'Cut' onclick = 'Editor.cutEntity();' style = 'margin-right:2px'>
+          <i class="fa fa-cut" aria-hidden="true"></i> Cut
+        </button>
+		
+		
+		<button id="undo-button" >
+           <i class="fa fa-undo"  aria-hidden="true"></i> Undo
+        </button>
+		<button id="redo-button" >
+           <i class="fa fa-redo"  aria-hidden="true"></i> Redo
+        </button>
+		
+		<!-- <button id="grid-show-button" >
+           <i class="fa fa-th"  aria-hidden="true"></i> Grid
+        </button>
+		
+		<button id="snap-button" title = 'Snap to Grid' >
+           <i class="fas fa-ruler"  aria-hidden="true"></i> Snap
+        </button>
+		<button id="focus-button" title = 'Focus'>
+           <i class="fa fa-dot-circle-o"  aria-hidden="true"></i> Focus
+        </button> -->
+		
+      </div>
       
-	   <div id = 'snapbar' title = 'Grid' class="sidebar-controls" hidden>
+	   <div id = 'snapbar' title = 'Grid' class="sidebar-controls" >
 	   <button id="grid-show-button" >
            <i class="fa fa-th"  aria-hidden="true"></i>
         </button>
@@ -295,12 +309,16 @@
 	<!-- <script src="js/lib/console/libs/jquery.min.js"></script> -->
 
 	<script src="js/lib/console/sandbox-console.js"></script>
-
-	<script src = "js/interface.js"></script>
 	
+	<script src = "js/interface.js"></script>
+	<!-- <script src="js/lib/base64.js"></script> -->
+	
+	 <script data-main="js/require-config" src="js/lib/require.js"></script>
+	 
 	<script type="text/javascript" src="js/lib/TransformTool/Utils.js"></script>
 	<script type="text/javascript" src="js/lib/TransformTool/TransformTool.js"></script>
 	<script type="text/javascript" src="js/lib/TransformTool/TransformCanvasPictures.js"></script>
-		
+	
+	
   </body>
 </html>
