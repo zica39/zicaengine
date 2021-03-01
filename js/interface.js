@@ -294,6 +294,7 @@
 		toolbar.appendChild(tdiv);
 		
 		var snapbar = document.getElementById('snapbar');
+		snapbar.id = 'snapbar';
 		snapbar.style.position = 'absolute';
 		snapbar.style.width = 'auto';
 		snapbar.style.right = '4px';
@@ -329,6 +330,7 @@
 		
 		
 		var snap_controls = document.getElementById('snap-controls');
+		snap_controls.id = 'snap_controls';
 		snap_controls.removeAttribute('hidden');
 		snap_controls.style.display = 'table';
 		snap_controls.style.border = '1px solid black';
@@ -427,8 +429,8 @@
 		canvasDiv.appendChild(canvas);
 		
 		
-		canvasDiv.appendChild(snap_controls);
-		canvasDiv.appendChild(snapbar);
+		//canvasDiv.appendChild(snap_controls);
+		//canvasDiv.appendChild(snapbar);
 		
 		scene_tab.content.appendChild(toolbar);
 		scene_tab.content.appendChild(canvasDiv);
@@ -1000,7 +1002,11 @@
 			//if(run_tab)run_tab.content.firstChild.contentDocument.body.firstChild.redraw();
 			};
 			window.onresize = function() { 
-			Editor.canvas.redraw();
+			if(Editor){
+				Editor.canvas.redraw();
+				Editor.toolbox.setSize(83,300);
+				Editor.toolbox.setPosition(innerWidth-93,80);
+			}
 			//if(run_tab)run_tab.content.firstChild.contentDocument.body.firstChild.redraw();
 			};
 			

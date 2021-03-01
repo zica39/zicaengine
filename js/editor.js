@@ -26,9 +26,12 @@
 			this.asset.loading = 'img/loading.gif';
 			
 			this.asset.notfound = 'img/notfound.png';
+			
+			this.asset.emptyImage = 'img/image.png';
 	
 			var icon = new Image;
 			var logo = new Image;
+			var emptyImage = new Image;
 			
 			icon.onload = function(){
 				Editor.asset.icon = Editor.getBase64Image(this);
@@ -42,8 +45,13 @@
 				//Editor.updateAppGUI();
 			};
 			
+			emptyImage.onload = function(){
+				Editor.asset.emptyImage = Editor.getBase64Image(this);
+			}
+			
 			icon.src = this.asset.icon;
 			logo.src = this.asset.logo;
+			emptyImage.src = this.asset.emptyImage;
 			
 			this.clipboard = null;
             //holds the entities viewable when editing
@@ -260,7 +268,12 @@
 			document.getElementById('asseteAddButton').style.display = '';
 			document.getElementById('loading').style.display = 'none';
 			document.body.style.overflow = 'auto';
-        }
+			
+			this.openToolbox();
+			
+			this.newProject(true);
+			
+		}
 		
 		EditorViewModel.prototype.defaultSettings = function(){
 			
@@ -329,6 +342,361 @@
 			EE.setAttribute('hidden' ,"");
 			
 		};
+		
+		EditorViewModel.prototype.updateFromToolbox = function(){
+			
+			Editor.centerEntity(Editor.selected);
+			
+			Editor.pupdate();
+			Editor.update();
+			Editor.updatePropertiesGui();
+			Editor.updateTree();	
+			
+			
+		}
+		
+		EditorViewModel.prototype.openToolbox = function(){
+			var dialog = new LiteGUI.Dialog({id:'toolbox', minWidth:83, title:"Toolbox" ,close:false, resizable: false, draggable: true});
+			
+			//dialog.root.firstElementChild.innerHTML = '<div class=​"panel-header" style=​"cursor:​ move;​">​<i class = "fa fa-wrench"></i> Toolbox​</div>​';
+			
+			dialog.show();
+			dialog.setSize(83,300);
+			this.toolbox = dialog;
+			dialog.setPosition(innerWidth-93,80);
+			
+			var row = document.createElement('div');
+			row.className = 'sidebar-controls';
+			
+			var label = document.createElement('button');
+			label.innerHTML = '<i class = "fa fa-font" ></i>';
+			label.title = 'Label';
+			label.onclick = function(e){
+					
+					var sel = Editor.spawnEntity();
+					sel.text = 'Label';
+					sel.drawColor = false;
+					sel.fontColor = 'rgba(0,0,0,1)';
+					sel.width = 50;
+					sel.height = 50;
+					sel.textAlign = 'center';
+					sel.verticalAlign = 'center';
+					
+					Editor.updateFromToolbox();
+					
+			}
+			row.appendChild(label);
+			
+			var image = document.createElement('button');
+			image.innerHTML = '<i class = "fa fa-image" ></i>';
+			image.title = 'Image';
+			image.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				Game.assets['emptyImage.png'] = Editor.asset.emptyImage;
+				sel.image = 'emptyImage.png';
+				sel.width = 100;
+				sel.height = 100;
+				
+				Editor.updateAsset();
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(image);
+			
+			var button = document.createElement('button');
+			button.innerHTML = '<img width=13 height=11 src = "img/ui/button.png">';
+			button.title = 'Button';
+			button.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 90;
+				sel.height = 40;
+				sel.element = 'button';
+				sel.text = 'button';
+				sel.textAlign = 'center';
+				sel.verticalAlign = 'center';
+				sel.drawBorder = true;
+				sel.hoverColor = 'rgba(255,0,0,0.2)';
+				
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(button);
+			
+			dialog.content.appendChild(row);
+			////////////////////////////////////////////
+			
+			var row = document.createElement('div');
+			row.className = 'sidebar-controls';
+			
+			var checkbox = document.createElement('button');
+			checkbox.innerHTML = '<i class = "fa  fa-check-square-o" ></i>'; 
+			checkbox.title = 'Checkbox';
+			checkbox.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 90;
+				sel.height = 40;
+				sel.element = 'checkbox';
+				sel.text = 'Label';
+				sel.textAlign = 'right';
+				sel.verticalAlign = 'center';
+				//sel.drawBorder = true;
+				//sel.borderWidth = 1;
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(checkbox);
+			
+			var radio = document.createElement('button');
+			radio.innerHTML = '<i class = "fa  fa-dot-circle-o" ></i>';
+			radio.title = 'Radio';
+			radio.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 90;
+				sel.height = 40;
+				sel.element = 'radio';
+				sel.text = 'Label';
+				sel.textAlign = 'right';
+				sel.verticalAlign = 'center';
+				//sel.drawBorder = true;
+				//sel.borderWidth = 1;
+				
+				Editor.updateFromToolbox();
+				
+				
+			}
+			row.appendChild(radio);
+			
+			var text = document.createElement('button');
+			text.innerHTML = '<i class = "fa  fa-pencil-square-o" ></i>';
+			text.title = 'Textfieald';
+			text.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 125;
+				sel.height = 25;
+				sel.element = 'textfield';
+				sel.drawBorder = true;
+				sel.borderWidth = 1;
+				
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(text);
+			
+			
+			dialog.content.appendChild(row);
+			////////////////////////////////////////////
+			
+			var row = document.createElement('div');
+			row.className = 'sidebar-controls';
+			
+			var slider = document.createElement('button');
+			slider.innerHTML = '<i class = "fa fa-sliders" ></i>';
+			slider.title = 'Slider';
+			slider.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 150;
+				sel.height = 40;
+				sel.element = 'slider';
+				sel.drawBorder = false;
+				
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(slider);
+			
+			var progress = document.createElement('button');
+			progress.innerHTML = '<img src = "img/ui/progress.png">';
+			progress.title = 'Progress bar';
+			progress.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 150;
+				sel.height = 40;
+				sel.element = 'progressbar';
+				sel.value = 30;
+				sel.borderColor = 'rgba(0,0,255,1)';
+				sel.drawBorder = true;
+				sel.borderWidth = 1;
+				
+				Editor.updateFromToolbox();
+				
+				
+			}
+			
+			row.appendChild(progress);
+			
+			var select = document.createElement('button');
+			select.innerHTML = '<img src = "img/ui/select.png">';
+			select.title = 'Select';
+			select.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 150;
+				sel.height = 40;
+				sel.element = 'select';
+				sel.options = ['option 1','option 2', 'option 3'];
+				sel.placeholder = 'Choose...';
+				sel.drawBorder = true;
+				//sel.borderColor = 'rgba(0,0,0,1)';
+				sel.borderWidth = 1;
+				
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(select);
+			
+			dialog.content.appendChild(row);
+			////////////////////////////////////////////
+			
+			var row = document.createElement('div');
+			row.className = 'sidebar-controls';
+			
+			var horizontal_scroll = document.createElement('button');
+			horizontal_scroll.innerHTML = '<img src = "img/ui/horizontal_scroll.png">';
+			horizontal_scroll.title = 'Horizontal Scrollbar';
+			horizontal_scroll.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 200;
+				sel.height = 50;
+				sel.element = 'scrollbarhorizontal';
+				sel.drawBorder = false;
+				sel.drawText = false;
+				
+				Editor.updateFromToolbox();
+				
+			}
+			
+			row.appendChild(horizontal_scroll);
+			
+			var vertical_scroll = document.createElement('button');
+			vertical_scroll.innerHTML = '<img src = "img/ui/vertical_scroll.png">';
+			vertical_scroll.title = 'Vertical Scrollbar';
+			vertical_scroll.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 50;
+				sel.height = 200;
+				sel.element = 'scrollbarvertical';
+				sel.drawBorder = false;
+				sel.drawText = false;
+				
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(vertical_scroll);
+			
+			var link = document.createElement('button');
+			link.innerHTML = '<i class = "fa fa-link" ></i>';
+			link.title = 'Link';
+			link.onclick = function(e){
+					
+					var sel = Editor.spawnEntity();
+					sel.text = 'Link';
+					sel.drawColor = false;
+					sel.fontColor = 'rgba(0,0,0,1)';
+					sel.width = 50;
+					sel.height = 50;
+					sel.element = 'link';
+					sel.textAlign = 'center';
+					sel.verticalAlign = 'center';
+					
+					Editor.updateFromToolbox();
+			}
+			row.appendChild(link);
+			
+			dialog.content.appendChild(row);
+			
+			var row = document.createElement('div');
+			row.className = 'sidebar-controls';
+			
+			var starrate = document.createElement('button');
+			starrate.innerHTML = '<i class = "fa fa-star-half-o" ></i>';
+			starrate.title = 'Star rating';
+			starrate.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 150;
+				sel.height = 40;
+				sel.element = 'starrating';
+				sel.drawBorder = false;
+				sel.drawText = false;
+				
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(starrate);
+			
+			var spinner = document.createElement('button');
+			spinner.innerHTML = '<i class = "fa fa-spinner" ></i>';
+			spinner.title = 'Spinner';
+			spinner.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 50;
+				sel.height = 50;
+				sel.element = 'spinner';
+				sel.drawBorder = false;
+				sel.drawText = false;
+			
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(spinner);
+			
+			var html = document.createElement('button');
+			html.innerHTML = '<i class = "fa fa-code" ></i>';
+			html.title = 'HTML viewer';
+			html.onclick = function(){
+				
+				var sel = Editor.spawnEntity();
+				sel.drawColor = false;
+				sel.width = 150;
+				sel.height = 50;
+				sel.element = 'htmlview';
+				sel.html = '<em><mark> Render <strong>HTML</strong> tags </mark><em>'
+				sel.drawBorder = false;
+				sel.drawText = false;
+			
+				Editor.updateFromToolbox();
+				
+			}
+			row.appendChild(html);
+			
+			dialog.content.appendChild(row);
+			
+			dialog.content.id = 'toobox';
+			dialog.content.appendChild(document.getElementById('snapbar'));
+			dialog.content.appendChild(document.getElementById('snap_controls'));
+
+		};
+		EditorViewModel.prototype.getRow = function(){
+				
+			var row = document.getElementById('snapbar');
+			row.id = 'snapbar';
+			row.style.position = 'absolute';
+			row.style.width = 'auto';
+			row.style.right = '4px';
+				
+		}
 		
 		EditorViewModel.prototype.addFontDialog = function(obj){
 							
@@ -2993,7 +3361,9 @@
         /**
          * Prompt the user if they really want to delete everything, and then do so
          **/
-        EditorViewModel.prototype.newProject = function () {
+        EditorViewModel.prototype.newProject = function (flag) {
+			
+			if(!flag)
             if (!confirm("Shell will clear everything. Did you save your work?"))
                 return;
 			
